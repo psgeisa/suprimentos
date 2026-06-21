@@ -145,6 +145,11 @@
     .dark .pg-btn { background:rgba(0,0,0,0.4) !important; border-color:rgba(212,165,32,0.25) !important; color:#D4B87A !important; }
     .dark .pg-btn:hover:not(:disabled) { background:rgba(212,165,32,0.12) !important; border-color:#C8780A !important; }
     .dark .pg-btn.active { background:rgba(212,165,32,0.18) !important; border-color:#C8780A !important; color:#D4A520 !important; }
+    .dark #mgmtDrawer .bg-white, .dark #mgmtDrawer form { background:transparent !important; }
+    .dark #mgmtDrawer input, .dark #mgmtDrawer select, .dark #mgmtDrawer textarea { background:rgba(0,0,0,0.65) !important; border-color:rgba(212,165,32,0.35) !important; color:#fff !important; }
+    .dark #mgmtDrawer input::placeholder { color:rgba(255,255,255,0.45) !important; }
+    .dark #mgmtDrawer label { color:#9A7A3A !important; }
+    .dark #mgmtForm > div:last-child { background:rgba(0,0,0,0.45) !important; }
 
     /* ── Tablet (768px – 1023px): sidebar compactado igual ao desktop colapsado ── */
     @media (max-width: 1023px) and (min-width: 768px) {
@@ -267,28 +272,55 @@
       </svg>
       <span class="sidebar-label">Dashboard</span>
     </a>
-    <a onclick="showPage('suprimentos')" data-tip="Suprimentos"
+    <a onclick="showPage('suprimentos')" data-tip="Solicitações"
       class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-yellow-200 hover:text-white text-sm font-medium cursor-pointer transition-all">
       <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+          d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
       </svg>
-      <span class="sidebar-label">Suprimentos</span>
+      <span class="sidebar-label">Solicitações</span>
     </a>
-    <a onclick="openDrawer()" data-tip="Nova Solicitação"
+    <a id="sidebarStakeholders" onclick="showPage('usuarios')" data-tip="Stakeholders" style="display:none"
       class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-yellow-200 hover:text-white text-sm font-medium cursor-pointer transition-all">
       <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
       </svg>
-      <span class="sidebar-label">Nova Solicitação</span>
+      <span class="sidebar-label">Stakeholders</span>
     </a>
-    <a id="sidebarUsuarios" onclick="showPage('usuarios')" data-tip="Usuários" style="display:none"
+    <a onclick="showPage('categorias')" data-tip="Categorias"
+      class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-yellow-200 hover:text-white text-sm font-medium cursor-pointer transition-all">
+      <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/>
+      </svg>
+      <span class="sidebar-label">Categorias</span>
+    </a>
+    <a onclick="showPage('areas')" data-tip="Área Demandante"
       class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-yellow-200 hover:text-white text-sm font-medium cursor-pointer transition-all">
       <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
           d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
       </svg>
-      <span class="sidebar-label">Usuários</span>
+      <span class="sidebar-label">Área Demandante</span>
+    </a>
+    <a onclick="showPage('unidades')" data-tip="Unidade"
+      class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-yellow-200 hover:text-white text-sm font-medium cursor-pointer transition-all">
+      <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M2 9a1 1 0 011-1h18a1 1 0 011 1v6a1 1 0 01-1 1H3a1 1 0 01-1-1V9z"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M6 9v3M9 9v2M12 9v3M15 9v2M18 9v3"/>
+      </svg>
+      <span class="sidebar-label">Unidade</span>
+    </a>
+    <a onclick="showPage('fornecedores')" data-tip="Fornecedores"
+      class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-yellow-200 hover:text-white text-sm font-medium cursor-pointer transition-all">
+      <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+      </svg>
+      <span class="sidebar-label">Fornecedores</span>
     </a>
   </nav>
 
@@ -300,14 +332,6 @@
           d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
       </svg>
       <span class="sidebar-label" id="darkModeLabel">Modo Escuro</span>
-    </button>
-    <button type="button" onclick="doLogout()" data-tip="Sair"
-      class="sidebar-util w-full flex items-center gap-3 px-3 py-2 rounded-lg text-yellow-200 hover:text-white hover:bg-white/10 text-sm font-medium cursor-pointer transition-all">
-      <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-      </svg>
-      <span class="sidebar-label">Sair</span>
     </button>
   </div>
 
@@ -323,6 +347,14 @@
         <p id="userRoleDisplay" class="text-yellow-300 text-xs">—</p>
       </div>
     </div>
+    <button type="button" onclick="doLogout()" data-tip="Sair"
+      class="sidebar-util w-full flex items-center gap-3 px-3 py-2 rounded-lg text-yellow-200 hover:text-white hover:bg-white/10 text-sm font-medium cursor-pointer transition-all">
+      <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+      </svg>
+      <span class="sidebar-label">Sair</span>
+    </button>
   </div>
 </aside>
 
@@ -455,6 +487,131 @@
     </div>
   </section>
 
+  <!-- ── Categorias ── -->
+  <section id="page-categorias" class="p-8 hidden">
+    <div class="card-glass bg-white rounded-2xl shadow-sm border border-slate-100 p-5 mb-6">
+      <div class="flex items-center gap-4">
+        <input id="catSearch" type="text" placeholder="Buscar categoria..."
+          class="border border-slate-200 rounded-lg px-3 py-2 text-sm flex-1" oninput="renderCategorias()" />
+        <button onclick="openMgmtDrawer('categoria')" class="btn-primary flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold shadow-md">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          Nova Categoria
+        </button>
+      </div>
+    </div>
+    <div class="card-glass bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-slate-50 border-b border-slate-100">
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Nome</th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide w-24">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="categoriasBody" class="divide-y divide-slate-50"></tbody>
+      </table>
+      <div id="categoriasEmpty" class="hidden flex flex-col items-center py-16 text-slate-400">
+        <svg class="w-10 h-10 mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/></svg>
+        <p class="font-medium">Nenhuma categoria cadastrada</p>
+        <p class="text-xs mt-1">Clique em "Nova Categoria" para começar</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Área Demandante ── -->
+  <section id="page-areas" class="p-8 hidden">
+    <div class="card-glass bg-white rounded-2xl shadow-sm border border-slate-100 p-5 mb-6">
+      <div class="flex items-center gap-4">
+        <input id="areaSearch" type="text" placeholder="Buscar área..."
+          class="border border-slate-200 rounded-lg px-3 py-2 text-sm flex-1" oninput="renderAreas()" />
+        <button onclick="openMgmtDrawer('area')" class="btn-primary flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold shadow-md">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          Nova Área
+        </button>
+      </div>
+    </div>
+    <div class="card-glass bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-slate-50 border-b border-slate-100">
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Nome da Área</th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide w-24">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="areasBody" class="divide-y divide-slate-50"></tbody>
+      </table>
+      <div id="areasEmpty" class="hidden flex flex-col items-center py-16 text-slate-400">
+        <svg class="w-10 h-10 mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+        <p class="font-medium">Nenhuma área cadastrada</p>
+        <p class="text-xs mt-1">Clique em "Nova Área" para começar</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Unidades ── -->
+  <section id="page-unidades" class="p-8 hidden">
+    <div class="card-glass bg-white rounded-2xl shadow-sm border border-slate-100 p-5 mb-6">
+      <div class="flex items-center gap-4">
+        <input id="unidadeSearch" type="text" placeholder="Buscar unidade..."
+          class="border border-slate-200 rounded-lg px-3 py-2 text-sm flex-1" oninput="renderUnidades()" />
+        <button onclick="openMgmtDrawer('unidade')" class="btn-primary flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold shadow-md">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          Nova Unidade
+        </button>
+      </div>
+    </div>
+    <div class="card-glass bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-slate-50 border-b border-slate-100">
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Sigla</th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Nome</th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide w-24">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="unidadesBody" class="divide-y divide-slate-50"></tbody>
+      </table>
+      <div id="unidadesEmpty" class="hidden flex flex-col items-center py-16 text-slate-400">
+        <svg class="w-10 h-10 mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2 9a1 1 0 011-1h18a1 1 0 011 1v6a1 1 0 01-1 1H3a1 1 0 01-1-1V9z"/></svg>
+        <p class="font-medium">Nenhuma unidade cadastrada</p>
+        <p class="text-xs mt-1">Clique em "Nova Unidade" para começar</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Fornecedores ── -->
+  <section id="page-fornecedores" class="p-8 hidden">
+    <div class="card-glass bg-white rounded-2xl shadow-sm border border-slate-100 p-5 mb-6">
+      <div class="flex items-center gap-4">
+        <input id="fornecedorSearch" type="text" placeholder="Buscar fornecedor..."
+          class="border border-slate-200 rounded-lg px-3 py-2 text-sm flex-1" oninput="renderFornecedores()" />
+        <button onclick="openMgmtDrawer('fornecedor')" class="btn-primary flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold shadow-md">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          Novo Fornecedor
+        </button>
+      </div>
+    </div>
+    <div class="card-glass bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-slate-50 border-b border-slate-100">
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Nome / Contato</th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Telefone</th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Email</th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Local</th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Referência</th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide w-24">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="fornecedoresBody" class="divide-y divide-slate-50"></tbody>
+      </table>
+      <div id="fornecedoresEmpty" class="hidden flex flex-col items-center py-16 text-slate-400">
+        <svg class="w-10 h-10 mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+        <p class="font-medium">Nenhum fornecedor cadastrado</p>
+        <p class="text-xs mt-1">Clique em "Novo Fornecedor" para começar</p>
+      </div>
+    </div>
+  </section>
+
 </main>
 
 <!-- ── Overlay ────────────────────────────────────────────────────────────── -->
@@ -517,12 +674,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
             </svg>
           </div>
-          <div class="ms-dropdown hidden" id="equipeDropdown">
-            <label class="ms-option"><input type="checkbox" value="Cozinha" onchange="updateMsTags('equipe')"><span class="text-sm text-slate-700">Cozinha</span></label>
-            <label class="ms-option"><input type="checkbox" value="Limpeza" onchange="updateMsTags('equipe')"><span class="text-sm text-slate-700">Limpeza</span></label>
-            <label class="ms-option"><input type="checkbox" value="Figurino" onchange="updateMsTags('equipe')"><span class="text-sm text-slate-700">Figurino</span></label>
-            <label class="ms-option"><input type="checkbox" value="Diretoria" onchange="updateMsTags('equipe')"><span class="text-sm text-slate-700">Diretoria</span></label>
-          </div>
+          <div class="ms-dropdown hidden" id="equipeDropdown"></div>
         </div>
       </div>
 
@@ -541,15 +693,7 @@
       <div class="grid grid-cols-2 gap-4">
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">Unidade</label>
-          <select id="fUnidade" class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm">
-            <option value="un">un (unidade)</option>
-            <option value="cx">cx (caixa)</option>
-            <option value="pct">pct (pacote)</option>
-            <option value="kg">kg</option>
-            <option value="l">litro</option>
-            <option value="m">metro</option>
-            <option value="hr">hora</option>
-          </select>
+          <select id="fUnidade" class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm"></select>
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">Valor Estimado (R$)</label>
@@ -651,6 +795,84 @@
       <button type="submit"
         class="flex-1 btn-primary rounded-lg py-2.5 text-sm font-semibold shadow-md">
         Salvar Solicitação
+      </button>
+    </div>
+  </form>
+</div>
+
+<!-- ── Overlay Gerenciamento ──────────────────────────────────────────────── -->
+<div id="mgmtDrawerOverlay" class="drawer-overlay" onclick="closeMgmtDrawer()"></div>
+
+<!-- ── Drawer Gerenciamento ──────────────────────────────────────────────── -->
+<div id="mgmtDrawer" class="drawer">
+  <div class="gradient-brand px-6 flex items-center justify-between flex-shrink-0" style="padding-top:16px;padding-bottom:16px;">
+    <div>
+      <h2 id="mgmtDrawerTitle" class="text-white font-bold text-base">Nova Categoria</h2>
+      <p class="text-yellow-200 text-xs mt-0.5">Preencha os dados abaixo</p>
+    </div>
+    <button onclick="closeMgmtDrawer()" class="text-white/70 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/10">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+    </button>
+  </div>
+
+  <form id="mgmtForm" onsubmit="submitMgmtForm(event)" class="flex-1 overflow-y-auto">
+    <div class="p-6 space-y-5">
+      <input type="hidden" id="mgmtEditId" />
+      <input type="hidden" id="mgmtType" />
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1" id="mgmtNomeLabel">Nome *</label>
+        <input id="mgmtNome" type="text" required placeholder="Ex: Material de Escritório"
+          class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" />
+      </div>
+
+      <div id="mgmtSiglaRow" class="hidden">
+        <label class="block text-xs font-semibold text-slate-600 mb-1">Sigla *</label>
+        <input id="mgmtSigla" type="text" placeholder="Ex: un"
+          class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" />
+      </div>
+
+      <div id="mgmtFornecedorExtra" class="hidden space-y-5">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Contato</label>
+          <input id="mgmtContato" type="text" placeholder="Nome do responsável"
+            class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" />
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Telefone</label>
+            <input id="mgmtTelefone" type="tel" placeholder="(00) 00000-0000"
+              class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Email</label>
+            <input id="mgmtEmail" type="email" placeholder="fornecedor@email.com"
+              class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Local / Endereço</label>
+          <input id="mgmtLocal" type="text" placeholder="Rua, número, bairro, cidade"
+            class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Referência</label>
+          <input id="mgmtReferencia" type="text" placeholder="Ex: Próximo ao mercado central"
+            class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" />
+        </div>
+      </div>
+    </div>
+
+    <div class="px-6 pb-6 pt-2 border-t border-slate-100 bg-white flex gap-3 flex-shrink-0 sticky bottom-0">
+      <button type="button" onclick="closeMgmtDrawer()"
+        class="flex-1 border border-slate-200 text-slate-600 rounded-lg py-2.5 text-sm font-semibold hover:bg-slate-50 transition-colors">
+        Cancelar
+      </button>
+      <button type="submit"
+        class="flex-1 btn-primary rounded-lg py-2.5 text-sm font-semibold shadow-md">
+        Salvar
       </button>
     </div>
   </form>
@@ -820,14 +1042,57 @@ function togglePin() {
   applySidebarState();
 }
 
-// ── Categorias ────────────────────────────────────────────────────────────
-const CATEGORIAS = ['Material de Escritório','Limpeza','Informática','Manutenção','Alimentação','Segurança','Transporte','Mobiliário','Elétrico','Hidráulico'];
+// ── Dados gerenciáveis (localStorage) ────────────────────────────────────
+const MGMT_KEYS = { categoria:'sup_categorias', area:'sup_areas', unidade:'sup_unidades', fornecedor:'sup_fornecedores' };
+const MGMT_DEFAULTS = {
+  categoria: [
+    {id:1,nome:'Material de Escritório'},{id:2,nome:'Limpeza'},{id:3,nome:'Informática'},
+    {id:4,nome:'Manutenção'},{id:5,nome:'Alimentação'},{id:6,nome:'Segurança'},
+    {id:7,nome:'Transporte'},{id:8,nome:'Mobiliário'},{id:9,nome:'Elétrico'},{id:10,nome:'Hidráulico'}
+  ],
+  area: [
+    {id:1,nome:'Cozinha'},{id:2,nome:'Limpeza'},{id:3,nome:'Figurino'},{id:4,nome:'Diretoria'}
+  ],
+  unidade: [
+    {id:1,sigla:'un',nome:'Unidade'},{id:2,sigla:'cx',nome:'Caixa'},
+    {id:3,sigla:'pct',nome:'Pacote'},{id:4,sigla:'kg',nome:'Quilograma'},
+    {id:5,sigla:'l',nome:'Litro'},{id:6,sigla:'m',nome:'Metro'},{id:7,sigla:'hr',nome:'Hora'}
+  ],
+  fornecedor: []
+};
 
+function getMgmtData(type) {
+  try { return JSON.parse(localStorage.getItem(MGMT_KEYS[type])) || MGMT_DEFAULTS[type]; }
+  catch { return MGMT_DEFAULTS[type]; }
+}
+function saveMgmtData(type, data) { localStorage.setItem(MGMT_KEYS[type], JSON.stringify(data)); }
+function nextId(items) { return items.length ? Math.max(...items.map(i=>i.id)) + 1 : 1; }
+
+// ── Categorias ────────────────────────────────────────────────────────────
 function buildCatOptions() {
+  const cats = getMgmtData('categoria');
   const dd = document.getElementById('catDropdown');
-  dd.innerHTML = CATEGORIAS.map(c =>
-    `<label class="ms-option"><input type="checkbox" value="${c}" onchange="updateMsTags('cat')"><span class="text-sm text-slate-700">${c}</span></label>`
+  dd.innerHTML = cats.map(c =>
+    `<label class="ms-option"><input type="checkbox" value="${c.nome}" onchange="updateMsTags('cat')"><span class="text-sm text-slate-700">${c.nome}</span></label>`
   ).join('');
+}
+
+function buildAreaOptions() {
+  const areas = getMgmtData('area');
+  const dd = document.getElementById('equipeDropdown');
+  dd.innerHTML = areas.map(a =>
+    `<label class="ms-option"><input type="checkbox" value="${a.nome}" onchange="updateMsTags('equipe')"><span class="text-sm text-slate-700">${a.nome}</span></label>`
+  ).join('');
+}
+
+function buildUnidadeOptions() {
+  const units = getMgmtData('unidade');
+  const sel = document.getElementById('fUnidade');
+  const cur = sel ? sel.value : 'un';
+  if (sel) {
+    sel.innerHTML = units.map(u => `<option value="${u.sigla}">${u.sigla} (${u.nome})</option>`).join('');
+    sel.value = cur || units[0]?.sigla || 'un';
+  }
 }
 
 // ── Inicialização ──────────────────────────────────────────────────────────
@@ -835,6 +1100,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   applySidebarState();
   applyDarkMode();
   buildCatOptions();
+  buildAreaOptions();
+  buildUnidadeOptions();
   document.getElementById('loginEmail').addEventListener('keydown', e => { if (e.key==='Enter') document.getElementById('loginSenha').focus(); });
   document.getElementById('loginSenha').addEventListener('keydown', e => { if (e.key==='Enter') doLogin(); });
 
@@ -898,7 +1165,7 @@ function applyLogin() {
   document.getElementById('userNameDisplay').textContent = currentUser.nome;
   document.getElementById('userRoleDisplay').textContent = ROLE_LABEL[currentUser.role] || currentUser.role;
   // Mostrar item de usuários só para admin
-  document.getElementById('sidebarUsuarios').style.display = currentUser.role === 'admin' ? '' : 'none';
+  document.getElementById('sidebarStakeholders').style.display = currentUser.role === 'admin' ? '' : 'none';
   loadDashboard();
 }
 
@@ -989,7 +1256,7 @@ function showPage(page) {
     el.classList.remove('active','text-white');
     el.classList.add('text-yellow-200');
   });
-  const pageMap = { dashboard:0, suprimentos:1, usuarios:3 };
+  const pageMap = { dashboard:0, suprimentos:1, usuarios:2, categorias:3, areas:4, unidades:5, fornecedores:6 };
   const idx = pageMap[page] ?? 0;
   const links = document.querySelectorAll('.sidebar-item');
   if (links[idx]) { links[idx].classList.add('active','text-white'); links[idx].classList.remove('text-yellow-200'); }
@@ -998,18 +1265,27 @@ function showPage(page) {
   document.getElementById('page-'+page).classList.remove('hidden');
 
   const headerNovaBtn = document.getElementById('headerNovaBtn');
+  const mgmtPages = ['categorias','areas','unidades','fornecedores','usuarios'];
   const titles = {
-    dashboard:   ['Dashboard',    'Visão geral do sistema'],
-    suprimentos: ['Suprimentos',  'Gerenciar todas as solicitações'],
-    usuarios:    ['Usuários',     'Gerenciar contas de acesso'],
+    dashboard:    ['Dashboard',         'Visão geral do sistema'],
+    suprimentos:  ['Solicitações',      'Gerenciar todas as solicitações'],
+    usuarios:     ['Stakeholders',      'Gerenciar contas de acesso'],
+    categorias:   ['Categorias',        'Gerenciar categorias de suprimentos'],
+    areas:        ['Área Demandante',   'Gerenciar áreas que fazem solicitações'],
+    unidades:     ['Unidade',           'Gerenciar unidades de medida'],
+    fornecedores: ['Fornecedores',      'Gerenciar fornecedores cadastrados'],
   };
   document.getElementById('pageTitle').textContent    = titles[page][0];
   document.getElementById('pageSubtitle').textContent = titles[page][1];
-  headerNovaBtn.style.display = page === 'usuarios' ? 'none' : '';
+  headerNovaBtn.style.display = mgmtPages.includes(page) ? 'none' : '';
 
-  if (page === 'dashboard')   loadDashboard();
-  if (page === 'suprimentos') { supPage = 1; loadSuprimentos(); loadCategorias(); }
-  if (page === 'usuarios')    loadUsuarios();
+  if (page === 'dashboard')    loadDashboard();
+  if (page === 'suprimentos')  { supPage = 1; loadSuprimentos(); loadCategorias(); }
+  if (page === 'usuarios')     loadUsuarios();
+  if (page === 'categorias')   renderCategorias();
+  if (page === 'areas')        renderAreas();
+  if (page === 'unidades')     renderUnidades();
+  if (page === 'fornecedores') renderFornecedores();
 }
 
 // ── Dashboard ─────────────────────────────────────────────────────────────
@@ -1152,12 +1428,14 @@ function goPage(p) {
 }
 
 async function loadCategorias() {
-  const res = await apiFetch('/api/categorias');
-  if (!res) return;
-  const cats = await res.json();
+  const local = getMgmtData('categoria').map(c => c.nome);
   const sel = document.getElementById('fCategoria');
   const cur = sel.value;
-  const all = [...new Set([...CATEGORIAS, ...cats])];
+  let all = [...new Set(local)];
+  try {
+    const res = await apiFetch('/api/categorias');
+    if (res && res.ok) { const api = await res.json(); all = [...new Set([...all, ...api])]; }
+  } catch {}
   sel.innerHTML = '<option value="">Todas as categorias</option>' + all.map(c=>`<option value="${c}">${c}</option>`).join('');
   sel.value = cur;
 }
@@ -1166,6 +1444,9 @@ async function loadCategorias() {
 function openDrawer(item = null) {
   const sbW = sidebarPinned ? 256 : 72;
   document.documentElement.style.setProperty('--drawer-offset', sbW + 'px');
+  buildCatOptions();
+  buildAreaOptions();
+  buildUnidadeOptions();
 
   document.getElementById('editId').value = item ? item.id : '';
   document.getElementById('drawerTitle').textContent = item ? 'Editar Solicitação' : 'Nova Solicitação';
@@ -1529,6 +1810,210 @@ async function resetSenha(id, nome) {
 }
 
 function closeSenhaModal() { document.getElementById('senhaModal').classList.remove('open'); }
+
+// ── Drawer Gerenciamento ──────────────────────────────────────────────────
+const MGMT_TITLES = {
+  categoria:  ['Nova Categoria',   'Editar Categoria'],
+  area:       ['Nova Área',        'Editar Área'],
+  unidade:    ['Nova Unidade',     'Editar Unidade'],
+  fornecedor: ['Novo Fornecedor',  'Editar Fornecedor'],
+};
+const MGMT_PLACEHOLDERS = {
+  categoria:  'Ex: Material de Escritório',
+  area:       'Ex: Cozinha',
+  unidade:    'Ex: Unidade',
+  fornecedor: 'Ex: Fornecedor ABC Ltda',
+};
+
+function openMgmtDrawer(type, item = null) {
+  const sbW = sidebarPinned ? 256 : 72;
+  document.documentElement.style.setProperty('--drawer-offset', sbW + 'px');
+
+  document.getElementById('mgmtType').value    = type;
+  document.getElementById('mgmtEditId').value  = item ? item.id : '';
+  document.getElementById('mgmtDrawerTitle').textContent = item ? MGMT_TITLES[type][1] : MGMT_TITLES[type][0];
+  document.getElementById('mgmtForm').reset();
+
+  document.getElementById('mgmtSiglaRow').classList.toggle('hidden', type !== 'unidade');
+  document.getElementById('mgmtFornecedorExtra').classList.toggle('hidden', type !== 'fornecedor');
+  document.getElementById('mgmtNome').placeholder = MGMT_PLACEHOLDERS[type];
+
+  if (item) {
+    document.getElementById('mgmtNome').value = item.nome || '';
+    if (type === 'unidade')    document.getElementById('mgmtSigla').value    = item.sigla    || '';
+    if (type === 'fornecedor') {
+      document.getElementById('mgmtContato').value   = item.contato   || '';
+      document.getElementById('mgmtTelefone').value  = item.telefone  || '';
+      document.getElementById('mgmtEmail').value     = item.email     || '';
+      document.getElementById('mgmtLocal').value     = item.local     || '';
+      document.getElementById('mgmtReferencia').value= item.referencia|| '';
+    }
+  }
+
+  document.getElementById('mgmtDrawer').classList.add('open');
+  document.getElementById('mgmtDrawerOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('mgmtNome').focus(), 80);
+}
+
+function closeMgmtDrawer() {
+  document.getElementById('mgmtDrawer').classList.remove('open');
+  document.getElementById('mgmtDrawerOverlay').classList.remove('open');
+}
+
+function submitMgmtForm(e) {
+  e.preventDefault();
+  const type   = document.getElementById('mgmtType').value;
+  const editId = parseInt(document.getElementById('mgmtEditId').value) || null;
+  const nome   = document.getElementById('mgmtNome').value.trim();
+  if (!nome) { showToast('Informe o nome.', 'error'); return; }
+
+  const data = getMgmtData(type);
+
+  if (editId) {
+    const idx = data.findIndex(i => i.id === editId);
+    if (idx >= 0) {
+      data[idx].nome = nome;
+      if (type === 'unidade')    data[idx].sigla    = document.getElementById('mgmtSigla').value.trim() || nome.substring(0,3).toLowerCase();
+      if (type === 'fornecedor') {
+        data[idx].contato    = document.getElementById('mgmtContato').value.trim();
+        data[idx].telefone   = document.getElementById('mgmtTelefone').value.trim();
+        data[idx].email      = document.getElementById('mgmtEmail').value.trim();
+        data[idx].local      = document.getElementById('mgmtLocal').value.trim();
+        data[idx].referencia = document.getElementById('mgmtReferencia').value.trim();
+      }
+    }
+  } else {
+    const item = { id: nextId(data), nome };
+    if (type === 'unidade')    item.sigla    = document.getElementById('mgmtSigla').value.trim() || nome.substring(0,3).toLowerCase();
+    if (type === 'fornecedor') {
+      item.contato    = document.getElementById('mgmtContato').value.trim();
+      item.telefone   = document.getElementById('mgmtTelefone').value.trim();
+      item.email      = document.getElementById('mgmtEmail').value.trim();
+      item.local      = document.getElementById('mgmtLocal').value.trim();
+      item.referencia = document.getElementById('mgmtReferencia').value.trim();
+    }
+    data.push(item);
+  }
+
+  saveMgmtData(type, data);
+  closeMgmtDrawer();
+  showToast(editId ? 'Atualizado com sucesso!' : 'Cadastrado com sucesso!', 'success');
+
+  const renders = { categoria: renderCategorias, area: renderAreas, unidade: renderUnidades, fornecedor: renderFornecedores };
+  renders[type]();
+  buildCatOptions();
+  buildAreaOptions();
+  buildUnidadeOptions();
+}
+
+function deleteMgmtItem(type, id) {
+  if (!confirm('Confirmar exclusão?')) return;
+  let data = getMgmtData(type);
+  data = data.filter(i => i.id !== id);
+  saveMgmtData(type, data);
+  showToast('Excluído com sucesso.', 'success');
+  const renders = { categoria: renderCategorias, area: renderAreas, unidade: renderUnidades, fornecedor: renderFornecedores };
+  renders[type]();
+  buildCatOptions();
+  buildAreaOptions();
+  buildUnidadeOptions();
+}
+
+// ── Render páginas de gerenciamento ──────────────────────────────────────
+
+const EDIT_BTN = (type, item) =>
+  `<button onclick="openMgmtDrawer('${type}', ${JSON.stringify(item).replace(/"/g,'&quot;')})"
+    class="text-amber-700 hover:text-amber-900 p-1 rounded hover:bg-amber-50 transition-colors" title="Editar">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+    </svg>
+  </button>`;
+
+const DEL_BTN = (type, id) =>
+  `<button onclick="deleteMgmtItem('${type}',${id})"
+    class="text-red-400 hover:text-red-600 p-1 rounded hover:bg-red-50 transition-colors" title="Excluir">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+    </svg>
+  </button>`;
+
+function renderCategorias() {
+  const search = (document.getElementById('catSearch')?.value || '').toLowerCase();
+  const data   = getMgmtData('categoria').filter(i => !search || i.nome.toLowerCase().includes(search));
+  const tbody  = document.getElementById('categoriasBody');
+  const empty  = document.getElementById('categoriasEmpty');
+  if (!data.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+  tbody.innerHTML = data.map(item => `
+    <tr class="row-hover transition-colors">
+      <td class="px-5 py-3.5">
+        <span class="ms-tag">${item.nome}</span>
+      </td>
+      <td class="px-5 py-3.5">
+        <div class="flex gap-1">${EDIT_BTN('categoria', item)}${DEL_BTN('categoria', item.id)}</div>
+      </td>
+    </tr>`).join('');
+}
+
+function renderAreas() {
+  const search = (document.getElementById('areaSearch')?.value || '').toLowerCase();
+  const data   = getMgmtData('area').filter(i => !search || i.nome.toLowerCase().includes(search));
+  const tbody  = document.getElementById('areasBody');
+  const empty  = document.getElementById('areasEmpty');
+  if (!data.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+  tbody.innerHTML = data.map(item => `
+    <tr class="row-hover transition-colors">
+      <td class="px-5 py-3.5">
+        <span class="bg-amber-50 text-amber-800 text-xs px-2.5 py-1 rounded font-medium">${item.nome}</span>
+      </td>
+      <td class="px-5 py-3.5">
+        <div class="flex gap-1">${EDIT_BTN('area', item)}${DEL_BTN('area', item.id)}</div>
+      </td>
+    </tr>`).join('');
+}
+
+function renderUnidades() {
+  const search = (document.getElementById('unidadeSearch')?.value || '').toLowerCase();
+  const data   = getMgmtData('unidade').filter(i => !search || i.nome.toLowerCase().includes(search) || i.sigla.toLowerCase().includes(search));
+  const tbody  = document.getElementById('unidadesBody');
+  const empty  = document.getElementById('unidadesEmpty');
+  if (!data.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+  tbody.innerHTML = data.map(item => `
+    <tr class="row-hover transition-colors">
+      <td class="px-5 py-3.5">
+        <span class="font-mono font-bold text-slate-700 text-sm bg-slate-100 px-2 py-0.5 rounded">${item.sigla}</span>
+      </td>
+      <td class="px-5 py-3.5 text-sm text-slate-600">${item.nome}</td>
+      <td class="px-5 py-3.5">
+        <div class="flex gap-1">${EDIT_BTN('unidade', item)}${DEL_BTN('unidade', item.id)}</div>
+      </td>
+    </tr>`).join('');
+}
+
+function renderFornecedores() {
+  const search = (document.getElementById('fornecedorSearch')?.value || '').toLowerCase();
+  const data   = getMgmtData('fornecedor').filter(i => !search || i.nome.toLowerCase().includes(search) || (i.contato||'').toLowerCase().includes(search));
+  const tbody  = document.getElementById('fornecedoresBody');
+  const empty  = document.getElementById('fornecedoresEmpty');
+  if (!data.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+  tbody.innerHTML = data.map(item => `
+    <tr class="row-hover transition-colors">
+      <td class="px-5 py-3.5">
+        <p class="font-semibold text-slate-700 text-sm">${item.nome}</p>
+        ${item.contato ? `<p class="text-xs text-slate-400">${item.contato}</p>` : ''}
+      </td>
+      <td class="px-5 py-3.5 text-sm text-slate-500">${item.telefone || '—'}</td>
+      <td class="px-5 py-3.5 text-sm text-slate-500">${item.email || '—'}</td>
+      <td class="px-5 py-3.5 text-sm text-slate-500">${item.local || '—'}</td>
+      <td class="px-5 py-3.5 text-sm text-slate-500">${item.referencia || '—'}</td>
+      <td class="px-5 py-3.5">
+        <div class="flex gap-1">${EDIT_BTN('fornecedor', item)}${DEL_BTN('fornecedor', item.id)}</div>
+      </td>
+    </tr>`).join('');
+}
 
 // ── Toast ─────────────────────────────────────────────────────────────────
 function showToast(msg, type = 'success') {
