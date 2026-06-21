@@ -146,14 +146,23 @@
     .dark .pg-btn:hover:not(:disabled) { background:rgba(212,165,32,0.12) !important; border-color:#C8780A !important; }
     .dark .pg-btn.active { background:rgba(212,165,32,0.18) !important; border-color:#C8780A !important; color:#D4A520 !important; }
 
-    /* ── Mobile ── */
-    @media (max-width: 767px) {
-      #sidebar { width:64px !important; transition:none !important; }
-      #sidebar .sidebar-label { opacity:0 !important; max-width:0 !important; overflow:hidden !important; }
-      #sidebar .sidebar-item { justify-content:center !important; padding:0 !important; gap:0 !important; }
-      #sidebar nav { display:flex !important; flex-direction:column !important; align-items:center !important; justify-content:center !important; }
+    /* ── Tablet (768px – 1023px): sidebar compactado igual ao desktop colapsado ── */
+    @media (max-width: 1023px) and (min-width: 768px) {
+      #sidebar { width:72px !important; transition:none !important; }
+      #sidebar .sidebar-label { opacity:0 !important; max-width:0 !important; pointer-events:none !important; }
+      #sidebar .sidebar-item { justify-content:center !important; padding-left:0 !important; padding-right:0 !important; gap:0 !important; width:56px !important; border-radius:10px !important; }
+      #sidebar .sidebar-util { justify-content:center !important; padding-left:0 !important; padding-right:0 !important; gap:0 !important; width:56px !important; border-radius:10px !important; }
+      #sidebar nav { padding-left:8px !important; padding-right:8px !important; align-items:center !important; }
       #sidebar .sidebar-hdr-controls { display:none !important; }
-      .drawer { left:64px !important; }
+      .drawer { left:72px !important; }
+      main header { padding-left:1rem !important; padding-right:1rem !important; }
+      section[id^="page-"] { padding:1rem !important; }
+    }
+
+    /* ── Mobile (< 768px): sidebar completamente oculto ── */
+    @media (max-width: 767px) {
+      #sidebar { width:0 !important; min-width:0 !important; overflow:hidden !important; transition:none !important; }
+      .drawer { left:0 !important; }
       main header { padding-left:1rem !important; padding-right:1rem !important; }
       section[id^="page-"] { padding:1rem !important; }
       table { font-size:.75rem; }
