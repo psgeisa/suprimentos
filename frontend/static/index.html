@@ -1023,8 +1023,9 @@
       </div>
       <div>
         <label class="block text-xs font-semibold text-slate-600 mb-1">Time</label>
-        <input id="uTime" type="text" placeholder="Ex: Cozinha, Cinema, Limpeza, Teatro"
-          class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" />
+        <select id="uTime" class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm">
+          <option value="">Selecionar time...</option>
+        </select>
       </div>
       <div id="uAtivoField" class="hidden">
         <label class="flex items-center gap-2 cursor-pointer select-none">
@@ -1893,6 +1894,18 @@ function showUsuarioDetail(usuario) {
   document.getElementById('modalDetail').classList.add('open');
 }
 
+function buildTimeOptions() {
+  const areas = getMgmtData('area');
+  const select = document.getElementById('uTime');
+  select.innerHTML = '<option value="">Selecionar time...</option>';
+  areas.forEach(area => {
+    const opt = document.createElement('option');
+    opt.value = area.nome;
+    opt.textContent = area.nome;
+    select.appendChild(opt);
+  });
+}
+
 function openUserModal(user = null) {
   document.getElementById('userModal').classList.add('open');
   document.getElementById('userModalError').classList.add('hidden');
@@ -1902,6 +1915,8 @@ function openUserModal(user = null) {
   document.getElementById('uEmail').value = user ? user.email : '';
   document.getElementById('uSenha').value = '';
   document.getElementById('uRole').value  = user ? user.role  : 'solicitante';
+
+  buildTimeOptions();
   document.getElementById('uTime').value  = user ? user.time  : '';
   // Campo senha: obrigatório só na criação
   const senhaField = document.getElementById('uSenhaField');
