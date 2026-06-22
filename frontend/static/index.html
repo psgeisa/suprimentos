@@ -550,10 +550,8 @@
         <thead>
           <tr class="bg-slate-50 border-b border-slate-100">
             <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Nome</th>
-            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Email</th>
             <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Perfil</th>
-            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Status</th>
-            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Cadastrado em</th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Time</th>
             <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Ações</th>
           </tr>
         </thead>
@@ -673,10 +671,7 @@
         <thead>
           <tr class="bg-slate-50 border-b border-slate-100">
             <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Nome / Contato</th>
-            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Telefone</th>
-            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Email</th>
-            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Local</th>
-            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Referência</th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Segmento</th>
             <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide w-24">Ações</th>
           </tr>
         </thead>
@@ -953,6 +948,11 @@
           <input id="mgmtReferencia" type="text" placeholder="Ex: Próximo ao mercado central"
             class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" />
         </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Segmento</label>
+          <input id="mgmtSegmento" type="text" placeholder="Ex: Mercado, Papelaria, Açougue, Feira"
+            class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" />
+        </div>
       </div>
     </div>
 
@@ -1020,6 +1020,11 @@
           <option value="compras">Compras</option>
           <option value="admin">Administrador</option>
         </select>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1">Time</label>
+        <input id="uTime" type="text" placeholder="Ex: Cozinha, Cinema, Limpeza, Teatro"
+          class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" />
       </div>
       <div id="uAtivoField" class="hidden">
         <label class="flex items-center gap-2 cursor-pointer select-none">
@@ -1809,20 +1814,12 @@ async function loadUsuarios() {
   }
   empty.classList.add('hidden');
   tbody.innerHTML = lista.map(u => {
-    const dt = new Date(u.criado_em).toLocaleDateString('pt-BR');
     return `<tr class="row-hover transition-colors">
       <td class="px-5 py-3.5">
         <p class="font-semibold text-slate-700 text-sm">${u.nome}</p>
-        <p class="text-xs text-slate-400">#${u.id}</p>
       </td>
-      <td class="px-5 py-3.5 text-sm text-slate-600">${u.email}</td>
       <td class="px-5 py-3.5"><span class="role-${u.role} text-xs px-2 py-1 rounded-full font-semibold">${ROLE_LABEL[u.role]||u.role}</span></td>
-      <td class="px-5 py-3.5">
-        <span class="${u.ativo?'bg-green-100 text-green-700':'bg-slate-100 text-slate-500'} text-xs px-2 py-1 rounded-full font-semibold">
-          ${u.ativo ? 'Ativo' : 'Inativo'}
-        </span>
-      </td>
-      <td class="px-5 py-3.5 text-xs text-slate-500">${dt}</td>
+      <td class="px-5 py-3.5 text-sm text-slate-500">${u.time || '—'}</td>
       <td class="px-5 py-3.5">
         ${USUARIO_MENU(u)}
       </td>
@@ -1878,6 +1875,10 @@ function showUsuarioDetail(usuario) {
         <label class="text-xs font-semibold text-slate-500">Perfil</label>
         <p class="text-sm"><span class="role-${usuario.role} text-xs px-2 py-1 rounded-full font-semibold">${ROLE_LABEL[usuario.role]||usuario.role}</span></p>
       </div>
+      ${usuario.time ? `<div>
+        <label class="text-xs font-semibold text-slate-500">Time</label>
+        <p class="text-sm text-slate-700">${usuario.time}</p>
+      </div>` : ''}
       <div>
         <label class="text-xs font-semibold text-slate-500">Status</label>
         <p class="text-sm"><span class="${usuario.ativo?'bg-green-100 text-green-700':'bg-slate-100 text-slate-500'} text-xs px-2 py-1 rounded-full font-semibold">${usuario.ativo ? 'Ativo' : 'Inativo'}</span></p>
@@ -1901,6 +1902,7 @@ function openUserModal(user = null) {
   document.getElementById('uEmail').value = user ? user.email : '';
   document.getElementById('uSenha').value = '';
   document.getElementById('uRole').value  = user ? user.role  : 'solicitante';
+  document.getElementById('uTime').value  = user ? user.time  : '';
   // Campo senha: obrigatório só na criação
   const senhaField = document.getElementById('uSenhaField');
   const senhaInput = document.getElementById('uSenha');
@@ -1930,6 +1932,7 @@ async function submitUser() {
   const email = document.getElementById('uEmail').value.trim();
   const senha = document.getElementById('uSenha').value;
   const role  = document.getElementById('uRole').value;
+  const time  = document.getElementById('uTime').value.trim();
   const ativo = document.getElementById('uAtivo').checked;
   const errEl = document.getElementById('userModalError');
 
@@ -1940,11 +1943,11 @@ async function submitUser() {
 
   let res;
   if (id) {
-    const body = { nome, role, ativo };
-    if (senha) body.senha = senha; // não suportado no PUT padrão, mas incluímos para extensão futura
-    res = await apiFetch(`/api/usuarios/${id}`, { method: 'PUT', body: JSON.stringify({ nome, role, ativo }) });
+    const body = { nome, role, time, ativo };
+    if (senha) body.senha = senha;
+    res = await apiFetch(`/api/usuarios/${id}`, { method: 'PUT', body: JSON.stringify({ nome, role, time, ativo }) });
   } else {
-    res = await apiFetch('/api/usuarios', { method: 'POST', body: JSON.stringify({ nome, email, senha, role }) });
+    res = await apiFetch('/api/usuarios', { method: 'POST', body: JSON.stringify({ nome, email, senha, role, time }) });
   }
   if (!res) return;
   if (res.ok || res.status === 201) {
@@ -2085,6 +2088,7 @@ function openMgmtDrawer(type, item = null) {
       document.getElementById('mgmtEmail').value     = item.email     || '';
       document.getElementById('mgmtLocal').value     = item.local     || '';
       document.getElementById('mgmtReferencia').value= item.referencia|| '';
+      document.getElementById('mgmtSegmento').value  = item.segmento  || '';
     }
   }
 
@@ -2120,6 +2124,7 @@ function submitMgmtForm(e) {
         data[idx].email      = document.getElementById('mgmtEmail').value.trim();
         data[idx].local      = document.getElementById('mgmtLocal').value.trim();
         data[idx].referencia = document.getElementById('mgmtReferencia').value.trim();
+        data[idx].segmento   = document.getElementById('mgmtSegmento').value.trim();
       }
     }
   } else {
@@ -2131,6 +2136,7 @@ function submitMgmtForm(e) {
       item.email      = document.getElementById('mgmtEmail').value.trim();
       item.local      = document.getElementById('mgmtLocal').value.trim();
       item.referencia = document.getElementById('mgmtReferencia').value.trim();
+      item.segmento   = document.getElementById('mgmtSegmento').value.trim();
     }
     data.push(item);
   }
@@ -2290,10 +2296,7 @@ function renderFornecedores() {
         <p class="font-semibold text-slate-700 text-sm">${item.nome}</p>
         ${item.contato ? `<p class="text-xs text-slate-400">${item.contato}</p>` : ''}
       </td>
-      <td class="px-5 py-3.5 text-sm text-slate-500">${item.telefone || '—'}</td>
-      <td class="px-5 py-3.5 text-sm text-slate-500">${item.email || '—'}</td>
-      <td class="px-5 py-3.5 text-sm text-slate-500">${item.local || '—'}</td>
-      <td class="px-5 py-3.5 text-sm text-slate-500">${item.referencia || '—'}</td>
+      <td class="px-5 py-3.5 text-sm text-slate-500">${item.segmento || '—'}</td>
       <td class="px-5 py-3.5">
         ${FORNECEDOR_MENU(item)}
       </td>
