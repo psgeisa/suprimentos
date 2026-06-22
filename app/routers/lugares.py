@@ -6,62 +6,89 @@ router = APIRouter(prefix="/api/lugares", tags=["lugares"])
 NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
 
 
-@router.get("")
-async def buscar_lugares(q: str = Query(..., min_length=3)):
-    """
-    Busca estabelecimentos usando OpenStreetMap/Nominatim.
-    Retorna nome, endereço e categoria dos locais encontrados.
-    """
-    params = {
-        "q": q,
-        "format": "json",
-        "limit": 6,
-        "countrycodes": "br",
-        "viewbox": "-73.99,-33.75,-34.79,-1.04",  # BB do Brasil
+def _parse_result(r: dict) -> dict:
+    """Converte resultado do Nominatim para o formato esperado."""
+    nome = r.get("name", r.get("display_name", ""))
+    endereco = r.get("display_name", "")
+
+    if nome and endereco.startswith(nome):
+        endereco = endereco[len(nome):].lstrip(",").strip()
+
+    return {
+        "nome": nome,
+        "endereco": endereco,
+        "categoria": r.get("class", ""),
+        "telefone": "",
     }
 
-    headers = {
-        "User-Agent": "GestaoSuprimentos/1.0",
+
+async def _buscar_nominatim(query: str, limit: int = 8) -> list:
+    """Faz requisição ao Nominatim com retry."""
+    params = {
+        "q": query,
+        "format": "json",
+        "limit": limit,
+        "countrycodes": "br",
     }
+
+    headers = {"User-Agent": "GestaoSuprimentos/1.0"}
 
     try:
         async with httpx.AsyncClient(timeout=10) as client:
             res = await client.get(NOMINATIM_URL, params=params, headers=headers)
 
-        if res.status_code != 200:
-            raise HTTPException(
-                status_code=502,
-                detail=f"Erro ao buscar locais: {res.status_code}"
-            )
+        if res.status_code == 200:
+            results = res.json()
+            return results if isinstance(results, list) else []
 
-        results = res.json()
-        if not isinstance(results, list):
-            results = []
+        return []
 
-        lugares = []
-        for r in results:
-            # Nominatim retorna campos: display_name, address, lat, lon, type, class
-            nome = r.get("name", r.get("display_name", ""))
-            endereco = r.get("display_name", "")
+    except (httpx.TimeoutException, Exception):
+        return []
 
-            # Se o nome e endereço são iguais, simplesmente mostrar nome
-            if nome and endereco.startswith(nome):
-                endereco = endereco[len(nome):].lstrip(",").strip()
 
-            lugares.append({
-                "nome": nome,
-                "endereco": endereco,
-                "categoria": r.get("class", ""),
-                "telefone": "",
-            })
+@router.get("")
+async def buscar_lugares(q: str = Query(..., min_length=3)):
+    """
+    Busca estabelecimentos priorizando Ibiúna, SP.
+    Estratégia: tenta buscar com termos locais para melhorar relevância.
+    """
+    try:
+        # 1. Busca inicial: termo + Ibiúna
+        query_ibiuna = f"{q} Ibiúna"
+        resultados_ibiuna = await _buscar_nominatim(query_ibiuna, limit=8)
 
-        return lugares
+        # Se encontrou bons resultados em Ibiúna, retorna
+        if len(resultados_ibiuna) >= 3:
+            return [_parse_result(r) for r in resultados_ibiuna[:6]]
 
-    except httpx.TimeoutException:
-        raise HTTPException(
-            status_code=504,
-            detail="Tempo limite excedido ao buscar locais"
-        )
+        # 2. Se poucos resultados, tenta com São Paulo
+        query_sp = f"{q} São Paulo"
+        resultados_sp = await _buscar_nominatim(query_sp, limit=8)
+
+        # 3. Se ainda tiver poucos, tenta busca sem filtro
+        if len(resultados_sp) < 3:
+            resultados_geral = await _buscar_nominatim(q, limit=8)
+        else:
+            resultados_geral = []
+
+        # Mescla resultados, priorizando Ibiúna > SP > Geral
+        vistos = {r.get("display_name") for r in resultados_ibiuna}
+        resultados_mesclados = resultados_ibiuna.copy()
+
+        for r in resultados_sp:
+            if r.get("display_name") not in vistos:
+                resultados_mesclados.append(r)
+                vistos.add(r.get("display_name"))
+
+        for r in resultados_geral:
+            if r.get("display_name") not in vistos:
+                resultados_mesclados.append(r)
+                if len(resultados_mesclados) >= 6:
+                    break
+
+        return [_parse_result(r) for r in resultados_mesclados[:6]]
+
     except Exception as e:
         raise HTTPException(
             status_code=500,
