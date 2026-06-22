@@ -159,6 +159,46 @@
     .dark #page-fornecedores tbody tr td .text-slate-500 { color:rgba(255,255,255,0.8) !important; }
     .dark #fornecedoresEmpty { color:#fff !important; }
 
+    /* ── Menu Dropdown (3 pontos) ── */
+    .action-menu { position:relative; display:inline-block; }
+    .action-menu-btn {
+      display:flex; align-items:center; justify-content:center;
+      width:32px; height:32px; border-radius:6px;
+      background:transparent; border:1px solid #E2E8F0;
+      color:#64748B; cursor:pointer;
+      transition:background 0.2s, border-color 0.2s;
+      padding:0;
+    }
+    .action-menu-btn:hover { background:#F1F5F9; border-color:#CBD5E1; }
+    .dark .action-menu-btn { border-color:rgba(212,165,32,0.3); background:rgba(0,0,0,0.2); color:#9A7A3A; }
+    .dark .action-menu-btn:hover { background:rgba(212,165,32,0.1); border-color:rgba(212,165,32,0.5); }
+
+    .action-dropdown {
+      position:absolute; right:0; top:calc(100% + 4px);
+      background:#fff; border:1px solid #E2E8F0; border-radius:8px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.1);
+      min-width:160px; z-index:50;
+      display:none;
+    }
+    .action-dropdown.open { display:block; }
+    .dark .action-dropdown { background:#1a1a1a; border-color:rgba(212,165,32,0.3); box-shadow:0 4px 12px rgba(0,0,0,0.3); }
+
+    .action-item {
+      display:block; width:100%; padding:10px 12px;
+      background:none; border:none; color:#475569; text-align:left;
+      font-size:0.875rem; cursor:pointer;
+      transition:background 0.15s;
+      border-bottom:1px solid #F1F5F9;
+    }
+    .action-item:last-child { border-bottom:none; }
+    .action-item:hover { background:#F8FAFC; }
+    .action-item.danger { color:#DC2626; }
+    .action-item.danger:hover { background:#FEE2E2; }
+    .dark .action-item { color:#D4B87A; border-bottom-color:rgba(212,165,32,0.1); }
+    .dark .action-item:hover { background:rgba(212,165,32,0.08); }
+    .dark .action-item.danger { color:#EF4444; }
+    .dark .action-item.danger:hover { background:rgba(239,68,68,0.15); }
+
     /* ── Tablet (768px – 1023px): sidebar compactado igual ao desktop colapsado ── */
     @media (max-width: 1023px) and (min-width: 768px) {
       #sidebar { width:72px !important; transition:none !important; }
@@ -1784,20 +1824,72 @@ async function loadUsuarios() {
       </td>
       <td class="px-5 py-3.5 text-xs text-slate-500">${dt}</td>
       <td class="px-5 py-3.5">
-        <div class="flex gap-1">
-          <button onclick="openUserModal(${JSON.stringify(u).replace(/"/g,'&quot;')})" class="text-amber-700 hover:text-amber-900 p-1 rounded hover:bg-amber-50 transition-colors" title="Editar">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-          </button>
-          <button onclick="resetSenha(${u.id},'${u.nome.replace(/'/g,"\\'")}')" class="text-blue-400 hover:text-blue-600 p-1 rounded hover:bg-blue-50 transition-colors" title="Redefinir senha">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
-          </button>
-          <button onclick="desativarUsuario(${u.id})" class="text-red-400 hover:text-red-600 p-1 rounded hover:bg-red-50 transition-colors" title="${u.ativo?'Desativar':'Reativar'}">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${u.ativo?'M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636':'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'}"/></svg>
-          </button>
-        </div>
+        ${USUARIO_MENU(u)}
       </td>
     </tr>`;
   }).join('');
+}
+
+function showFornecedorDetail(fornecedor) {
+  const detail = `
+    <div class="space-y-4">
+      <div>
+        <label class="text-xs font-semibold text-slate-500">Nome</label>
+        <p class="text-sm font-medium text-slate-800">${fornecedor.nome}</p>
+      </div>
+      ${fornecedor.contato ? `<div>
+        <label class="text-xs font-semibold text-slate-500">Contato</label>
+        <p class="text-sm text-slate-700">${fornecedor.contato}</p>
+      </div>` : ''}
+      ${fornecedor.telefone ? `<div>
+        <label class="text-xs font-semibold text-slate-500">Telefone</label>
+        <p class="text-sm text-slate-700">${fornecedor.telefone}</p>
+      </div>` : ''}
+      ${fornecedor.email ? `<div>
+        <label class="text-xs font-semibold text-slate-500">Email</label>
+        <p class="text-sm text-slate-700">${fornecedor.email}</p>
+      </div>` : ''}
+      ${fornecedor.local ? `<div>
+        <label class="text-xs font-semibold text-slate-500">Local/Endereço</label>
+        <p class="text-sm text-slate-700">${fornecedor.local}</p>
+      </div>` : ''}
+      ${fornecedor.referencia ? `<div>
+        <label class="text-xs font-semibold text-slate-500">Referência</label>
+        <p class="text-sm text-slate-700">${fornecedor.referencia}</p>
+      </div>` : ''}
+    </div>
+  `;
+  document.getElementById('detailContent').innerHTML = detail;
+  document.getElementById('modalDetail').classList.add('open');
+}
+
+function showUsuarioDetail(usuario) {
+  const detail = `
+    <div class="space-y-4">
+      <div>
+        <label class="text-xs font-semibold text-slate-500">Nome</label>
+        <p class="text-sm font-medium text-slate-800">${usuario.nome}</p>
+      </div>
+      <div>
+        <label class="text-xs font-semibold text-slate-500">Email</label>
+        <p class="text-sm text-slate-700">${usuario.email}</p>
+      </div>
+      <div>
+        <label class="text-xs font-semibold text-slate-500">Perfil</label>
+        <p class="text-sm"><span class="role-${usuario.role} text-xs px-2 py-1 rounded-full font-semibold">${ROLE_LABEL[usuario.role]||usuario.role}</span></p>
+      </div>
+      <div>
+        <label class="text-xs font-semibold text-slate-500">Status</label>
+        <p class="text-sm"><span class="${usuario.ativo?'bg-green-100 text-green-700':'bg-slate-100 text-slate-500'} text-xs px-2 py-1 rounded-full font-semibold">${usuario.ativo ? 'Ativo' : 'Inativo'}</span></p>
+      </div>
+      <div>
+        <label class="text-xs font-semibold text-slate-500">Cadastrado em</label>
+        <p class="text-sm text-slate-700">${new Date(usuario.criado_em).toLocaleDateString('pt-BR')}</p>
+      </div>
+    </div>
+  `;
+  document.getElementById('detailContent').innerHTML = detail;
+  document.getElementById('modalDetail').classList.add('open');
 }
 
 function openUserModal(user = null) {
@@ -2085,6 +2177,51 @@ const DEL_BTN = (type, id) =>
     </svg>
   </button>`;
 
+// ── Menu de Ações (3 pontos) ──
+function toggleActionMenu(e) {
+  e.stopPropagation();
+  const menu = e.target.closest('.action-menu').querySelector('.action-dropdown');
+  document.querySelectorAll('.action-dropdown.open').forEach(m => {
+    if (m !== menu) m.classList.remove('open');
+  });
+  menu.classList.toggle('open');
+}
+
+document.addEventListener('click', () => {
+  document.querySelectorAll('.action-dropdown.open').forEach(m => m.classList.remove('open'));
+});
+
+const FORNECEDOR_MENU = (item) => `
+  <div class="action-menu">
+    <button class="action-menu-btn" onclick="toggleActionMenu(event)" title="Opções">
+      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12 8c1.1 0 2-1 2-2s-1-2-2-2-2 1-2 2 1 2 2 2zm0 2c-1.1 0-2 1-2 2s1 2 2 2 2-1 2-2-1-2-2-2zm0 6c-1.1 0-2 1-2 2s1 2 2 2 2-1 2-2-1-2-2-2z"/>
+      </svg>
+    </button>
+    <div class="action-dropdown">
+      <button class="action-item" onclick="openMgmtDrawer('fornecedor', ${JSON.stringify(item).replace(/"/g,'&quot;')}); toggleActionMenu(event)">Editar</button>
+      <button class="action-item" onclick="showFornecedorDetail(${JSON.stringify(item).replace(/"/g,'&quot;')}); toggleActionMenu(event)">Visualizar</button>
+      <button class="action-item danger" onclick="deleteMgmtItem('fornecedor',${item.id}); toggleActionMenu(event)">Descartar</button>
+    </div>
+  </div>
+`;
+
+const USUARIO_MENU = (usuario) => `
+  <div class="action-menu">
+    <button class="action-menu-btn" onclick="toggleActionMenu(event)" title="Opções">
+      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12 8c1.1 0 2-1 2-2s-1-2-2-2-2 1-2 2 1 2 2 2zm0 2c-1.1 0-2 1-2 2s1 2 2 2 2-1 2-2-1-2-2-2zm0 6c-1.1 0-2 1-2 2s1 2 2 2 2-1 2-2-1-2-2-2z"/>
+      </svg>
+    </button>
+    <div class="action-dropdown">
+      <button class="action-item" onclick="openUserModal(${JSON.stringify(usuario).replace(/"/g,'&quot;')}); toggleActionMenu(event)">Editar</button>
+      <button class="action-item" onclick="showUsuarioDetail(${JSON.stringify(usuario).replace(/"/g,'&quot;')}); toggleActionMenu(event)">Visualizar</button>
+      <button class="action-item" onclick="resetSenha(${usuario.id},'${usuario.nome.replace(/'/g,"\\'")}'  ); toggleActionMenu(event)">Redefinir Senha</button>
+      <button class="action-item danger" onclick="desativarUsuario(${usuario.id}); toggleActionMenu(event)">${usuario.ativo ? 'Remover' : 'Reativar'}</button>
+    </div>
+  </div>
+`;
+
 function renderCategorias() {
   const search = (document.getElementById('catSearch')?.value || '').toLowerCase();
   const data   = getMgmtData('categoria').filter(i => !search || i.nome.toLowerCase().includes(search));
@@ -2158,7 +2295,7 @@ function renderFornecedores() {
       <td class="px-5 py-3.5 text-sm text-slate-500">${item.local || '—'}</td>
       <td class="px-5 py-3.5 text-sm text-slate-500">${item.referencia || '—'}</td>
       <td class="px-5 py-3.5">
-        <div class="flex gap-1">${EDIT_BTN('fornecedor', item)}${DEL_BTN('fornecedor', item.id)}</div>
+        ${FORNECEDOR_MENU(item)}
       </td>
     </tr>`).join('');
 }
