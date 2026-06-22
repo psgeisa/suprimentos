@@ -332,6 +332,18 @@
     #sidebar.collapsed .sidebar-item:hover::after,
     #sidebar.collapsed .sidebar-util:hover::after { opacity:1; }
 
+    /* ══ SIDEBAR: labels visíveis quando mobile-open (mesmo com collapsed) ══ */
+    #sidebar.mobile-open .sidebar-label {
+      opacity:1 !important; max-width:200px !important; pointer-events:auto !important;
+    }
+    #sidebar.mobile-open .sidebar-item,
+    #sidebar.mobile-open .sidebar-util {
+      justify-content:flex-start !important;
+      padding-left:0.75rem !important; padding-right:0.75rem !important;
+      gap:0.75rem !important; width:auto !important;
+    }
+    #sidebar.mobile-open nav { align-items:stretch !important; }
+
     /* ══ RESPONSIVIDADE GLOBAL ══════════════════════════════════════════════ */
 
     /* Header compacto em telas pequenas */
@@ -400,6 +412,29 @@
     /* Seções de página: padding menor em mobile pequeno */
     @media (max-width:480px) {
       section[id^="page-"] { padding:0.75rem !important; }
+    }
+
+    /* Botões de ação nas páginas de gestão: quebrar linha e ocupar largura total em mobile */
+    @media (max-width:640px) {
+      #page-categorias .flex.items-center.gap-4,
+      #page-areas .flex.items-center.gap-4,
+      #page-unidades .flex.items-center.gap-4,
+      #page-fornecedores .flex.items-center.gap-4,
+      #page-estabelecimentos .flex.items-center.gap-4,
+      #page-usuarios .flex.items-center.gap-4,
+      #page-suprimentos .flex.items-center.gap-4 {
+        flex-wrap:wrap !important;
+        gap:0.625rem !important;
+      }
+      #page-categorias .btn-primary,
+      #page-areas .btn-primary,
+      #page-unidades .btn-primary,
+      #page-fornecedores .btn-primary,
+      #page-estabelecimentos .btn-primary,
+      #page-usuarios .btn-primary {
+        width:100% !important;
+        justify-content:center !important;
+      }
     }
 
     /* Drawer: offset 0 em mobile/tablet (sidebar está oculto) */
@@ -1321,7 +1356,7 @@ function toggleDarkMode() {
 }
 
 // ── Sidebar ──────────────────────────────────────────────────────────────
-let sidebarPinned = localStorage.getItem('sup_sidebar_pinned') === 'true';
+let sidebarPinned = localStorage.getItem('sup_sidebar_pinned') !== 'false';
 
 function applySidebarState() {
   const sb = document.getElementById('sidebar');
