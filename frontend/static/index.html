@@ -17,10 +17,10 @@
     .badge-em_andamento{ background:#DBEAFE; color:#1E40AF; }
     .badge-concluido   { background:#E0E7FF; color:#3730A3; }
     .badge-cancelado   { background:#FEE2E2; color:#991B1B; }
-    .prio-baixa   { background:#F0FDF4; color:#166534; border:1px solid #BBF7D0; }
-    .prio-media   { background:#FFFBEB; color:#92400E; border:1px solid #FDE68A; }
-    .prio-alta    { background:#FFF7ED; color:#9A3412; border:1px solid #FDBA74; }
-    .prio-urgente { background:#FFF1F2; color:#9F1239; border:1px solid #FECDD3; }
+    .prio-baixa   { background:#F0FDF4; color:#000; border:1px solid #BBF7D0; }
+    .prio-media   { background:#FFFBEB; color:#000; border:1px solid #FDE68A; }
+    .prio-alta    { background:#FFF7ED; color:#000; border:1px solid #FDBA74; }
+    .prio-urgente { background:#FFF1F2; color:#000; border:1px solid #FECDD3; }
     .role-admin       { background:#EDE9FE; color:#5B21B6; }
     .role-compras     { background:#D1FAE5; color:#065F46; }
     .role-solicitante { background:#DBEAFE; color:#1E40AF; }
@@ -117,6 +117,7 @@
     .dark td p, .dark td span.text-slate-700, .dark td span.text-slate-400 { color:rgba(255,255,255,0.85) !important; }
     .dark .border-slate-100, .dark .border-slate-200 { border-color:rgba(212,165,32,0.15) !important; }
     .dark input, .dark select, .dark textarea { background:#0d0d0d !important; border-color:rgba(212,165,32,0.3) !important; color:#F5E6BE !important; }
+    .dark select option { background:#fff !important; color:#000 !important; }
     .dark input::placeholder, .dark textarea::placeholder { color:#5A4A28 !important; }
     .dark .drawer .bg-slate-50 { background:rgba(0,0,0,0.25) !important; }
     .dark .drawer input, .dark .drawer select, .dark .drawer textarea { background:rgba(0,0,0,0.65) !important; border-color:rgba(212,165,32,0.35) !important; color:#fff !important; }
@@ -843,7 +844,8 @@
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1">Telefone</label>
-            <input id="mgmtTelefone" type="tel" placeholder="(00) 00000-0000"
+            <input id="mgmtTelefone" type="tel" placeholder="XX X XXXX-XXXX"
+              maxlength="13" oninput="maskTelefone(this)"
               class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" />
           </div>
           <div>
@@ -854,8 +856,20 @@
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">Local / Endereço</label>
-          <input id="mgmtLocal" type="text" placeholder="Rua, número, bairro, cidade"
-            class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" />
+          <div class="relative" id="localWrapper">
+            <input id="mgmtLocal" type="text" autocomplete="off"
+              placeholder="Nome do estabelecimento ou endereço..."
+              oninput="onLocalInput(this)"
+              class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm pr-9" />
+            <span id="localSpinner" class="hidden absolute right-3 top-1/2 -translate-y-1/2">
+              <svg class="w-4 h-4 text-amber-500 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+              </svg>
+            </span>
+            <div id="localDropdown" class="ms-dropdown hidden" style="z-index:20;"></div>
+          </div>
+          <p class="text-xs text-slate-400 mt-1">Fonte: OpenStreetMap · mín. 3 caracteres</p>
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">Referência</label>
@@ -1134,6 +1148,7 @@ async function doLogin() {
   const btn   = document.getElementById('loginBtn');
 
   if (!email || !senha) { errEl.textContent = 'Preencha email e senha.'; errEl.classList.remove('hidden'); return; }
+  if (!email.includes('@')) { errEl.textContent = 'Informe um email válido com @.'; errEl.classList.remove('hidden'); return; }
   errEl.classList.add('hidden');
   btn.disabled = true;
   btn.textContent = 'Entrando...';
@@ -1765,6 +1780,7 @@ async function submitUser() {
   const errEl = document.getElementById('userModalError');
 
   if (!nome || !email) { errEl.textContent = 'Nome e email são obrigatórios.'; errEl.classList.remove('hidden'); return; }
+  if (!email.includes('@')) { errEl.textContent = 'Informe um email válido com @.'; errEl.classList.remove('hidden'); return; }
   if (!id && !senha) { errEl.textContent = 'Informe uma senha para o novo usuário.'; errEl.classList.remove('hidden'); return; }
   errEl.classList.add('hidden');
 
@@ -1810,6 +1826,74 @@ async function resetSenha(id, nome) {
 }
 
 function closeSenhaModal() { document.getElementById('senhaModal').classList.remove('open'); }
+
+// ── Autocomplete endereço (Nominatim / OpenStreetMap) ────────────────────
+let _localDebounce = null;
+
+function onLocalInput(el) {
+  clearTimeout(_localDebounce);
+  const dd = document.getElementById('localDropdown');
+  const q  = el.value.trim();
+  if (q.length < 3) { dd.classList.add('hidden'); return; }
+  _localDebounce = setTimeout(() => fetchAddresses(q), 450);
+}
+
+async function fetchAddresses(q) {
+  const dd      = document.getElementById('localDropdown');
+  const spinner = document.getElementById('localSpinner');
+  spinner.classList.remove('hidden');
+  try {
+    const res  = await apiFetch(`/api/lugares?q=${encodeURIComponent(q)}`);
+    const data = res && res.ok ? await res.json() : [];
+    if (!data.length) {
+      dd.innerHTML = '<p class="px-3 py-2.5 text-xs text-slate-400 italic">Nenhum estabelecimento encontrado</p>';
+    } else {
+      dd.innerHTML = data.map(r => {
+        const label = r.nome + (r.endereco ? ' — ' + r.endereco : '');
+        const cat   = r.categoria ? `<span class="text-xs text-amber-600">${r.categoria}</span>` : '';
+        const safe  = label.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        const safeNome = r.nome.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        const safeEnd  = r.endereco.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        return `<div class="ms-option flex-col !items-start gap-0.5" onclick="selectAddress('${safeNome}', '${safeEnd}')">
+          <div class="flex items-center gap-2">
+            <svg class="w-3.5 h-3.5 text-amber-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+            <span class="text-sm font-medium text-slate-700">${r.nome}</span>
+          </div>
+          <p class="text-xs text-slate-400 pl-5">${r.endereco || ''}${r.categoria ? ' · ' + r.categoria : ''}</p>
+        </div>`;
+      }).join('');
+    }
+    dd.classList.remove('hidden');
+  } catch {
+    dd.innerHTML = '<p class="px-3 py-2.5 text-xs text-red-400">Erro ao buscar. Verifique sua conexão.</p>';
+    dd.classList.remove('hidden');
+  } finally {
+    spinner.classList.add('hidden');
+  }
+}
+
+function selectAddress(nome, endereco) {
+  document.getElementById('mgmtLocal').value = endereco ? `${nome} — ${endereco}` : nome;
+  document.getElementById('localDropdown').classList.add('hidden');
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('#localWrapper')) {
+    document.getElementById('localDropdown')?.classList.add('hidden');
+  }
+});
+
+// ── Máscara telefone: XX X XXXX-XXXX ─────────────────────────────────────
+function maskTelefone(el) {
+  let v = el.value.replace(/\D/g, '').substring(0, 11);
+  if (v.length > 7)      v = v.replace(/^(\d{2})(\d{1})(\d{4})(\d{0,4})/, '$1 $2 $3-$4');
+  else if (v.length > 3) v = v.replace(/^(\d{2})(\d{1})(\d{0,4})/,        '$1 $2 $3');
+  else if (v.length > 2) v = v.replace(/^(\d{2})(\d{0,1})/,                '$1 $2');
+  el.value = v;
+}
 
 // ── Drawer Gerenciamento ──────────────────────────────────────────────────
 const MGMT_TITLES = {
@@ -1866,6 +1950,8 @@ function submitMgmtForm(e) {
   const editId = parseInt(document.getElementById('mgmtEditId').value) || null;
   const nome   = document.getElementById('mgmtNome').value.trim();
   if (!nome) { showToast('Informe o nome.', 'error'); return; }
+  const emailVal = document.getElementById('mgmtEmail')?.value.trim();
+  if (type === 'fornecedor' && emailVal && !emailVal.includes('@')) { showToast('Informe um email válido com @.', 'error'); return; }
 
   const data = getMgmtData(type);
 

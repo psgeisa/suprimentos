@@ -11,7 +11,7 @@ from app.database import Base, engine, SessionLocal
 import app.models  # noqa — garante registro de todos os modelos antes do create_all
 from app.routers import suprimentos, dashboard
 from app.routers import auth as routers_auth
-from app.routers import usuarios, anexos
+from app.routers import usuarios, anexos, lugares
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
@@ -55,6 +55,7 @@ def create_app() -> FastAPI:
     app.include_router(suprimentos.router)
     app.include_router(anexos.router)
     app.include_router(dashboard.router)
+    app.include_router(lugares.router)
 
     app.mount(
         "/static",
