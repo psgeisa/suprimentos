@@ -6,6 +6,7 @@ from datetime import datetime
 
 from app.database import get_db
 from app.models.suprimento import Suprimento
+from app.models.estabelecimento import Estabelecimento
 from app.schemas.suprimento import SuprimentoCreate, SuprimentoUpdate, SuprimentoOut
 from app.auth import get_current_user
 
@@ -44,12 +45,20 @@ def listar(
     total = q.count()
     pages = max(1, math.ceil(total / limit))
     items = q.order_by(Suprimento.created_at.desc()).offset((page - 1) * limit).limit(limit).all()
-    return {
-        "items": [SuprimentoOut.model_validate(i) for i in items],
-        "total": total,
-        "page": page,
-        "pages": pages,
-    }
+
+    est_ids = {i.estabelecimento_id for i in items if i.estabelecimento_id}
+    est_map = {}
+    if est_ids:
+        ests = db.query(Estabelecimento).filter(Estabelecimento.id.in_(est_ids)).all()
+        est_map = {e.id: e.tipo for e in ests}
+
+    result = []
+    for i in items:
+        d = SuprimentoOut.model_validate(i).model_dump()
+        d["estabelecimento_tipo"] = est_map.get(i.estabelecimento_id) if i.estabelecimento_id else None
+        result.append(d)
+
+    return {"items": result, "total": total, "page": page, "pages": pages}
 
 
 @router.post("", response_model=SuprimentoOut, status_code=201)

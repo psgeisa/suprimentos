@@ -51,6 +51,7 @@ class SuprimentoOut(BaseModel):
     valor_estimado: Optional[float]
     fornecedor_sugerido: Optional[str]
     estabelecimento_id: Optional[int]
+    estabelecimento_tipo: Optional[str] = None
     solicitante: str
     departamento: str
     prioridade: str

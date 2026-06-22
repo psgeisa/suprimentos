@@ -654,7 +654,7 @@
       <table class="w-full text-sm">
         <thead>
           <tr class="bg-slate-50 border-b border-slate-100">
-            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Título</th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide"><abbr title="Estabelecimento" style="text-decoration:none;cursor:default;">Estab.</abbr></th>
             <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Solicitante</th>
             <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Segmento</th>
             <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Prioridade</th>
@@ -1788,7 +1788,7 @@ async function loadSuprimentos() {
   empty.classList.add('hidden');
   tbody.innerHTML = items.map(s => `
     <tr class="row-hover transition-colors cursor-pointer" onclick="showDetail(${s.id})">
-      <td class="px-5 py-3.5"><p class="font-semibold text-slate-700 text-sm">${s.titulo}</p></td>
+      <td class="px-5 py-3.5"><p class="font-semibold text-slate-700 text-sm">${s.estabelecimento_tipo || '—'}</p></td>
       <td class="px-5 py-3.5"><p class="text-sm text-slate-700">${s.solicitante}</p></td>
       <td class="px-5 py-3.5 text-sm text-slate-600">${s.categoria}</td>
       <td class="px-5 py-3.5">${priorityIcon(s.prioridade, s.emergencia)}</td>
