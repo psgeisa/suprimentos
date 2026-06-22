@@ -163,25 +163,25 @@
     .action-menu { position:relative; display:inline-block; }
     .action-menu-btn {
       display:flex; align-items:center; justify-content:center;
-      width:32px; height:32px; border-radius:6px;
-      background:transparent; border:1px solid #E2E8F0;
+      width:auto; height:auto; border-radius:0;
+      background:transparent; border:none;
       color:#64748B; cursor:pointer;
-      transition:background 0.2s, border-color 0.2s;
-      padding:0;
+      transition:color 0.2s;
+      padding:0; font-weight:700;
     }
-    .action-menu-btn:hover { background:#F1F5F9; border-color:#CBD5E1; }
-    .dark .action-menu-btn { border-color:rgba(212,165,32,0.3); background:rgba(0,0,0,0.2); color:#9A7A3A; }
-    .dark .action-menu-btn:hover { background:rgba(212,165,32,0.1); border-color:rgba(212,165,32,0.5); }
+    .action-menu-btn:hover { color:#1a202c; }
+    .dark .action-menu-btn { color:#fff; }
+    .dark .action-menu-btn:hover { color:#D4A520; }
 
     .action-dropdown {
-      position:absolute; right:0; top:calc(100% + 4px);
+      position:fixed;
       background:#fff; border:1px solid #E2E8F0; border-radius:8px;
-      box-shadow:0 4px 12px rgba(0,0,0,0.1);
-      min-width:160px; z-index:50;
+      box-shadow:0 4px 16px rgba(0,0,0,0.15);
+      min-width:160px; z-index:9999;
       display:none;
     }
     .action-dropdown.open { display:block; }
-    .dark .action-dropdown { background:#1a1a1a; border-color:rgba(212,165,32,0.3); box-shadow:0 4px 12px rgba(0,0,0,0.3); }
+    .dark .action-dropdown { background:#1a1a1a; border-color:rgba(212,165,32,0.3); box-shadow:0 4px 16px rgba(0,0,0,0.5); }
 
     .action-item {
       display:block; width:100%; padding:10px 12px;
@@ -2186,11 +2186,23 @@ const DEL_BTN = (type, id) =>
 // ── Menu de Ações (3 pontos) ──
 function toggleActionMenu(e) {
   e.stopPropagation();
+  const btn = e.target.closest('.action-menu-btn');
   const menu = e.target.closest('.action-menu').querySelector('.action-dropdown');
+
+  // Fechar outros menus
   document.querySelectorAll('.action-dropdown.open').forEach(m => {
     if (m !== menu) m.classList.remove('open');
   });
+
+  // Toggle do menu atual
   menu.classList.toggle('open');
+
+  // Se aberto, posicionar corretamente
+  if (menu.classList.contains('open')) {
+    const rect = btn.getBoundingClientRect();
+    menu.style.top = (rect.bottom + 8) + 'px';
+    menu.style.right = (window.innerWidth - rect.right) + 'px';
+  }
 }
 
 document.addEventListener('click', () => {
