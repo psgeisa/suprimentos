@@ -4,6 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gestão de Suprimentos</title>
+  <script>
+    if (window.location.protocol === 'file:') {
+      window.location.replace('http://127.0.0.1:8000/');
+    }
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
@@ -50,6 +55,7 @@
     /* ── Modal ─── */
     .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:50; }
     .modal-overlay.open { display:flex; align-items:center; justify-content:center; }
+
 
     input:focus, select:focus, textarea:focus { outline:none; border-color:#C8780A; box-shadow:0 0 0 3px rgba(200,120,10,0.15); }
     ::-webkit-scrollbar { width:6px; } ::-webkit-scrollbar-track { background:#F1F5F9; }
@@ -970,31 +976,43 @@
 </div>
 
 <!-- ── Modal Detalhes ─────────────────────────────────────────────────────── -->
-<div id="modalDetail" class="modal-overlay" onclick="closeDetailOutside(event)">
-  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-xl mx-4 max-h-[90vh] overflow-y-auto">
-    <div class="gradient-brand p-6 rounded-t-2xl flex items-center justify-between">
-      <h2 class="text-white font-bold text-lg">Detalhes da Solicitação</h2>
-      <button onclick="closeDetail()" class="text-white/70 hover:text-white transition-colors">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<div id="detailDrawerOverlay" class="drawer-overlay" onclick="closeDetail()"></div>
+<div id="modalDetail" class="drawer">
+  <div class="gradient-brand px-6 flex items-center justify-between flex-shrink-0" style="padding-top:16px;padding-bottom:16px;">
+    <div>
+      <h2 id="detailDrawerTitle" class="text-white font-bold text-base">Visualizar</h2>
+      <p class="text-yellow-200 text-xs mt-0.5">Confira os dados abaixo</p>
+    </div>
+      <button type="button" onclick="closeDetail()" class="text-white/70 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/10">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
         </svg>
       </button>
-    </div>
-    <div id="detailContent" class="p-6"></div>
+  </div>
+  <div id="detailContent" class="p-6 flex-1 overflow-y-auto"></div>
+  <div class="px-6 pb-6 pt-2 border-t border-slate-100 bg-white flex gap-3 flex-shrink-0">
+    <button type="button" onclick="closeDetail()"
+      class="flex-1 border border-slate-200 text-slate-600 rounded-lg py-2.5 text-sm font-semibold hover:bg-slate-50 transition-colors">Fechar</button>
+    <button id="detailEditBtn" type="button" onclick="editCurrentDetail()"
+      class="hidden flex-1 btn-primary rounded-lg py-2.5 text-sm font-semibold shadow-md">Editar</button>
   </div>
 </div>
 
 <!-- ── Modal Usuário ──────────────────────────────────────────────────────── -->
-<div id="userModal" class="modal-overlay" onclick="closeUserModalOutside(event)">
-  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
-    <div class="gradient-brand p-6 rounded-t-2xl flex items-center justify-between">
-      <h2 id="userModalTitle" class="text-white font-bold text-lg">Novo Usuário</h2>
-      <button onclick="closeUserModal()" class="text-white/70 hover:text-white transition-colors">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<div id="userDrawerOverlay" class="drawer-overlay" onclick="closeUserModal()"></div>
+<div id="userModal" class="drawer">
+  <div class="gradient-brand px-6 flex items-center justify-between flex-shrink-0" style="padding-top:16px;padding-bottom:16px;">
+    <div>
+      <h2 id="userModalTitle" class="text-white font-bold text-base">Novo Stakeholder</h2>
+      <p class="text-yellow-200 text-xs mt-0.5">Preencha os dados abaixo</p>
+    </div>
+      <button type="button" onclick="closeUserModal()" class="text-white/70 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/10">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
         </svg>
       </button>
-    </div>
+  </div>
+  <form id="userForm" onsubmit="event.preventDefault(); submitUser()" class="flex-1 overflow-y-auto">
     <div class="p-6 space-y-4">
       <div id="userModalError" class="hidden bg-red-50 border border-red-200 rounded-lg px-3 py-2 text-xs text-red-600 font-medium"></div>
       <input type="hidden" id="uEditId" />
@@ -1034,17 +1052,17 @@
         </label>
       </div>
     </div>
-    <div class="px-6 pb-6 flex gap-3">
-      <button onclick="closeUserModal()"
+    <div class="px-6 pb-6 pt-2 border-t border-slate-100 bg-white flex gap-3 flex-shrink-0 sticky bottom-0">
+      <button type="button" onclick="closeUserModal()"
         class="flex-1 border border-slate-200 text-slate-600 rounded-lg py-2.5 text-sm font-semibold hover:bg-slate-50 transition-colors">
         Cancelar
       </button>
-      <button onclick="submitUser()"
+      <button type="submit"
         class="flex-1 btn-primary rounded-lg py-2.5 text-sm font-semibold shadow-md">
         Salvar
       </button>
     </div>
-  </div>
+  </form>
 </div>
 
 <!-- ── Modal Senha Temporária ─────────────────────────────────────────────── -->
@@ -1236,6 +1254,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       applyLogin();
       return;
     }
+    localStorage.removeItem('sup_token');
   }
   showLoginModal();
 });
@@ -1288,7 +1307,13 @@ function applyLogin() {
   document.getElementById('userNameDisplay').textContent = currentUser.nome;
   document.getElementById('userRoleDisplay').textContent = ROLE_LABEL[currentUser.role] || currentUser.role;
   // Mostrar item de usuários só para admin
-  document.getElementById('sidebarStakeholders').style.display = currentUser.role === 'admin' ? '' : 'none';
+  const normalizedRole = String(currentUser.role || '').trim().toLowerCase();
+  const adminLink = document.getElementById('sidebarStakeholders');
+  if (normalizedRole === 'admin') {
+    adminLink.style.setProperty('display', 'flex', 'important');
+  } else {
+    adminLink.style.setProperty('display', 'none', 'important');
+  }
   loadDashboard();
 }
 
@@ -1782,16 +1807,34 @@ async function showDetail(id) {
         <div class="bg-slate-50 rounded-xl p-3"><p class="text-xs text-slate-400 mb-1">Atualizado em</p><p class="font-semibold text-slate-700">${dt(s.updated_at)}</p></div>
       </div>
       ${s.observacoes?`<div class="bg-amber-50 border border-amber-100 rounded-xl p-4"><p class="text-xs text-amber-600 font-semibold mb-1">Observações</p><p class="text-sm text-amber-800">${s.observacoes}</p></div>`:''}
-      <div class="flex gap-3 pt-2">
-        <button onclick="closeDetail();editItem(${s.id})" class="flex-1 btn-primary rounded-xl py-2.5 text-sm font-semibold">Editar</button>
-        <button onclick="closeDetail()" class="flex-1 border border-slate-200 text-slate-600 rounded-xl py-2.5 text-sm font-semibold hover:bg-slate-50 transition-colors">Fechar</button>
-      </div>
     </div>`;
-  document.getElementById('modalDetail').classList.add('open');
+  openDetailDrawer('Visualizar Solicitação', s.id);
 }
 
-function closeDetail() { document.getElementById('modalDetail').classList.remove('open'); }
-function closeDetailOutside(e) { if (e.target===document.getElementById('modalDetail')) closeDetail(); }
+let currentDetailEditId = null;
+
+function openDetailDrawer(title, editId = null) {
+  const sbW = sidebarPinned ? 256 : 72;
+  document.documentElement.style.setProperty('--drawer-offset', sbW + 'px');
+  currentDetailEditId = editId;
+  document.getElementById('detailDrawerTitle').textContent = title;
+  document.getElementById('detailEditBtn').classList.toggle('hidden', !editId);
+  document.getElementById('modalDetail').classList.add('open');
+  document.getElementById('detailDrawerOverlay').classList.add('open');
+}
+
+function closeDetail() {
+  document.getElementById('modalDetail').classList.remove('open');
+  document.getElementById('detailDrawerOverlay').classList.remove('open');
+  currentDetailEditId = null;
+}
+
+function editCurrentDetail() {
+  if (!currentDetailEditId) return;
+  const id = currentDetailEditId;
+  closeDetail();
+  editItem(id);
+}
 
 // ── Usuários ──────────────────────────────────────────────────────────────
 async function loadUsuarios() {
@@ -1800,6 +1843,7 @@ async function loadUsuarios() {
   const res   = await apiFetch('/api/usuarios');
   if (!res) return;
   const todos = await res.json();
+  window.usuariosById = new Map(todos.map(usuario => [String(usuario.id), usuario]));
 
   let lista = todos;
   if (role)  lista = lista.filter(u => u.role === role);
@@ -1829,69 +1873,53 @@ async function loadUsuarios() {
 }
 
 function showFornecedorDetail(fornecedor) {
-  const detail = `
-    <div class="space-y-4">
-      <div>
-        <label class="text-xs font-semibold text-slate-500">Nome</label>
-        <p class="text-sm font-medium text-slate-800">${fornecedor.nome}</p>
-      </div>
-      ${fornecedor.contato ? `<div>
-        <label class="text-xs font-semibold text-slate-500">Contato</label>
-        <p class="text-sm text-slate-700">${fornecedor.contato}</p>
-      </div>` : ''}
-      ${fornecedor.telefone ? `<div>
-        <label class="text-xs font-semibold text-slate-500">Telefone</label>
-        <p class="text-sm text-slate-700">${fornecedor.telefone}</p>
-      </div>` : ''}
-      ${fornecedor.email ? `<div>
-        <label class="text-xs font-semibold text-slate-500">Email</label>
-        <p class="text-sm text-slate-700">${fornecedor.email}</p>
-      </div>` : ''}
-      ${fornecedor.local ? `<div>
-        <label class="text-xs font-semibold text-slate-500">Local/Endereço</label>
-        <p class="text-sm text-slate-700">${fornecedor.local}</p>
-      </div>` : ''}
-      ${fornecedor.referencia ? `<div>
-        <label class="text-xs font-semibold text-slate-500">Referência</label>
-        <p class="text-sm text-slate-700">${fornecedor.referencia}</p>
-      </div>` : ''}
-    </div>
-  `;
-  document.getElementById('detailContent').innerHTML = detail;
-  document.getElementById('modalDetail').classList.add('open');
+  const fields = [
+    ['Código', fornecedor.id],
+    ['Nome', fornecedor.nome],
+    ['Contato', fornecedor.contato],
+    ['Telefone', fornecedor.telefone],
+    ['Email', fornecedor.email],
+    ['Local / Endereço', fornecedor.local],
+    ['Referência', fornecedor.referencia],
+    ['Segmento', fornecedor.segmento],
+  ];
+  document.getElementById('detailContent').innerHTML = renderDetailFields(fields);
+  openDetailDrawer('Visualizar Fornecedor');
 }
 
 function showUsuarioDetail(usuario) {
-  const detail = `
-    <div class="space-y-4">
-      <div>
-        <label class="text-xs font-semibold text-slate-500">Nome</label>
-        <p class="text-sm font-medium text-slate-800">${usuario.nome}</p>
+  const criadoEm = usuario.criado_em
+    ? new Date(usuario.criado_em).toLocaleString('pt-BR')
+    : null;
+  const fields = [
+    ['Código', usuario.id],
+    ['Nome', usuario.nome],
+    ['Email', usuario.email],
+    ['Perfil', ROLE_LABEL[usuario.role] || usuario.role],
+    ['Time', usuario.time],
+    ['Status', usuario.ativo ? 'Ativo' : 'Inativo'],
+    ['Cadastrado em', criadoEm],
+  ];
+  document.getElementById('detailContent').innerHTML = renderDetailFields(fields);
+  openDetailDrawer('Visualizar Stakeholder');
+}
+
+function renderDetailFields(fields) {
+  const escapeHtml = value => String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+
+  return `<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    ${fields.map(([label, value]) => `
+      <div class="bg-slate-50 rounded-xl p-3">
+        <p class="text-xs font-semibold text-slate-500 mb-1">${escapeHtml(label)}</p>
+        <p class="text-sm font-medium text-slate-800 break-words">${value === null || value === undefined || value === '' ? '—' : escapeHtml(value)}</p>
       </div>
-      <div>
-        <label class="text-xs font-semibold text-slate-500">Email</label>
-        <p class="text-sm text-slate-700">${usuario.email}</p>
-      </div>
-      <div>
-        <label class="text-xs font-semibold text-slate-500">Perfil</label>
-        <p class="text-sm"><span class="role-${usuario.role} text-xs px-2 py-1 rounded-full font-semibold">${ROLE_LABEL[usuario.role]||usuario.role}</span></p>
-      </div>
-      ${usuario.time ? `<div>
-        <label class="text-xs font-semibold text-slate-500">Time</label>
-        <p class="text-sm text-slate-700">${usuario.time}</p>
-      </div>` : ''}
-      <div>
-        <label class="text-xs font-semibold text-slate-500">Status</label>
-        <p class="text-sm"><span class="${usuario.ativo?'bg-green-100 text-green-700':'bg-slate-100 text-slate-500'} text-xs px-2 py-1 rounded-full font-semibold">${usuario.ativo ? 'Ativo' : 'Inativo'}</span></p>
-      </div>
-      <div>
-        <label class="text-xs font-semibold text-slate-500">Cadastrado em</label>
-        <p class="text-sm text-slate-700">${new Date(usuario.criado_em).toLocaleDateString('pt-BR')}</p>
-      </div>
-    </div>
-  `;
-  document.getElementById('detailContent').innerHTML = detail;
-  document.getElementById('modalDetail').classList.add('open');
+    `).join('')}
+  </div>`;
 }
 
 function buildTimeOptions() {
@@ -1907,10 +1935,13 @@ function buildTimeOptions() {
 }
 
 function openUserModal(user = null) {
+  const sbW = sidebarPinned ? 256 : 72;
+  document.documentElement.style.setProperty('--drawer-offset', sbW + 'px');
   document.getElementById('userModal').classList.add('open');
+  document.getElementById('userDrawerOverlay').classList.add('open');
   document.getElementById('userModalError').classList.add('hidden');
   document.getElementById('uEditId').value = user ? user.id : '';
-  document.getElementById('userModalTitle').textContent = user ? 'Editar Usuário' : 'Novo Usuário';
+  document.getElementById('userModalTitle').textContent = user ? 'Editar Stakeholder' : 'Novo Stakeholder';
   document.getElementById('uNome').value  = user ? user.nome  : '';
   document.getElementById('uEmail').value = user ? user.email : '';
   document.getElementById('uSenha').value = '';
@@ -1938,8 +1969,10 @@ function openUserModal(user = null) {
   }
 }
 
-function closeUserModal() { document.getElementById('userModal').classList.remove('open'); }
-function closeUserModalOutside(e) { if (e.target===document.getElementById('userModal')) closeUserModal(); }
+function closeUserModal() {
+  document.getElementById('userModal').classList.remove('open');
+  document.getElementById('userDrawerOverlay').classList.remove('open');
+}
 
 async function submitUser() {
   const id    = document.getElementById('uEditId').value;
@@ -2199,59 +2232,94 @@ const DEL_BTN = (type, id) =>
   </button>`;
 
 // ── Menu de Ações (3 pontos) ──
-function toggleActionMenu(e) {
-  e.stopPropagation();
-  const btn = e.target.closest('.action-menu-btn');
-  const menu = e.target.closest('.action-menu').querySelector('.action-dropdown');
+function getGlobalActionMenu() {
+  let menu = document.getElementById('globalActionMenu');
+  if (!menu) {
+    menu = document.createElement('div');
+    menu.id = 'globalActionMenu';
+    menu.className = 'action-dropdown';
+    menu.setAttribute('role', 'menu');
+    document.body.appendChild(menu);
+  }
+  return menu;
+}
 
-  // Fechar outros menus
-  document.querySelectorAll('.action-dropdown.open').forEach(m => {
-    if (m !== menu) m.classList.remove('open');
-  });
+function closeActionMenus() {
+  document.getElementById('globalActionMenu')?.classList.remove('open');
+}
 
-  // Toggle do menu atual
-  menu.classList.toggle('open');
+function openActionMenu(button, event, type, id, ativo = true) {
+  event.stopPropagation();
+  const menu = getGlobalActionMenu();
+  const sameMenu = menu.classList.contains('open') &&
+    menu.dataset.type === type && menu.dataset.id === String(id);
 
-  // Se aberto, posicionar corretamente
-  if (menu.classList.contains('open')) {
-    const rect = btn.getBoundingClientRect();
-    menu.style.top = (rect.bottom + 8) + 'px';
-    menu.style.right = (window.innerWidth - rect.right) + 'px';
+  if (sameMenu) {
+    closeActionMenus();
+    return;
+  }
+
+  menu.dataset.type = type;
+  menu.dataset.id = String(id);
+  menu.innerHTML = type === 'fornecedor' ? `
+    <button type="button" class="action-item" onclick="runActionMenuItem('view-supplier',${id},event)">Visualizar</button>
+    <button type="button" class="action-item" onclick="runActionMenuItem('edit-supplier',${id},event)">Editar</button>
+    <button type="button" class="action-item danger" onclick="runActionMenuItem('discard-supplier',${id},event)">Descartar</button>
+  ` : `
+    <button type="button" class="action-item" onclick="runActionMenuItem('edit-user',${id},event)">Editar</button>
+    <button type="button" class="action-item" onclick="runActionMenuItem('view-user',${id},event)">Visualizar</button>
+    <button type="button" class="action-item" onclick="runActionMenuItem('reset-password',${id},event)">Redefinir Senha</button>
+    <button type="button" class="action-item danger" onclick="runActionMenuItem('remove-user',${id},event)">${ativo ? 'Remover' : 'Reativar'}</button>
+  `;
+
+  const rect = button.getBoundingClientRect();
+  menu.style.right = `${Math.max(8, window.innerWidth - rect.right)}px`;
+  menu.style.top = `${rect.bottom + 8}px`;
+  menu.classList.add('open');
+
+  const menuRect = menu.getBoundingClientRect();
+  if (menuRect.bottom > window.innerHeight - 8) {
+    menu.style.top = `${Math.max(8, rect.top - menuRect.height - 8)}px`;
   }
 }
 
-document.addEventListener('click', () => {
-  document.querySelectorAll('.action-dropdown.open').forEach(m => m.classList.remove('open'));
-});
+function runActionMenuItem(action, id, event) {
+  event.stopPropagation();
+  const stringId = String(id);
+  const fornecedor = getMgmtData('fornecedor').find(item => String(item.id) === stringId);
+  const usuario = window.usuariosById?.get(stringId);
+  closeActionMenus();
+
+  if (action === 'view-supplier' && fornecedor) showFornecedorDetail(fornecedor);
+  if (action === 'edit-supplier' && fornecedor) openMgmtDrawer('fornecedor', fornecedor);
+  if (action === 'discard-supplier') deleteMgmtItem('fornecedor', Number(id));
+  if (action === 'edit-user' && usuario) openUserModal(usuario);
+  if (action === 'view-user' && usuario) showUsuarioDetail(usuario);
+  if (action === 'reset-password') resetSenha(Number(id), usuario?.nome || 'usuário');
+  if (action === 'remove-user') desativarUsuario(Number(id));
+}
+
+document.addEventListener('click', closeActionMenus);
+window.addEventListener('resize', closeActionMenus);
+document.querySelector('main')?.addEventListener('scroll', closeActionMenus);
 
 const FORNECEDOR_MENU = (item) => `
   <div class="action-menu">
-    <button class="action-menu-btn" onclick="toggleActionMenu(event)" title="Opções">
+    <button type="button" class="action-menu-btn" onclick="openActionMenu(this,event,'fornecedor',${item.id})" title="Opções" aria-label="Opções do fornecedor" aria-haspopup="menu">
       <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
         <path d="M12 8c1.1 0 2-1 2-2s-1-2-2-2-2 1-2 2 1 2 2 2zm0 2c-1.1 0-2 1-2 2s1 2 2 2 2-1 2-2-1-2-2-2zm0 6c-1.1 0-2 1-2 2s1 2 2 2 2-1 2-2-1-2-2-2z"/>
       </svg>
     </button>
-    <div class="action-dropdown">
-      <button class="action-item" onclick="showFornecedorDetail(${JSON.stringify(item).replace(/"/g,'&quot;')}); toggleActionMenu(event)">Visualizar</button>
-      <button class="action-item" onclick="openMgmtDrawer('fornecedor', ${JSON.stringify(item).replace(/"/g,'&quot;')}); toggleActionMenu(event)">Editar</button>
-      <button class="action-item danger" onclick="deleteMgmtItem('fornecedor',${item.id}); toggleActionMenu(event)">Descartar</button>
-    </div>
   </div>
 `;
 
 const USUARIO_MENU = (usuario) => `
   <div class="action-menu">
-    <button class="action-menu-btn" onclick="toggleActionMenu(event)" title="Opções">
+    <button type="button" class="action-menu-btn" onclick="openActionMenu(this,event,'usuario',${usuario.id},${Boolean(usuario.ativo)})" title="Opções" aria-label="Opções do stakeholder" aria-haspopup="menu">
       <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
         <path d="M12 8c1.1 0 2-1 2-2s-1-2-2-2-2 1-2 2 1 2 2 2zm0 2c-1.1 0-2 1-2 2s1 2 2 2 2-1 2-2-1-2-2-2zm0 6c-1.1 0-2 1-2 2s1 2 2 2 2-1 2-2-1-2-2-2z"/>
       </svg>
     </button>
-    <div class="action-dropdown">
-      <button class="action-item" onclick="openUserModal(${JSON.stringify(usuario).replace(/"/g,'&quot;')}); toggleActionMenu(event)">Editar</button>
-      <button class="action-item" onclick="showUsuarioDetail(${JSON.stringify(usuario).replace(/"/g,'&quot;')}); toggleActionMenu(event)">Visualizar</button>
-      <button class="action-item" onclick="resetSenha(${usuario.id},'${usuario.nome.replace(/'/g,"\\'")}'  ); toggleActionMenu(event)">Redefinir Senha</button>
-      <button class="action-item danger" onclick="desativarUsuario(${usuario.id}); toggleActionMenu(event)">${usuario.ativo ? 'Remover' : 'Reativar'}</button>
-    </div>
   </div>
 `;
 
