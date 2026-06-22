@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: gestao-suprimentos
+    runtime: python
+    pythonVersion: 3.11
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: DATABASE_URL
+        scope: build
+      - key: SECRET_KEY
+        scope: build
+      - key: ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_HOURS
+        value: "8"
+      - key: SUPABASE_URL
+        scope: build
+      - key: SUPABASE_KEY
+        scope: build
