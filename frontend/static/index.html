@@ -386,9 +386,16 @@
 <main class="flex-1 overflow-auto" style="position:relative;z-index:1;">
 
   <header class="bg-white border-b border-slate-100 px-8 flex items-center justify-between sticky top-0 z-10 shadow-sm" style="padding-top:14px;padding-bottom:14px;">
-    <div>
-      <h1 id="pageTitle" class="text-slate-800 font-bold text-lg">Dashboard</h1>
-      <p id="pageSubtitle" class="text-slate-500 text-xs">Visão geral do sistema</p>
+    <div class="flex items-center gap-3">
+      <button id="mobileMenuBtn" onclick="togglePin()" class="hidden max-lg:flex w-10 h-10 bg-amber-50 hover:bg-amber-100 rounded-xl items-center justify-center flex-shrink-0 transition-colors" title="Abrir menu">
+        <svg class="w-6 h-6 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8.5C5 6 7 4 9.5 4c1 0 1.9.3 2.5.9C12.6 4.3 13.5 4 14.5 4C17 4 19 6 19 8.5c0 .9-.3 1.8-.7 2.5H5.7C5.3 10.3 5 9.4 5 8.5z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 11h14v7a2 2 0 01-2 2H7a2 2 0 01-2-2v-7z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 15h.01M12 14h.01M15 15h.01"/>
+        </svg>
+      </button>
+      <div>
+        <h1 id="pageTitle" class="text-slate-800 font-bold text-lg">Dashboard</h1>
+        <p id="pageSubtitle" class="text-slate-500 text-xs">Visão geral do sistema</p>
+      </div>
     </div>
     <button id="headerNovaBtn" onclick="openDrawer()" class="btn-primary flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold shadow-md">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
