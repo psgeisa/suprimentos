@@ -844,8 +844,8 @@
         <div class="grid grid-cols-2 gap-4">
           <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1">Telefone</label>
-            <input id="mgmtTelefone" type="tel" placeholder="XX X XXXX-XXXX"
-              maxlength="13" oninput="maskTelefone(this)"
+            <input id="mgmtTelefone" type="tel" placeholder="00 0 0000-0000"
+              maxlength="14" oninput="maskTelefone(this)"
               class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" />
           </div>
           <div>
@@ -1886,9 +1886,9 @@ document.addEventListener('click', e => {
   }
 });
 
-// ── Máscara telefone: XX X XXXX-XXXX ─────────────────────────────────────
+// ── Máscara telefone: 00 0 0000-0000 ─────────────────────────────────────
 function maskTelefone(el) {
-  let v = el.value.replace(/\D/g, '').substring(0, 11);
+  let v = el.value.replace(/\D/g, '').substring(0, 12);
   if (v.length > 7)      v = v.replace(/^(\d{2})(\d{1})(\d{4})(\d{0,4})/, '$1 $2 $3-$4');
   else if (v.length > 3) v = v.replace(/^(\d{2})(\d{1})(\d{0,4})/,        '$1 $2 $3');
   else if (v.length > 2) v = v.replace(/^(\d{2})(\d{0,1})/,                '$1 $2');
