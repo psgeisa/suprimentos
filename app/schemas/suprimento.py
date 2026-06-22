@@ -11,6 +11,7 @@ class SuprimentoCreate(BaseModel):
     unidade: str = "un"
     valor_estimado: Optional[float] = None
     fornecedor_sugerido: Optional[str] = None
+    estabelecimento_id: Optional[int] = None
     solicitante: str
     departamento: str
     prioridade: str = "media"
@@ -29,6 +30,7 @@ class SuprimentoUpdate(BaseModel):
     unidade: Optional[str] = None
     valor_estimado: Optional[float] = None
     fornecedor_sugerido: Optional[str] = None
+    estabelecimento_id: Optional[int] = None
     solicitante: Optional[str] = None
     departamento: Optional[str] = None
     prioridade: Optional[str] = None
@@ -48,6 +50,7 @@ class SuprimentoOut(BaseModel):
     unidade: str
     valor_estimado: Optional[float]
     fornecedor_sugerido: Optional[str]
+    estabelecimento_id: Optional[int]
     solicitante: str
     departamento: str
     prioridade: str

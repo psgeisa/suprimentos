@@ -11,7 +11,8 @@ from app.database import Base, engine, SessionLocal
 import app.models  # noqa — garante registro de todos os modelos antes do create_all
 from app.routers import suprimentos, dashboard
 from app.routers import auth as routers_auth
-from app.routers import usuarios, anexos, lugares
+from app.routers import usuarios, anexos, lugares, estabelecimentos
+from sqlalchemy import inspect, text
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
@@ -42,12 +43,25 @@ def seed_admin():
         db.close()
 
 
+def migrate_schema():
+    """Aplica migrações pequenas necessárias em bancos já existentes."""
+    columns = {column["name"] for column in inspect(engine).get_columns("suprimentos")}
+    if "estabelecimento_id" not in columns:
+        with engine.begin() as connection:
+            connection.execute(text("ALTER TABLE suprimentos ADD COLUMN estabelecimento_id INTEGER"))
+    estabelecimento_columns = {column["name"] for column in inspect(engine).get_columns("estabelecimentos")}
+    if "segmentos" not in estabelecimento_columns:
+        with engine.begin() as connection:
+            connection.execute(text("ALTER TABLE estabelecimentos ADD COLUMN segmentos VARCHAR(500)"))
+
+
 def create_app() -> FastAPI:
     app = FastAPI(title="Gestão de Suprimentos", version="2.0.0")
 
     @app.on_event("startup")
     def startup():
         Base.metadata.create_all(bind=engine)
+        migrate_schema()
         seed_admin()
 
     app.include_router(routers_auth.router)
@@ -56,6 +70,7 @@ def create_app() -> FastAPI:
     app.include_router(anexos.router)
     app.include_router(dashboard.router)
     app.include_router(lugares.router)
+    app.include_router(estabelecimentos.router)
 
     app.mount(
         "/static",

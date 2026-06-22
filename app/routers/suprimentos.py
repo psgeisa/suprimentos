@@ -17,6 +17,7 @@ def listar(
     status: Optional[str] = Query(None),
     categoria: Optional[str] = Query(None),
     prioridade: Optional[str] = Query(None),
+    estabelecimento: Optional[str] = Query(None),
     busca: Optional[str] = Query(None),
     page: int = Query(1, ge=1),
     limit: int = Query(20, ge=1, le=100),
@@ -25,11 +26,15 @@ def listar(
 ):
     q = db.query(Suprimento)
     if status:
-        q = q.filter(Suprimento.status == status)
+        q = q.filter(Suprimento.status.in_([v for v in status.split(",") if v]))
     if categoria:
-        q = q.filter(Suprimento.categoria == categoria)
+        q = q.filter(Suprimento.categoria.in_([v for v in categoria.split(",") if v]))
     if prioridade:
-        q = q.filter(Suprimento.prioridade == prioridade)
+        q = q.filter(Suprimento.prioridade.in_([v for v in prioridade.split(",") if v]))
+    if estabelecimento:
+        ids = [int(v) for v in estabelecimento.split(",") if v.isdigit()]
+        if ids:
+            q = q.filter(Suprimento.estabelecimento_id.in_(ids))
     if busca:
         q = q.filter(
             Suprimento.titulo.ilike(f"%{busca}%")

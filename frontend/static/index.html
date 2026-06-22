@@ -66,6 +66,12 @@
     .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(200,120,10,0.15); }
     .row-hover:hover { background:rgba(255,255,255,0.45); }
     .card-glass { background: rgba(255,255,255,0.35) !important; backdrop-filter: blur(4px); }
+    .recent-request-item {
+      border:1px solid #CBD5E1;
+      background:transparent;
+      transition:background-color .2s, border-color .2s;
+    }
+    .recent-request-item:hover { background:#fff; border-color:#9CA3AF; }
     .btn-primary { background:linear-gradient(135deg,#D4A520,#9A7010); color:white; transition:opacity .2s; }
     .btn-primary:hover { opacity:.9; }
 
@@ -82,6 +88,11 @@
     .ms-trigger:focus-within, .ms-trigger.open { border-color:#C8780A; box-shadow:0 0 0 3px rgba(200,120,10,0.15); }
     .ms-tags { display:flex; flex-wrap:wrap; gap:4px; flex:1; }
     .ms-tag { background:#FEF0D0; color:#7A4A08; font-size:.7rem; padding:2px 8px; border-radius:99px; font-weight:600; }
+    .filter-ms { position:relative; }
+    .filter-ms-menu { position:absolute; z-index:30; top:calc(100% + 5px); left:0; right:0; min-width:210px; background:#fff; border:1px solid #CBD5E1; border-radius:10px; box-shadow:0 10px 28px rgba(0,0,0,.14); padding:8px; }
+    .filter-ms-option { display:flex; align-items:center; gap:8px; padding:7px 6px; border-radius:7px; cursor:pointer; font-size:.8rem; color:#475569; }
+    .filter-ms-option:hover { background:#F8FAFC; }
+    .filter-ms-option input { accent-color:#C8780A; }
 
     /* ── Toggle ─── */
     .toggle-track { width:42px; height:24px; background:#CBD5E1; border-radius:99px; position:relative; cursor:pointer; transition:background .2s; flex-shrink:0; }
@@ -115,6 +126,8 @@
     .dark table thead tr { background:rgba(0,0,0,0.5) !important; border-color:rgba(212,165,32,0.15) !important; }
     .dark tbody tr { border-color:rgba(255,255,255,0.05) !important; }
     .dark .row-hover:hover { background:rgba(212,165,32,0.06) !important; }
+    .dark .recent-request-item { border-color:#6B7280; }
+    .dark .recent-request-item:hover { background:#30343B !important; border-color:#9CA3AF; }
     .dark .bg-slate-50, .dark .bg-white { background:rgba(0,0,0,0.3) !important; }
     .dark #pageTitle, .dark .font-bold.text-slate-800, .dark .text-slate-800 { color:#fff !important; }
     .dark #pageSubtitle, .dark .text-slate-500, .dark .text-slate-400 { color:rgba(255,255,255,0.55) !important; }
@@ -143,6 +156,9 @@
     .dark .ms-trigger, .dark .ms-dropdown { background:#0d0d0d !important; border-color:rgba(212,165,32,0.3) !important; }
     .dark .ms-option:hover { background:rgba(212,165,32,0.1) !important; }
     .dark .ms-option span { color:#D4B87A !important; }
+    .dark .filter-ms-menu { background:#17191D; border-color:#6B7280; }
+    .dark .filter-ms-option { color:#fff; }
+    .dark .filter-ms-option:hover { background:#30343B; }
     .dark [class*="bg-amber-50"] { background:rgba(212,165,32,0.08) !important; }
     .dark [class*="text-amber-800"] { color:#D4A520 !important; }
     .dark .toggle-track { background:#333 !important; }
@@ -164,6 +180,23 @@
     .dark #page-fornecedores tbody tr td .text-slate-400 { color:rgba(255,255,255,0.6) !important; }
     .dark #page-fornecedores tbody tr td .text-slate-500 { color:rgba(255,255,255,0.8) !important; }
     .dark #fornecedoresEmpty { color:#fff !important; }
+
+    /* ── Textos da tela de Solicitações no modo escuro ── */
+    .dark #page-suprimentos table th,
+    .dark #page-suprimentos table td,
+    .dark #page-suprimentos table p,
+    .dark #page-suprimentos table span,
+    .dark #page-suprimentos #emptyState,
+    .dark #page-suprimentos #emptyState p,
+    .dark #page-suprimentos #emptyState svg,
+    .dark #page-suprimentos #pagination p,
+    .dark #page-suprimentos #pagination span,
+    .dark #page-suprimentos #pagination button {
+      color:#fff !important;
+    }
+    .dark #page-suprimentos input,
+    .dark #page-suprimentos select { color:#fff !important; }
+    .dark #page-suprimentos input::placeholder { color:#fff !important; opacity:1; }
 
     /* ── Menu Dropdown (3 pontos) ── */
     .action-menu { position:relative; display:inline-block; }
@@ -399,6 +432,13 @@
       </svg>
       <span class="sidebar-label">Fornecedores</span>
     </a>
+    <a id="sidebarEstabelecimentos" onclick="showPage('estabelecimentos')" data-tip="Estabelecimentos" style="display:none"
+      class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-yellow-200 hover:text-white text-sm font-medium cursor-pointer transition-all">
+      <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21h18M5 21V7l7-4 7 4v14M9 10h2m2 0h2M9 14h2m2 0h2M9 18h6"/>
+      </svg>
+      <span class="sidebar-label">Estabelecimentos</span>
+    </a>
   </nav>
 
   <div class="px-3 pb-1">
@@ -476,27 +516,13 @@
   <!-- ── Suprimentos ── -->
   <section id="page-suprimentos" class="p-8 hidden">
     <div class="card-glass bg-white rounded-2xl shadow-sm border border-slate-100 p-5 mb-6">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <input id="fBusca" type="text" placeholder="Buscar por título, solicitante..."
+      <div class="grid grid-cols-1 lg:grid-cols-5 gap-3">
+        <input id="fBusca" type="text" placeholder="Título, solicitante ou equipe..."
           class="border border-slate-200 rounded-lg px-3 py-2 text-sm" oninput="resetAndLoad()" />
-        <select id="fStatus" class="border border-slate-200 rounded-lg px-3 py-2 text-sm" onchange="resetAndLoad()">
-          <option value="">Todos os status</option>
-          <option value="pendente">Pendente</option>
-          <option value="aprovado">Aprovado</option>
-          <option value="em_andamento">Em Andamento</option>
-          <option value="concluido">Concluído</option>
-          <option value="cancelado">Cancelado</option>
-        </select>
-        <select id="fPrioridade" class="border border-slate-200 rounded-lg px-3 py-2 text-sm" onchange="resetAndLoad()">
-          <option value="">Todas as prioridades</option>
-          <option value="baixa">Baixa</option>
-          <option value="media">Média</option>
-          <option value="alta">Alta</option>
-          <option value="urgente">Urgente</option>
-        </select>
-        <select id="fCategoria" class="border border-slate-200 rounded-lg px-3 py-2 text-sm" onchange="resetAndLoad()">
-          <option value="">Todas as categorias</option>
-        </select>
+        <div class="filter-ms" data-filter="status"><button type="button" class="ms-trigger w-full" onclick="toggleFilterDropdown('status',event)"><span id="filterStatusLabel">Status</span><span>▾</span></button><div id="filterStatusMenu" class="filter-ms-menu hidden"><input class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs mb-2" placeholder="Pesquisar..." oninput="searchFilterOptions('status',this.value)"><div id="filterStatusOptions"></div></div></div>
+        <div class="filter-ms" data-filter="prioridade"><button type="button" class="ms-trigger w-full" onclick="toggleFilterDropdown('prioridade',event)"><span id="filterPrioridadeLabel">Prioridades</span><span>▾</span></button><div id="filterPrioridadeMenu" class="filter-ms-menu hidden"><input class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs mb-2" placeholder="Pesquisar..." oninput="searchFilterOptions('prioridade',this.value)"><div id="filterPrioridadeOptions"></div></div></div>
+        <div class="filter-ms" data-filter="segmento"><button type="button" class="ms-trigger w-full" onclick="toggleFilterDropdown('segmento',event)"><span id="filterSegmentoLabel">Segmentos</span><span>▾</span></button><div id="filterSegmentoMenu" class="filter-ms-menu hidden"><input class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs mb-2" placeholder="Pesquisar..." oninput="searchFilterOptions('segmento',this.value)"><div id="filterSegmentoOptions"></div></div></div>
+        <div class="filter-ms" data-filter="estabelecimento"><button type="button" class="ms-trigger w-full" onclick="toggleFilterDropdown('estabelecimento',event)"><span id="filterEstabelecimentoLabel">Estabelecimento</span><span>▾</span></button><div id="filterEstabelecimentoMenu" class="filter-ms-menu hidden"><input class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs mb-2" placeholder="Pesquisar..." oninput="searchFilterOptions('estabelecimento',this.value)"><div id="filterEstabelecimentoOptions"></div></div></div>
       </div>
     </div>
 
@@ -504,13 +530,11 @@
       <table class="w-full text-sm">
         <thead>
           <tr class="bg-slate-50 border-b border-slate-100">
-            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">#</th>
-            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Título / Categoria</th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Título</th>
             <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Solicitante</th>
-            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Equipe</th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Segmento</th>
             <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Prioridade</th>
             <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Status</th>
-            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Valor Est.</th>
             <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Ações</th>
           </tr>
         </thead>
@@ -691,6 +715,33 @@
     </div>
   </section>
 
+  <!-- ── Estabelecimentos (admin) ── -->
+  <section id="page-estabelecimentos" class="p-8 hidden">
+    <div class="card-glass bg-white rounded-2xl shadow-sm border border-slate-100 p-5 mb-6">
+      <div class="flex items-center gap-4">
+        <input id="estabelecimentoSearch" type="text" placeholder="Buscar estabelecimento..."
+          class="border border-slate-200 rounded-lg px-3 py-2 text-sm flex-1" oninput="renderEstabelecimentos()" />
+        <button onclick="openMgmtDrawer('estabelecimento')" class="btn-primary flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold shadow-md">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          Novo Estabelecimento
+        </button>
+      </div>
+    </div>
+    <div class="card-glass bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+      <table class="w-full text-sm">
+        <thead><tr class="bg-slate-50 border-b border-slate-100">
+          <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Tipo</th>
+          <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Categorias</th>
+          <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide w-24">Ações</th>
+        </tr></thead>
+        <tbody id="estabelecimentosBody" class="divide-y divide-slate-50"></tbody>
+      </table>
+      <div id="estabelecimentosEmpty" class="hidden flex flex-col items-center py-16 text-slate-400">
+        <p class="font-medium">Nenhum estabelecimento cadastrado</p>
+      </div>
+    </div>
+  </section>
+
 </main>
 
 <!-- ── Overlay ────────────────────────────────────────────────────────────── -->
@@ -721,7 +772,7 @@
       </div>
 
       <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1">Categoria *</label>
+        <label class="block text-xs font-semibold text-slate-600 mb-1">Segmento *</label>
         <div class="relative" id="catWrapper">
           <div class="ms-trigger" id="catTrigger" onclick="toggleMs('cat')">
             <div class="ms-tags" id="catTags"><span class="text-slate-400 text-sm">Selecionar categorias...</span></div>
@@ -785,6 +836,13 @@
         <label class="block text-xs font-semibold text-slate-600 mb-1">Fornecedor Sugerido</label>
         <input id="fFornecedor" type="text" placeholder="Opcional"
           class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" />
+      </div>
+
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1">Estabelecimento</label>
+        <select id="fEstabelecimento" class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm">
+          <option value="">Selecionar estabelecimento...</option>
+        </select>
       </div>
 
       <div class="bg-slate-50 rounded-xl p-4 space-y-3">
@@ -901,7 +959,7 @@
       <input type="hidden" id="mgmtEditId" />
       <input type="hidden" id="mgmtType" />
 
-      <div>
+      <div id="mgmtNomeRow">
         <label class="block text-xs font-semibold text-slate-600 mb-1" id="mgmtNomeLabel">Nome *</label>
         <input id="mgmtNome" type="text" required placeholder="Ex: Material de Escritório"
           class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" />
@@ -956,8 +1014,39 @@
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">Segmento</label>
-          <input id="mgmtSegmento" type="text" placeholder="Ex: Mercado, Papelaria, Açougue, Feira"
-            class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" />
+          <div class="relative" id="fornecedorSegmentosWrapper">
+            <div class="ms-trigger" id="fornecedorSegmentosTrigger" onclick="toggleFornecedorSegmentos(event)">
+              <div class="ms-tags" id="fornecedorSegmentosTags"><span class="text-slate-400 text-sm">Selecionar segmentos...</span></div>
+              <svg class="w-4 h-4 text-slate-400 flex-shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </div>
+            <div class="ms-dropdown hidden" id="fornecedorSegmentosDropdown"></div>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Estabelecimento</label>
+          <select id="mgmtFornecedorEstabelecimento" class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm">
+            <option value="">Selecionar...</option>
+            <option value="restaurante">Restaurante</option>
+            <option value="farmacia">Farmácia</option>
+            <option value="mercado">Mercado</option>
+            <option value="papelaria">Papelaria</option>
+            <option value="padaria">Padaria</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="mgmtEstabelecimentoExtra" class="hidden">
+        <label class="block text-xs font-semibold text-slate-600 mb-1">Tipo *</label>
+        <input id="mgmtEstabelecimentoTipo" type="text" placeholder="Ex: Restaurante, Farmácia, Mercado..." class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" />
+        <div class="mt-5">
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Categorias</label>
+          <div class="relative" id="estabelecimentoSegmentosWrapper">
+            <div class="ms-trigger" onclick="toggleEstabelecimentoSegmentos(event)">
+              <div class="ms-tags" id="estabelecimentoSegmentosTags"><span class="text-slate-400 text-sm">Selecionar categorias...</span></div>
+              <svg class="w-4 h-4 text-slate-400 flex-shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </div>
+            <div class="ms-dropdown hidden" id="estabelecimentoSegmentosDropdown"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -1309,10 +1398,13 @@ function applyLogin() {
   // Mostrar item de usuários só para admin
   const normalizedRole = String(currentUser.role || '').trim().toLowerCase();
   const adminLink = document.getElementById('sidebarStakeholders');
+  const establishmentLink = document.getElementById('sidebarEstabelecimentos');
   if (normalizedRole === 'admin') {
     adminLink.style.setProperty('display', 'flex', 'important');
+    establishmentLink.style.setProperty('display', 'flex', 'important');
   } else {
     adminLink.style.setProperty('display', 'none', 'important');
+    establishmentLink.style.setProperty('display', 'none', 'important');
   }
   loadDashboard();
 }
@@ -1404,7 +1496,7 @@ function showPage(page) {
     el.classList.remove('active','text-white');
     el.classList.add('text-yellow-200');
   });
-  const pageMap = { dashboard:0, suprimentos:1, usuarios:2, categorias:3, areas:4, unidades:5, fornecedores:6 };
+  const pageMap = { dashboard:0, suprimentos:1, usuarios:2, categorias:3, areas:4, unidades:5, fornecedores:6, estabelecimentos:7 };
   const idx = pageMap[page] ?? 0;
   const links = document.querySelectorAll('.sidebar-item');
   if (links[idx]) { links[idx].classList.add('active','text-white'); links[idx].classList.remove('text-yellow-200'); }
@@ -1413,7 +1505,7 @@ function showPage(page) {
   document.getElementById('page-'+page).classList.remove('hidden');
 
   const headerNovaBtn = document.getElementById('headerNovaBtn');
-  const mgmtPages = ['categorias','areas','unidades','fornecedores','usuarios'];
+  const mgmtPages = ['categorias','areas','unidades','fornecedores','usuarios','estabelecimentos'];
   const titles = {
     dashboard:    ['Dashboard',         'Visão geral do sistema'],
     suprimentos:  ['Solicitações',      'Gerenciar todas as solicitações'],
@@ -1422,18 +1514,20 @@ function showPage(page) {
     areas:        ['Área Demandante',   'Gerenciar áreas que fazem solicitações'],
     unidades:     ['Unidade',           'Gerenciar unidades de medida'],
     fornecedores: ['Fornecedores',      'Gerenciar fornecedores cadastrados'],
+    estabelecimentos: ['Estabelecimentos', 'Gerenciar estabelecimentos cadastrados'],
   };
   document.getElementById('pageTitle').textContent    = titles[page][0];
   document.getElementById('pageSubtitle').textContent = titles[page][1];
   headerNovaBtn.style.display = mgmtPages.includes(page) ? 'none' : '';
 
   if (page === 'dashboard')    loadDashboard();
-  if (page === 'suprimentos')  { supPage = 1; loadSuprimentos(); loadCategorias(); }
+  if (page === 'suprimentos')  { supPage = 1; initializeSolicitacaoFilters(); loadSuprimentos(); }
   if (page === 'usuarios')     loadUsuarios();
   if (page === 'categorias')   renderCategorias();
   if (page === 'areas')        renderAreas();
   if (page === 'unidades')     renderUnidades();
   if (page === 'fornecedores') renderFornecedores();
+  if (page === 'estabelecimentos') renderEstabelecimentos();
 }
 
 // ── Dashboard ─────────────────────────────────────────────────────────────
@@ -1458,7 +1552,7 @@ async function loadDashboard() {
 
   document.getElementById('recentList').innerHTML = data.recentes.length
     ? data.recentes.map(s => `
-      <div class="flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors" onclick="showDetail(${s.id})">
+      <div class="recent-request-item flex items-center justify-between p-3 rounded-xl cursor-pointer" onclick="showDetail(${s.id})">
         <div class="flex items-center gap-3">
           <div class="w-9 h-9 gradient-card rounded-lg flex items-center justify-center text-white text-xs font-bold flex-shrink-0">#${s.id}</div>
           <div>
@@ -1488,6 +1582,55 @@ async function loadDashboard() {
 }
 
 // ── Suprimentos ───────────────────────────────────────────────────────────
+const solicitacaoFilterState = { status:new Set(), prioridade:new Set(), segmento:new Set(), estabelecimento:new Set() };
+const fixedFilterOptions = {
+  status:[['pendente','Pendente'],['aprovado','Aprovado'],['em_andamento','Em Andamento'],['concluido','Concluído'],['cancelado','Cancelado']],
+  prioridade:[['baixa','Baixa'],['media','Média'],['alta','Alta'],['urgente','Urgente']]
+};
+
+async function initializeSolicitacaoFilters() {
+  let nomesSegmentos = getMgmtData('categoria').map(item => item.nome);
+  const categoriasRes = await apiFetch('/api/categorias');
+  if (categoriasRes && categoriasRes.ok) nomesSegmentos = [...new Set([...nomesSegmentos, ...(await categoriasRes.json())])];
+  const segmentos = nomesSegmentos.map(nome => [nome,nome]);
+  const estabelecimentos = (await loadEstabelecimentosOptions()).map(item => [String(item.id),item.tipo]);
+  renderFilterOptions('status', fixedFilterOptions.status);
+  renderFilterOptions('prioridade', fixedFilterOptions.prioridade);
+  renderFilterOptions('segmento', segmentos);
+  renderFilterOptions('estabelecimento', estabelecimentos);
+}
+
+function filterElementId(type, suffix) { return `filter${type[0].toUpperCase()+type.slice(1)}${suffix}`; }
+
+function renderFilterOptions(type, options) {
+  const container = document.getElementById(filterElementId(type,'Options'));
+  if (!container) return;
+  container.innerHTML = options.map(([value,label]) => `<label class="filter-ms-option" data-search="${label.toLowerCase()}"><input type="checkbox" value="${value}" ${solicitacaoFilterState[type].has(String(value))?'checked':''} onchange="updateSolicitacaoFilter('${type}',this)"><span>${label}</span></label>`).join('') || '<p class="text-xs text-slate-400 p-2">Nenhum registro</p>';
+}
+
+function toggleFilterDropdown(type, event) {
+  event.stopPropagation();
+  const target = document.getElementById(filterElementId(type,'Menu'));
+  document.querySelectorAll('.filter-ms-menu').forEach(menu => { if (menu !== target) menu.classList.add('hidden'); });
+  target.classList.toggle('hidden');
+}
+
+function searchFilterOptions(type, term) {
+  const query = term.trim().toLowerCase();
+  document.getElementById(filterElementId(type,'Options')).querySelectorAll('.filter-ms-option').forEach(option => option.classList.toggle('hidden', Boolean(query) && !option.dataset.search.includes(query)));
+}
+
+function updateSolicitacaoFilter(type, checkbox) {
+  checkbox.checked ? solicitacaoFilterState[type].add(checkbox.value) : solicitacaoFilterState[type].delete(checkbox.value);
+  const defaults = {status:'Status',prioridade:'Prioridades',segmento:'Segmentos',estabelecimento:'Estabelecimento'};
+  document.getElementById(filterElementId(type,'Label')).textContent = solicitacaoFilterState[type].size ? `${defaults[type]} (${solicitacaoFilterState[type].size})` : defaults[type];
+  resetAndLoad();
+}
+
+document.addEventListener('click', event => {
+  if (!event.target.closest('.filter-ms')) document.querySelectorAll('.filter-ms-menu').forEach(menu => menu.classList.add('hidden'));
+});
+
 function resetAndLoad() {
   supPage = 1;
   loadSuprimentos();
@@ -1496,13 +1639,11 @@ function resetAndLoad() {
 async function loadSuprimentos() {
   const params = new URLSearchParams();
   const busca  = document.getElementById('fBusca').value;
-  const status = document.getElementById('fStatus').value;
-  const prio   = document.getElementById('fPrioridade').value;
-  const cat    = document.getElementById('fCategoria').value;
   if (busca)   params.set('busca', busca);
-  if (status)  params.set('status', status);
-  if (prio)    params.set('prioridade', prio);
-  if (cat)     params.set('categoria', cat);
+  if (solicitacaoFilterState.status.size) params.set('status', [...solicitacaoFilterState.status].join(','));
+  if (solicitacaoFilterState.prioridade.size) params.set('prioridade', [...solicitacaoFilterState.prioridade].join(','));
+  if (solicitacaoFilterState.segmento.size) params.set('categoria', [...solicitacaoFilterState.segmento].join(','));
+  if (solicitacaoFilterState.estabelecimento.size) params.set('estabelecimento', [...solicitacaoFilterState.estabelecimento].join(','));
   params.set('page', supPage);
   params.set('limit', SUP_LIMIT);
 
@@ -1523,36 +1664,26 @@ async function loadSuprimentos() {
   empty.classList.add('hidden');
   tbody.innerHTML = items.map(s => `
     <tr class="row-hover transition-colors cursor-pointer" onclick="showDetail(${s.id})">
-      <td class="px-5 py-3.5 text-slate-400 text-xs font-mono">#${s.id}</td>
-      <td class="px-5 py-3.5">
-        <p class="font-semibold text-slate-700 text-sm">${s.titulo}</p>
-        <p class="text-xs text-slate-400">${s.categoria}</p>
-      </td>
+      <td class="px-5 py-3.5"><p class="font-semibold text-slate-700 text-sm">${s.titulo}</p></td>
       <td class="px-5 py-3.5"><p class="text-sm text-slate-700">${s.solicitante}</p></td>
-      <td class="px-5 py-3.5 text-xs text-slate-500 max-w-[120px]">
-        <div class="flex flex-wrap gap-1">${(s.departamento||'').split(',').filter(Boolean).map(e=>`<span class="bg-amber-50 text-amber-800 px-1.5 py-0.5 rounded text-xs">${e.trim()}</span>`).join('')}</div>
-      </td>
-      <td class="px-5 py-3.5">
-        <div class="flex flex-col gap-1">
-          <span class="prio-${s.prioridade} text-xs px-2 py-0.5 rounded-full font-medium inline-block w-fit">${PRIO_LABEL[s.prioridade]||s.prioridade}</span>
-          ${s.emergencia ? '<span class="bg-red-100 text-red-600 text-xs px-2 py-0.5 rounded-full font-medium w-fit">🚨 Emergência</span>' : ''}
-        </div>
-      </td>
-      <td class="px-5 py-3.5"><span class="badge-${s.status} text-xs px-2 py-1 rounded-full font-medium">${STATUS_LABEL[s.status]||s.status}</span></td>
-      <td class="px-5 py-3.5 text-sm text-slate-600">${s.valor_estimado?'R$ '+s.valor_estimado.toLocaleString('pt-BR',{minimumFractionDigits:2}):'—'}</td>
-      <td class="px-5 py-3.5" onclick="event.stopPropagation()">
-        <div class="flex gap-2">
-          <button onclick="editItem(${s.id})" class="text-amber-700 hover:text-amber-900 p-1 rounded hover:bg-amber-50 transition-colors" title="Editar">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-          </button>
-          <button onclick="deleteItem(${s.id})" class="text-red-400 hover:text-red-600 p-1 rounded hover:bg-red-50 transition-colors" title="Excluir">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-          </button>
-        </div>
-      </td>
+      <td class="px-5 py-3.5 text-sm text-slate-600">${s.categoria}</td>
+      <td class="px-5 py-3.5">${priorityIcon(s.prioridade, s.emergencia)}</td>
+      <td class="px-5 py-3.5">${statusIcon(s.status)}</td>
+      <td class="px-5 py-3.5" onclick="event.stopPropagation()">${SOLICITACAO_MENU(s)}</td>
     </tr>`).join('');
 
   renderPagination(data.total, data.page, data.pages);
+}
+
+function priorityIcon(priority, emergency) {
+  const icons = { baixa:['↓','bg-green-100 text-green-700'], media:['•','bg-amber-100 text-amber-700'], alta:['↑','bg-orange-100 text-orange-700'], urgente:['!','bg-red-100 text-red-700'] };
+  const [icon, classes] = icons[priority] || ['•','bg-slate-100 text-slate-700'];
+  return `<span title="${PRIO_LABEL[priority]||priority}${emergency?' - Emergência':''}" class="inline-flex w-8 h-8 items-center justify-center rounded-full font-bold ${classes}">${emergency?'🚨':icon}</span>`;
+}
+
+function statusIcon(status) {
+  const icons = { pendente:'⏳', aprovado:'✓', em_andamento:'↻', concluido:'★', cancelado:'×' };
+  return `<span title="${STATUS_LABEL[status]||status}" class="badge-${status} inline-flex w-8 h-8 items-center justify-center rounded-full font-bold">${icons[status]||'•'}</span>`;
 }
 
 function renderPagination(total, page, pages) {
@@ -1575,26 +1706,14 @@ function goPage(p) {
   loadSuprimentos();
 }
 
-async function loadCategorias() {
-  const local = getMgmtData('categoria').map(c => c.nome);
-  const sel = document.getElementById('fCategoria');
-  const cur = sel.value;
-  let all = [...new Set(local)];
-  try {
-    const res = await apiFetch('/api/categorias');
-    if (res && res.ok) { const api = await res.json(); all = [...new Set([...all, ...api])]; }
-  } catch {}
-  sel.innerHTML = '<option value="">Todas as categorias</option>' + all.map(c=>`<option value="${c}">${c}</option>`).join('');
-  sel.value = cur;
-}
-
 // ── Drawer ────────────────────────────────────────────────────────────────
-function openDrawer(item = null) {
+async function openDrawer(item = null) {
   const sbW = sidebarPinned ? 256 : 72;
   document.documentElement.style.setProperty('--drawer-offset', sbW + 'px');
   buildCatOptions();
   buildAreaOptions();
   buildUnidadeOptions();
+  await loadEstabelecimentosOptions(item?.estabelecimento_id || '');
 
   document.getElementById('editId').value = item ? item.id : '';
   document.getElementById('drawerTitle').textContent = item ? 'Editar Solicitação' : 'Nova Solicitação';
@@ -1611,6 +1730,7 @@ function openDrawer(item = null) {
     document.getElementById('fUnidade').value     = item.unidade || 'un';
     document.getElementById('fValor').value       = item.valor_estimado || '';
     document.getElementById('fFornecedor').value  = item.fornecedor_sugerido || '';
+    document.getElementById('fEstabelecimento').value = item.estabelecimento_id ? String(item.estabelecimento_id) : '';
     document.getElementById('fPrioridade2').value = item.prioridade || 'media';
     document.getElementById('fStatus2').value     = item.status || 'pendente';
     document.getElementById('fDescricao').value   = item.descricao || '';
@@ -1654,7 +1774,7 @@ async function submitForm(e) {
   const cats   = [...msState.cat].join(', ');
   const equipe = [...msState.equipe].join(', ');
 
-  if (!cats)   { showToast('Selecione ao menos uma categoria.', 'error'); return; }
+  if (!cats)   { showToast('Selecione ao menos um segmento.', 'error'); return; }
   if (!equipe) { showToast('Selecione ao menos uma equipe demandante.', 'error'); return; }
 
   const body = {
@@ -1670,6 +1790,7 @@ async function submitForm(e) {
     data_necessidade:    document.getElementById('fDataNec').value || null,
     valor_estimado:      document.getElementById('fValor').value ? parseFloat(document.getElementById('fValor').value) : null,
     fornecedor_sugerido: document.getElementById('fFornecedor').value || null,
+    estabelecimento_id:  document.getElementById('fEstabelecimento').value ? Number(document.getElementById('fEstabelecimento').value) : null,
     descricao:           document.getElementById('fDescricao').value || null,
     observacoes:         document.getElementById('fObs').value || null,
   };
@@ -1770,6 +1891,8 @@ async function showDetail(id) {
   const res = await apiFetch(`/api/suprimentos/${id}`);
   if (!res) return;
   const s = await res.json();
+  await loadEstabelecimentos();
+  const estabelecimento = estabelecimentosCache.find(item => item.id === s.estabelecimento_id);
   const dt = d => d ? new Date(d).toLocaleDateString('pt-BR') : '—';
   const equipes = (s.departamento||'').split(',').filter(Boolean).map(e=>e.trim());
   const cats    = (s.categoria   ||'').split(',').filter(Boolean).map(e=>e.trim());
@@ -1802,6 +1925,7 @@ async function showDetail(id) {
         <div class="bg-slate-50 rounded-xl p-3"><p class="text-xs text-slate-400 mb-1">Quantidade</p><p class="font-semibold text-slate-700">${s.quantidade} ${s.unidade}</p></div>
         <div class="bg-slate-50 rounded-xl p-3"><p class="text-xs text-slate-400 mb-1">Valor Estimado</p><p class="font-semibold text-slate-700">${s.valor_estimado?'R$ '+s.valor_estimado.toLocaleString('pt-BR',{minimumFractionDigits:2}):'—'}</p></div>
         ${s.fornecedor_sugerido?`<div class="bg-slate-50 rounded-xl p-3"><p class="text-xs text-slate-400 mb-1">Fornecedor</p><p class="font-semibold text-slate-700">${s.fornecedor_sugerido}</p></div>`:''}
+        <div class="bg-slate-50 rounded-xl p-3"><p class="text-xs text-slate-400 mb-1">Estabelecimento</p><p class="font-semibold text-slate-700">${estabelecimento?.tipo || '—'}</p></div>
         ${s.data_necessidade?`<div class="bg-slate-50 rounded-xl p-3"><p class="text-xs text-slate-400 mb-1">Data do Pedido</p><p class="font-semibold text-slate-700">${s.data_necessidade}</p></div>`:''}
         <div class="bg-slate-50 rounded-xl p-3"><p class="text-xs text-slate-400 mb-1">Criado em</p><p class="font-semibold text-slate-700">${dt(s.created_at)}</p></div>
         <div class="bg-slate-50 rounded-xl p-3"><p class="text-xs text-slate-400 mb-1">Atualizado em</p><p class="font-semibold text-slate-700">${dt(s.updated_at)}</p></div>
@@ -1882,6 +2006,7 @@ function showFornecedorDetail(fornecedor) {
     ['Local / Endereço', fornecedor.local],
     ['Referência', fornecedor.referencia],
     ['Segmento', fornecedor.segmento],
+    ['Estabelecimento', fornecedor.estabelecimento],
   ];
   document.getElementById('detailContent').innerHTML = renderDetailFields(fields);
   openDetailDrawer('Visualizar Fornecedor');
@@ -2101,17 +2226,86 @@ function maskTelefone(el) {
 }
 
 // ── Drawer Gerenciamento ──────────────────────────────────────────────────
+let fornecedorSegmentosState = new Set();
+
+function setFornecedorSegmentos(values = []) {
+  fornecedorSegmentosState = new Set(values);
+  const categorias = getMgmtData('categoria');
+  document.getElementById('fornecedorSegmentosDropdown').innerHTML = categorias.map(categoria => `
+    <label class="ms-option">
+      <input type="checkbox" value="${categoria.nome}" ${fornecedorSegmentosState.has(categoria.nome) ? 'checked' : ''} onchange="updateFornecedorSegmentos(this)">
+      <span class="text-sm text-slate-700">${categoria.nome}</span>
+    </label>`).join('');
+  renderFornecedorSegmentos();
+}
+
+function updateFornecedorSegmentos(checkbox) {
+  checkbox.checked ? fornecedorSegmentosState.add(checkbox.value) : fornecedorSegmentosState.delete(checkbox.value);
+  renderFornecedorSegmentos();
+}
+
+function renderFornecedorSegmentos() {
+  const values = [...fornecedorSegmentosState];
+  document.getElementById('fornecedorSegmentosTags').innerHTML = values.length
+    ? values.map(value => `<span class="ms-tag">${value}</span>`).join('')
+    : '<span class="text-slate-400 text-sm">Selecionar segmentos...</span>';
+}
+
+function toggleFornecedorSegmentos(event) {
+  event.stopPropagation();
+  document.getElementById('fornecedorSegmentosDropdown').classList.toggle('hidden');
+}
+
+document.addEventListener('click', event => {
+  if (!event.target.closest('#fornecedorSegmentosWrapper')) document.getElementById('fornecedorSegmentosDropdown')?.classList.add('hidden');
+});
+
+let estabelecimentoSegmentosState = new Set();
+
+function setEstabelecimentoSegmentos(values = []) {
+  estabelecimentoSegmentosState = new Set(values);
+  document.getElementById('estabelecimentoSegmentosDropdown').innerHTML = getMgmtData('categoria').map(categoria => `
+    <label class="ms-option">
+      <input type="checkbox" value="${categoria.nome}" ${estabelecimentoSegmentosState.has(categoria.nome) ? 'checked' : ''} onchange="updateEstabelecimentoSegmentos(this)">
+      <span class="text-sm text-slate-700">${categoria.nome}</span>
+    </label>`).join('');
+  renderEstabelecimentoSegmentos();
+}
+
+function updateEstabelecimentoSegmentos(checkbox) {
+  checkbox.checked ? estabelecimentoSegmentosState.add(checkbox.value) : estabelecimentoSegmentosState.delete(checkbox.value);
+  renderEstabelecimentoSegmentos();
+}
+
+function renderEstabelecimentoSegmentos() {
+  const values = [...estabelecimentoSegmentosState];
+  document.getElementById('estabelecimentoSegmentosTags').innerHTML = values.length
+    ? values.map(value => `<span class="ms-tag">${value}</span>`).join('')
+    : '<span class="text-slate-400 text-sm">Selecionar categorias...</span>';
+}
+
+function toggleEstabelecimentoSegmentos(event) {
+  event.stopPropagation();
+  document.getElementById('estabelecimentoSegmentosDropdown').classList.toggle('hidden');
+}
+
+document.addEventListener('click', event => {
+  if (!event.target.closest('#estabelecimentoSegmentosWrapper')) document.getElementById('estabelecimentoSegmentosDropdown')?.classList.add('hidden');
+});
+
 const MGMT_TITLES = {
   categoria:  ['Nova Categoria',   'Editar Categoria'],
   area:       ['Nova Área',        'Editar Área'],
   unidade:    ['Nova Unidade',     'Editar Unidade'],
   fornecedor: ['Novo Fornecedor',  'Editar Fornecedor'],
+  estabelecimento: ['Novo Estabelecimento', 'Editar Estabelecimento'],
 };
 const MGMT_PLACEHOLDERS = {
   categoria:  'Ex: Material de Escritório',
   area:       'Ex: Cozinha',
   unidade:    'Ex: Unidade',
   fornecedor: 'Ex: Fornecedor ABC Ltda',
+  estabelecimento: 'Ex: Mercado Central',
 };
 
 function openMgmtDrawer(type, item = null) {
@@ -2124,8 +2318,13 @@ function openMgmtDrawer(type, item = null) {
   document.getElementById('mgmtForm').reset();
 
   document.getElementById('mgmtSiglaRow').classList.toggle('hidden', type !== 'unidade');
+  document.getElementById('mgmtNomeRow').classList.toggle('hidden', type === 'estabelecimento');
+  document.getElementById('mgmtNome').required = type !== 'estabelecimento';
   document.getElementById('mgmtFornecedorExtra').classList.toggle('hidden', type !== 'fornecedor');
+  document.getElementById('mgmtEstabelecimentoExtra').classList.toggle('hidden', type !== 'estabelecimento');
   document.getElementById('mgmtNome').placeholder = MGMT_PLACEHOLDERS[type];
+  if (type === 'fornecedor') setFornecedorSegmentos((item?.segmento || '').split(',').map(value => value.trim()).filter(Boolean));
+  if (type === 'estabelecimento') setEstabelecimentoSegmentos((item?.segmentos || '').split(',').map(value => value.trim()).filter(Boolean));
 
   if (item) {
     document.getElementById('mgmtNome').value = item.nome || '';
@@ -2136,8 +2335,9 @@ function openMgmtDrawer(type, item = null) {
       document.getElementById('mgmtEmail').value     = item.email     || '';
       document.getElementById('mgmtLocal').value     = item.local     || '';
       document.getElementById('mgmtReferencia').value= item.referencia|| '';
-      document.getElementById('mgmtSegmento').value  = item.segmento  || '';
+      document.getElementById('mgmtFornecedorEstabelecimento').value = item.estabelecimento || '';
     }
+    if (type === 'estabelecimento') document.getElementById('mgmtEstabelecimentoTipo').value = item.tipo || 'mercado';
   }
 
   document.getElementById('mgmtDrawer').classList.add('open');
@@ -2150,14 +2350,33 @@ function closeMgmtDrawer() {
   document.getElementById('mgmtDrawerOverlay').classList.remove('open');
 }
 
-function submitMgmtForm(e) {
+async function submitMgmtForm(e) {
   e.preventDefault();
   const type   = document.getElementById('mgmtType').value;
   const editId = parseInt(document.getElementById('mgmtEditId').value) || null;
   const nome   = document.getElementById('mgmtNome').value.trim();
-  if (!nome) { showToast('Informe o nome.', 'error'); return; }
+  if (type !== 'estabelecimento' && !nome) { showToast('Informe o nome.', 'error'); return; }
   const emailVal = document.getElementById('mgmtEmail')?.value.trim();
   if (type === 'fornecedor' && emailVal && !emailVal.includes('@')) { showToast('Informe um email válido com @.', 'error'); return; }
+
+  if (type === 'estabelecimento') {
+    const tipoEstabelecimento = document.getElementById('mgmtEstabelecimentoTipo').value.trim();
+    if (!tipoEstabelecimento) { showToast('Informe o tipo do estabelecimento.', 'error'); return; }
+    const payload = { tipo: tipoEstabelecimento, segmentos: [...estabelecimentoSegmentosState].join(', ') || null };
+    const res = await apiFetch(editId ? `/api/estabelecimentos/${editId}` : '/api/estabelecimentos', {
+      method: editId ? 'PUT' : 'POST', body: JSON.stringify(payload)
+    });
+    if (res && res.ok) {
+      closeMgmtDrawer();
+      showToast(editId ? 'Estabelecimento atualizado!' : 'Estabelecimento cadastrado!', 'success');
+      await loadEstabelecimentos();
+      renderEstabelecimentos();
+      return;
+    }
+    const err = res ? await res.json().catch(() => ({})) : {};
+    showToast(err.detail || 'Erro ao salvar estabelecimento.', 'error');
+    return;
+  }
 
   const data = getMgmtData(type);
 
@@ -2172,7 +2391,8 @@ function submitMgmtForm(e) {
         data[idx].email      = document.getElementById('mgmtEmail').value.trim();
         data[idx].local      = document.getElementById('mgmtLocal').value.trim();
         data[idx].referencia = document.getElementById('mgmtReferencia').value.trim();
-        data[idx].segmento   = document.getElementById('mgmtSegmento').value.trim();
+        data[idx].segmento   = [...fornecedorSegmentosState].join(', ');
+        data[idx].estabelecimento = document.getElementById('mgmtFornecedorEstabelecimento').value;
       }
     }
   } else {
@@ -2184,7 +2404,8 @@ function submitMgmtForm(e) {
       item.email      = document.getElementById('mgmtEmail').value.trim();
       item.local      = document.getElementById('mgmtLocal').value.trim();
       item.referencia = document.getElementById('mgmtReferencia').value.trim();
-      item.segmento   = document.getElementById('mgmtSegmento').value.trim();
+      item.segmento   = [...fornecedorSegmentosState].join(', ');
+      item.estabelecimento = document.getElementById('mgmtFornecedorEstabelecimento').value;
     }
     data.push(item);
   }
@@ -2265,6 +2486,10 @@ function openActionMenu(button, event, type, id, ativo = true) {
     <button type="button" class="action-item" onclick="runActionMenuItem('view-supplier',${id},event)">Visualizar</button>
     <button type="button" class="action-item" onclick="runActionMenuItem('edit-supplier',${id},event)">Editar</button>
     <button type="button" class="action-item danger" onclick="runActionMenuItem('discard-supplier',${id},event)">Descartar</button>
+  ` : type === 'solicitacao' ? `
+    <button type="button" class="action-item" onclick="runActionMenuItem('view-request',${id},event)">Visualizar</button>
+    <button type="button" class="action-item" onclick="runActionMenuItem('edit-request',${id},event)">Editar</button>
+    <button type="button" class="action-item danger" onclick="runActionMenuItem('delete-request',${id},event)">Descartar</button>
   ` : `
     <button type="button" class="action-item" onclick="runActionMenuItem('edit-user',${id},event)">Editar</button>
     <button type="button" class="action-item" onclick="runActionMenuItem('view-user',${id},event)">Visualizar</button>
@@ -2297,6 +2522,9 @@ function runActionMenuItem(action, id, event) {
   if (action === 'view-user' && usuario) showUsuarioDetail(usuario);
   if (action === 'reset-password') resetSenha(Number(id), usuario?.nome || 'usuário');
   if (action === 'remove-user') desativarUsuario(Number(id));
+  if (action === 'view-request') showDetail(Number(id));
+  if (action === 'edit-request') editItem(Number(id));
+  if (action === 'delete-request') deleteItem(Number(id));
 }
 
 document.addEventListener('click', closeActionMenus);
@@ -2322,6 +2550,13 @@ const USUARIO_MENU = (usuario) => `
     </button>
   </div>
 `;
+
+const SOLICITACAO_MENU = item => `
+  <div class="action-menu">
+    <button type="button" class="action-menu-btn" onclick="openActionMenu(this,event,'solicitacao',${item.id})" title="Opções" aria-label="Opções da solicitação" aria-haspopup="menu">
+      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-1 2-2s-1-2-2-2-2 1-2 2 1 2 2 2zm0 2c-1.1 0-2 1-2 2s1 2 2 2 2-1 2-2-1-2-2-2zm0 6c-1.1 0-2 1-2 2s1 2 2 2 2-1 2-2-1-2-2-2z"/></svg>
+    </button>
+  </div>`;
 
 function renderCategorias() {
   const search = (document.getElementById('catSearch')?.value || '').toLowerCase();
@@ -2396,6 +2631,55 @@ function renderFornecedores() {
         ${FORNECEDOR_MENU(item)}
       </td>
     </tr>`).join('');
+}
+
+let estabelecimentosCache = [];
+
+async function loadEstabelecimentos() {
+  const res = await apiFetch('/api/estabelecimentos');
+  if (!res || !res.ok) return estabelecimentosCache;
+  estabelecimentosCache = await res.json();
+  return estabelecimentosCache;
+}
+
+async function renderEstabelecimentos() {
+  await loadEstabelecimentos();
+  const search = (document.getElementById('estabelecimentoSearch')?.value || '').toLowerCase();
+  const data = estabelecimentosCache.filter(item => item.ativo && (!search || item.tipo.toLowerCase().includes(search) || (item.segmentos || '').toLowerCase().includes(search)));
+  const tbody = document.getElementById('estabelecimentosBody');
+  const empty = document.getElementById('estabelecimentosEmpty');
+  if (!tbody || !empty) return;
+  if (!data.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+  tbody.innerHTML = data.map(item => `
+    <tr class="row-hover transition-colors">
+      <td class="px-5 py-3.5 font-semibold text-slate-700">${item.tipo}</td>
+      <td class="px-5 py-3.5 text-slate-500">${item.segmentos || '—'}</td>
+      <td class="px-5 py-3.5"><div class="flex gap-1">${EDIT_BTN('estabelecimento', item)}${DEL_BTN_ESTABELECIMENTO(item.id)}</div></td>
+    </tr>`).join('');
+}
+
+const DEL_BTN_ESTABELECIMENTO = id => `
+  <button onclick="deleteEstabelecimento(${id})" class="text-red-400 hover:text-red-600 p-1 rounded hover:bg-red-50" title="Remover">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M4 7h16"/></svg>
+  </button>`;
+
+async function deleteEstabelecimento(id) {
+  if (!confirm('Remover este estabelecimento?')) return;
+  const res = await apiFetch(`/api/estabelecimentos/${id}`, { method:'DELETE' });
+  if (res && res.ok) { showToast('Estabelecimento removido.', 'success'); renderEstabelecimentos(); }
+  else showToast('Erro ao remover estabelecimento.', 'error');
+}
+
+async function loadEstabelecimentosOptions(selectedId = '') {
+  await loadEstabelecimentos();
+  const ativos = estabelecimentosCache.filter(item => item.ativo);
+  const select = document.getElementById('fEstabelecimento');
+  if (select) {
+    select.innerHTML = '<option value="">Selecionar estabelecimento...</option>' + ativos.map(item => `<option value="${item.id}">${item.tipo}</option>`).join('');
+    select.value = selectedId ? String(selectedId) : '';
+  }
+  return ativos;
 }
 
 // ── Toast ─────────────────────────────────────────────────────────────────
