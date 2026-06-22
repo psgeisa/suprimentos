@@ -44,8 +44,8 @@
     .dark .drawer::before { background: rgba(0,0,0,0.78); }
     .drawer > * { position: relative; z-index: 1; }
     .drawer.open { transform: translateX(0); }
-    .drawer-overlay { display:none; position:fixed; inset:0; background:rgba(30,27,75,.35); z-index:39; }
-    .drawer-overlay.open { display:block; }
+    .drawer-overlay { display:none; position:fixed; inset:0; background:rgba(30,27,75,.35); z-index:39; pointer-events:none; }
+    .drawer-overlay.open { display:block; pointer-events:auto; }
 
     /* ── Modal ─── */
     .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:50; }
