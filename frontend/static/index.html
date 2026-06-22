@@ -165,9 +165,28 @@
       section[id^="page-"] { padding:1rem !important; }
     }
 
-    /* ── Mobile (< 768px): sidebar completamente oculto ── */
+    /* ── Mobile (< 768px): sidebar oculto por padrão, visível ao abrir menu ── */
     @media (max-width: 767px) {
-      #sidebar { width:0 !important; min-width:0 !important; overflow:hidden !important; transition:none !important; }
+      #sidebar {
+        position:fixed !important;
+        left:-256px !important;
+        top:0 !important;
+        width:256px !important;
+        min-width:256px !important;
+        overflow:auto !important;
+        transition:left 0.3s cubic-bezier(.4,0,.2,1) !important;
+        height:100vh !important;
+        z-index:45 !important;
+      }
+      #sidebar.mobile-open { left:0 !important; }
+      #sidebarOverlay {
+        display:none !important;
+        position:fixed !important;
+        inset:0 !important;
+        background:rgba(0,0,0,0.5) !important;
+        z-index:44 !important;
+      }
+      #sidebarOverlay.mobile-open { display:block !important; }
       .drawer { left:0 !important; }
       main header { padding-left:1rem !important; padding-right:1rem !important; }
       section[id^="page-"] { padding:1rem !important; }
@@ -243,6 +262,9 @@
     </div>
   </div>
 </div>
+
+<!-- ── Overlay Mobile ──────────────────────────────────────────────── -->
+<div id="sidebarOverlay" onclick="closeMobileMenu()"></div>
 
 <!-- ── Sidebar ─────────────────────────────────────────────────────────────── -->
 <aside id="sidebar" class="gradient-brand flex flex-col min-h-screen shadow-xl" style="position:relative;z-index:1;">
@@ -363,9 +385,16 @@
 <main class="flex-1 overflow-auto" style="position:relative;z-index:1;">
 
   <header class="bg-white border-b border-slate-100 px-8 flex items-center justify-between sticky top-0 z-10 shadow-sm" style="padding-top:14px;padding-bottom:14px;">
-    <div>
-      <h1 id="pageTitle" class="text-slate-800 font-bold text-lg">Dashboard</h1>
-      <p id="pageSubtitle" class="text-slate-500 text-xs">Visão geral do sistema</p>
+    <div class="flex items-center gap-4">
+      <button id="mobileMenuBtn" onclick="toggleMobileMenu()" class="hidden lg:hidden text-slate-600 hover:text-slate-800 transition-colors p-1 rounded-lg hover:bg-slate-100" title="Abrir menu">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+      </button>
+      <div>
+        <h1 id="pageTitle" class="text-slate-800 font-bold text-lg">Dashboard</h1>
+        <p id="pageSubtitle" class="text-slate-500 text-xs">Visão geral do sistema</p>
+      </div>
     </div>
     <button id="headerNovaBtn" onclick="openDrawer()" class="btn-primary flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold shadow-md">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1055,6 +1084,30 @@ function togglePin() {
   localStorage.setItem('sup_sidebar_pinned', sidebarPinned);
   applySidebarState();
 }
+
+// ── Mobile Menu ───────────────────────────────────────────────────────────
+function toggleMobileMenu() {
+  const sb = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  sb.classList.toggle('mobile-open');
+  overlay.classList.toggle('mobile-open');
+}
+
+function closeMobileMenu() {
+  const sb = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  sb.classList.remove('mobile-open');
+  overlay.classList.remove('mobile-open');
+}
+
+// Fechar menu mobile ao clicar em um item
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('#sidebar .sidebar-item, #sidebar .sidebar-util').forEach(el => {
+    el.addEventListener('click', () => {
+      if (window.innerWidth < 1024) closeMobileMenu();
+    });
+  });
+});
 
 // ── Dados gerenciáveis (localStorage) ────────────────────────────────────
 const MGMT_KEYS = { categoria:'sup_categorias', area:'sup_areas', unidade:'sup_unidades', fornecedor:'sup_fornecedores' };
