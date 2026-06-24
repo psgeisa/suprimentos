@@ -699,7 +699,7 @@
   </section>
 
   <!-- ── Suprimentos ── -->
-  <section id="page-suprimentos" class="p-8 hidden">
+  <section id="page-suprimentos" class="p-8 hidden" style="min-height:calc(100vh - 73px)">
     <div class="filter-bar">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
         <input id="fBusca" type="text" placeholder="Título, solicitante ou equipe..."
@@ -738,18 +738,18 @@
   </section>
 
   <!-- ── Usuários (admin only) ── -->
-  <section id="page-usuarios" class="p-8 hidden">
+  <section id="page-usuarios" class="p-8 hidden" style="min-height:calc(100vh - 73px)">
     <div class="filter-bar">
       <div class="flex items-center gap-4 flex-wrap">
         <input id="uBusca" type="text" placeholder="Buscar por nome, email, perfil, time..."
-          class="border border-slate-200 rounded-lg px-3 py-2 text-sm flex-1 min-w-48" oninput="loadUsuarios()" />
-        <select id="uFiltroRole" class="border border-slate-200 rounded-lg px-3 py-2 text-sm" onchange="loadUsuarios()">
+          class="border border-slate-200 rounded-lg px-3 py-2 text-sm flex-1 min-w-48" oninput="userPage=1;loadUsuarios()" />
+        <select id="uFiltroRole" class="border border-slate-200 rounded-lg px-3 py-2 text-sm" onchange="userPage=1;loadUsuarios()">
           <option value="">Todos os perfis</option>
           <option value="admin">Administrador</option>
           <option value="compras">Compras</option>
           <option value="solicitante">Solicitante</option>
         </select>
-        <select id="uFiltroAtivo" class="border border-slate-200 rounded-lg px-3 py-2 text-sm" onchange="loadUsuarios()">
+        <select id="uFiltroAtivo" class="border border-slate-200 rounded-lg px-3 py-2 text-sm" onchange="userPage=1;loadUsuarios()">
           <option value="">Todos os status</option>
           <option value="true">Ativo</option>
           <option value="false">Inativo</option>
@@ -776,15 +776,16 @@
       <div id="usuariosEmpty" class="hidden flex flex-col items-center py-16 text-slate-400">
         <p class="font-medium">Nenhum usuário encontrado</p>
       </div>
+      <div id="userPagination" class="px-5 py-4 border-t border-slate-100"></div>
     </div>
   </section>
 
   <!-- ── Categorias ── -->
-  <section id="page-categorias" class="p-8 hidden">
+  <section id="page-categorias" class="p-8 hidden" style="min-height:calc(100vh - 73px)">
     <div class="filter-bar">
       <div class="flex items-center gap-4">
         <input id="catSearch" type="text" placeholder="Buscar segmento..."
-          class="border border-slate-200 rounded-lg px-3 py-2 text-sm flex-1" oninput="renderCategorias()" />
+          class="border border-slate-200 rounded-lg px-3 py-2 text-sm flex-1" oninput="catPage=1;renderCategorias()" />
         <button onclick="openMgmtDrawer('categoria')" class="btn-primary flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold shadow-md">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
           Novo Segmento
@@ -806,15 +807,16 @@
         <p class="font-medium">Nenhum segmento cadastrado</p>
         <p class="text-xs mt-1">Clique em "Novo Segmento" para começar</p>
       </div>
+      <div id="catPagination" class="px-5 py-4 border-t border-slate-100"></div>
     </div>
   </section>
 
   <!-- ── Área Demandante ── -->
-  <section id="page-areas" class="p-8 hidden">
+  <section id="page-areas" class="p-8 hidden" style="min-height:calc(100vh - 73px)">
     <div class="filter-bar">
       <div class="flex items-center gap-4">
         <input id="areaSearch" type="text" placeholder="Buscar área..."
-          class="border border-slate-200 rounded-lg px-3 py-2 text-sm flex-1" oninput="renderAreas()" />
+          class="border border-slate-200 rounded-lg px-3 py-2 text-sm flex-1" oninput="areaPage=1;renderAreas()" />
         <button onclick="openMgmtDrawer('area')" class="btn-primary flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold shadow-md">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
           Nova Área
@@ -836,15 +838,16 @@
         <p class="font-medium">Nenhuma área cadastrada</p>
         <p class="text-xs mt-1">Clique em "Nova Área" para começar</p>
       </div>
+      <div id="areaPagination" class="px-5 py-4 border-t border-slate-100"></div>
     </div>
   </section>
 
   <!-- ── Unidades ── -->
-  <section id="page-unidades" class="p-8 hidden">
+  <section id="page-unidades" class="p-8 hidden" style="min-height:calc(100vh - 73px)">
     <div class="filter-bar">
       <div class="flex items-center gap-4">
         <input id="unidadeSearch" type="text" placeholder="Buscar unidade..."
-          class="border border-slate-200 rounded-lg px-3 py-2 text-sm flex-1" oninput="renderUnidades()" />
+          class="border border-slate-200 rounded-lg px-3 py-2 text-sm flex-1" oninput="unidadePage=1;renderUnidades()" />
         <button onclick="openMgmtDrawer('unidade')" class="btn-primary flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold shadow-md">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
           Nova Unidade
@@ -867,15 +870,16 @@
         <p class="font-medium">Nenhuma unidade cadastrada</p>
         <p class="text-xs mt-1">Clique em "Nova Unidade" para começar</p>
       </div>
+      <div id="unidadePagination" class="px-5 py-4 border-t border-slate-100"></div>
     </div>
   </section>
 
   <!-- ── Fornecedores ── -->
-  <section id="page-fornecedores" class="p-8 hidden">
+  <section id="page-fornecedores" class="p-8 hidden" style="min-height:calc(100vh - 73px)">
     <div class="filter-bar">
       <div class="flex items-center gap-4">
         <input id="fornecedorSearch" type="text" placeholder="Buscar fornecedor..."
-          class="border border-slate-200 rounded-lg px-3 py-2 text-sm flex-1" oninput="renderFornecedores()" />
+          class="border border-slate-200 rounded-lg px-3 py-2 text-sm flex-1" oninput="fornPage=1;renderFornecedores()" />
         <button onclick="openMgmtDrawer('fornecedor')" class="btn-primary flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold shadow-md">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
           Novo Fornecedor
@@ -898,15 +902,16 @@
         <p class="font-medium">Nenhum fornecedor cadastrado</p>
         <p class="text-xs mt-1">Clique em "Novo Fornecedor" para começar</p>
       </div>
+      <div id="fornPagination" class="px-5 py-4 border-t border-slate-100"></div>
     </div>
   </section>
 
   <!-- ── Estabelecimentos (admin) ── -->
-  <section id="page-estabelecimentos" class="p-8 hidden">
+  <section id="page-estabelecimentos" class="p-8 hidden" style="min-height:calc(100vh - 73px)">
     <div class="filter-bar">
       <div class="flex items-center gap-4">
         <input id="estabelecimentoSearch" type="text" placeholder="Buscar estabelecimento..."
-          class="border border-slate-200 rounded-lg px-3 py-2 text-sm flex-1" oninput="renderEstabelecimentos()" />
+          class="border border-slate-200 rounded-lg px-3 py-2 text-sm flex-1" oninput="estPage=1;renderEstabelecimentos()" />
         <button onclick="openMgmtDrawer('estabelecimento')" class="btn-primary flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold shadow-md">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
           Novo Estabelecimento
@@ -925,6 +930,7 @@
       <div id="estabelecimentosEmpty" class="hidden flex flex-col items-center py-16 text-slate-400">
         <p class="font-medium">Nenhum estabelecimento cadastrado</p>
       </div>
+      <div id="estPagination" class="px-5 py-4 border-t border-slate-100"></div>
     </div>
   </section>
 
@@ -1369,6 +1375,8 @@ let currentUser = null;     // { id, nome, email, role }
 let emergenciaOn = false;
 let supPage = 1;
 const SUP_LIMIT = 20;
+let catPage = 1, areaPage = 1, unidadePage = 1, fornPage = 1, estPage = 1, userPage = 1;
+const MGMT_PER_PAGE = 10;
 
 const STATUS_LABEL = { pendente:'Pendente', aprovado:'Aprovado', em_andamento:'Em Andamento', concluido:'Concluído', cancelado:'Cancelado' };
 const PRIO_LABEL   = { baixa:'Baixa', media:'Média', alta:'Alta', urgente:'Urgente' };
@@ -1710,12 +1718,12 @@ function showPage(page) {
 
   if (page === 'dashboard')    loadDashboard();
   if (page === 'suprimentos')  { supPage = 1; initializeSolicitacaoFilters(); loadSuprimentos(); }
-  if (page === 'usuarios')     loadUsuarios();
-  if (page === 'categorias')   renderCategorias();
-  if (page === 'areas')        renderAreas();
-  if (page === 'unidades')     renderUnidades();
-  if (page === 'fornecedores') renderFornecedores();
-  if (page === 'estabelecimentos') renderEstabelecimentos();
+  if (page === 'usuarios')     { userPage=1; loadUsuarios(); }
+  if (page === 'categorias')   { catPage=1; renderCategorias(); }
+  if (page === 'areas')        { areaPage=1; renderAreas(); }
+  if (page === 'unidades')     { unidadePage=1; renderUnidades(); }
+  if (page === 'fornecedores') { fornPage=1; renderFornecedores(); }
+  if (page === 'estabelecimentos') { estPage=1; renderEstabelecimentos(); }
 }
 
 // ── Dashboard ─────────────────────────────────────────────────────────────
@@ -1892,6 +1900,22 @@ function renderPagination(total, page, pages) {
 function goPage(p) {
   supPage = p;
   loadSuprimentos();
+}
+
+function renderMgmtPagination(containerId, total, page, pages, goFnName) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  if (pages <= 1) { el.innerHTML = ''; return; }
+  let html = '<div class="flex items-center gap-1.5 flex-wrap justify-center">';
+  html += `<button class="pg-btn" onclick="${goFnName}(${page-1})" ${page<=1?'disabled':''}>← Anterior</button>`;
+  const range = 2;
+  let start = Math.max(1, page-range), end = Math.min(pages, page+range);
+  if (start > 1) { html += `<button class="pg-btn" onclick="${goFnName}(1)">1</button>`; if (start>2) html += `<span class="text-slate-400 text-sm px-1">…</span>`; }
+  for (let i=start; i<=end; i++) html += `<button class="pg-btn ${i===page?'active':''}" onclick="${goFnName}(${i})">${i}</button>`;
+  if (end < pages) { if (end<pages-1) html += `<span class="text-slate-400 text-sm px-1">…</span>`; html += `<button class="pg-btn" onclick="${goFnName}(${pages})">${pages}</button>`; }
+  html += `<button class="pg-btn" onclick="${goFnName}(${page+1})" ${page>=pages?'disabled':''}>Próxima →</button>`;
+  html += `</div><p class="text-center text-xs text-slate-400 mt-2">${total} registro${total!==1?'s':''}</p>`;
+  el.innerHTML = html;
 }
 
 // ── Drawer ────────────────────────────────────────────────────────────────
@@ -2171,10 +2195,14 @@ async function loadUsuarios() {
   if (!lista.length) {
     tbody.innerHTML = '';
     empty.classList.remove('hidden');
+    document.getElementById('userPagination').innerHTML = '';
     return;
   }
   empty.classList.add('hidden');
-  tbody.innerHTML = lista.map(u => {
+  const uPages = Math.ceil(lista.length / MGMT_PER_PAGE);
+  userPage = Math.min(userPage, uPages);
+  const paged = lista.slice((userPage-1)*MGMT_PER_PAGE, userPage*MGMT_PER_PAGE);
+  tbody.innerHTML = paged.map(u => {
     return `<tr class="row-hover transition-colors">
       <td class="px-5 py-3.5">
         <p class="font-semibold text-slate-700 text-sm">${u.nome}</p>
@@ -2186,7 +2214,9 @@ async function loadUsuarios() {
       </td>
     </tr>`;
   }).join('');
+  renderMgmtPagination('userPagination', lista.length, userPage, uPages, 'goPageUser');
 }
+function goPageUser(p) { userPage=p; loadUsuarios(); }
 
 function showFornecedorDetail(fornecedor) {
   const fields = [
@@ -2756,11 +2786,14 @@ const SOLICITACAO_MENU = item => `
 
 function renderCategorias() {
   const search = (document.getElementById('catSearch')?.value || '').toLowerCase();
-  const data   = getMgmtData('categoria').filter(i => !search || i.nome.toLowerCase().includes(search));
+  const all    = getMgmtData('categoria').filter(i => !search || i.nome.toLowerCase().includes(search));
   const tbody  = document.getElementById('categoriasBody');
   const empty  = document.getElementById('categoriasEmpty');
-  if (!data.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
+  if (!all.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); document.getElementById('catPagination').innerHTML=''; return; }
   empty.classList.add('hidden');
+  const pages = Math.ceil(all.length / MGMT_PER_PAGE);
+  catPage = Math.min(catPage, pages);
+  const data = all.slice((catPage-1)*MGMT_PER_PAGE, catPage*MGMT_PER_PAGE);
   tbody.innerHTML = data.map(item => `
     <tr class="row-hover transition-colors">
       <td class="px-5 py-3.5 text-sm">${item.nome}</td>
@@ -2768,15 +2801,20 @@ function renderCategorias() {
         <div class="flex gap-1">${DEL_BTN('categoria', item.id)}</div>
       </td>
     </tr>`).join('');
+  renderMgmtPagination('catPagination', all.length, catPage, pages, 'goPageCat');
 }
+function goPageCat(p) { catPage=p; renderCategorias(); }
 
 function renderAreas() {
   const search = (document.getElementById('areaSearch')?.value || '').toLowerCase();
-  const data   = getMgmtData('area').filter(i => !search || i.nome.toLowerCase().includes(search));
+  const all    = getMgmtData('area').filter(i => !search || i.nome.toLowerCase().includes(search));
   const tbody  = document.getElementById('areasBody');
   const empty  = document.getElementById('areasEmpty');
-  if (!data.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
+  if (!all.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); document.getElementById('areaPagination').innerHTML=''; return; }
   empty.classList.add('hidden');
+  const pages = Math.ceil(all.length / MGMT_PER_PAGE);
+  areaPage = Math.min(areaPage, pages);
+  const data = all.slice((areaPage-1)*MGMT_PER_PAGE, areaPage*MGMT_PER_PAGE);
   tbody.innerHTML = data.map(item => `
     <tr class="row-hover transition-colors">
       <td class="px-5 py-3.5 text-sm">${item.nome}</td>
@@ -2784,15 +2822,20 @@ function renderAreas() {
         <div class="flex gap-1">${DEL_BTN('area', item.id)}</div>
       </td>
     </tr>`).join('');
+  renderMgmtPagination('areaPagination', all.length, areaPage, pages, 'goPageArea');
 }
+function goPageArea(p) { areaPage=p; renderAreas(); }
 
 function renderUnidades() {
   const search = (document.getElementById('unidadeSearch')?.value || '').toLowerCase();
-  const data   = getMgmtData('unidade').filter(i => !search || i.nome.toLowerCase().includes(search) || i.sigla.toLowerCase().includes(search));
+  const all    = getMgmtData('unidade').filter(i => !search || i.nome.toLowerCase().includes(search) || i.sigla.toLowerCase().includes(search));
   const tbody  = document.getElementById('unidadesBody');
   const empty  = document.getElementById('unidadesEmpty');
-  if (!data.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
+  if (!all.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); document.getElementById('unidadePagination').innerHTML=''; return; }
   empty.classList.add('hidden');
+  const pages = Math.ceil(all.length / MGMT_PER_PAGE);
+  unidadePage = Math.min(unidadePage, pages);
+  const data = all.slice((unidadePage-1)*MGMT_PER_PAGE, unidadePage*MGMT_PER_PAGE);
   tbody.innerHTML = data.map(item => `
     <tr class="row-hover transition-colors">
       <td class="px-5 py-3.5">
@@ -2803,15 +2846,20 @@ function renderUnidades() {
         <div class="flex gap-1">${DEL_BTN('unidade', item.id)}</div>
       </td>
     </tr>`).join('');
+  renderMgmtPagination('unidadePagination', all.length, unidadePage, pages, 'goPageUnidade');
 }
+function goPageUnidade(p) { unidadePage=p; renderUnidades(); }
 
 function renderFornecedores() {
   const search = (document.getElementById('fornecedorSearch')?.value || '').toLowerCase();
-  const data   = getMgmtData('fornecedor').filter(i => !search || i.nome.toLowerCase().includes(search) || (i.contato||'').toLowerCase().includes(search));
+  const all    = getMgmtData('fornecedor').filter(i => !search || i.nome.toLowerCase().includes(search) || (i.contato||'').toLowerCase().includes(search));
   const tbody  = document.getElementById('fornecedoresBody');
   const empty  = document.getElementById('fornecedoresEmpty');
-  if (!data.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
+  if (!all.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); document.getElementById('fornPagination').innerHTML=''; return; }
   empty.classList.add('hidden');
+  const pages = Math.ceil(all.length / MGMT_PER_PAGE);
+  fornPage = Math.min(fornPage, pages);
+  const data = all.slice((fornPage-1)*MGMT_PER_PAGE, fornPage*MGMT_PER_PAGE);
   tbody.innerHTML = data.map(item => `
     <tr class="row-hover transition-colors">
       <td class="px-5 py-3.5">
@@ -2823,7 +2871,9 @@ function renderFornecedores() {
         ${FORNECEDOR_MENU(item)}
       </td>
     </tr>`).join('');
+  renderMgmtPagination('fornPagination', all.length, fornPage, pages, 'goPageForn');
 }
+function goPageForn(p) { fornPage=p; renderFornecedores(); }
 
 let estabelecimentosCache = [];
 
@@ -2837,19 +2887,24 @@ async function loadEstabelecimentos() {
 async function renderEstabelecimentos() {
   await loadEstabelecimentos();
   const search = (document.getElementById('estabelecimentoSearch')?.value || '').toLowerCase();
-  const data = estabelecimentosCache.filter(item => item.ativo && (!search || item.tipo.toLowerCase().includes(search) || (item.segmentos || '').toLowerCase().includes(search)));
+  const all = estabelecimentosCache.filter(item => item.ativo && (!search || item.tipo.toLowerCase().includes(search) || (item.segmentos || '').toLowerCase().includes(search)));
   const tbody = document.getElementById('estabelecimentosBody');
   const empty = document.getElementById('estabelecimentosEmpty');
   if (!tbody || !empty) return;
-  if (!data.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); return; }
+  if (!all.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); document.getElementById('estPagination').innerHTML=''; return; }
   empty.classList.add('hidden');
+  const pages = Math.ceil(all.length / MGMT_PER_PAGE);
+  estPage = Math.min(estPage, pages);
+  const data = all.slice((estPage-1)*MGMT_PER_PAGE, estPage*MGMT_PER_PAGE);
   tbody.innerHTML = data.map(item => `
     <tr class="row-hover transition-colors">
       <td class="px-5 py-3.5 font-semibold">${item.tipo}</td>
       <td class="px-5 py-3.5">${item.segmentos || '—'}</td>
       <td class="px-5 py-3.5">${ESTABELECIMENTO_MENU(item)}</td>
     </tr>`).join('');
+  renderMgmtPagination('estPagination', all.length, estPage, pages, 'goPageEst');
 }
+function goPageEst(p) { estPage=p; renderEstabelecimentos(); }
 
 const ESTABELECIMENTO_MENU = (item) => `
   <div class="action-menu">
