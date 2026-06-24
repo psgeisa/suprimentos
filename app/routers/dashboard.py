@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from sqlalchemy import func
+from sqlalchemy import func, case, asc
 
 from app.database import get_db
 from app.models.suprimento import Suprimento
@@ -27,9 +27,20 @@ def dashboard(db: Session = Depends(get_db), _=Depends(get_current_user)):
         .all()
     )
     valor_total = db.query(func.sum(Suprimento.valor_estimado)).scalar() or 0
-    recentes = (
-        db.query(Suprimento).order_by(Suprimento.created_at.desc()).limit(5).all()
+    _prio_order = case(
+        (Suprimento.prioridade == 'urgente', 0),
+        (Suprimento.prioridade == 'alta', 1),
+        else_=2,
     )
+    importantes = (
+        db.query(Suprimento)
+        .filter(Suprimento.prioridade.in_(['urgente', 'alta']))
+        .filter(Suprimento.status.notin_(['concluido', 'cancelado']))
+        .order_by(_prio_order, Suprimento.created_at.desc())
+        .limit(5)
+        .all()
+    )
+    recentes = importantes
     return {
         "total": total,
         "por_status": por_status,
