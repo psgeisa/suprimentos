@@ -930,7 +930,7 @@
           <tr class="bg-slate-50 border-b border-slate-100">
             <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Item</th>
             <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Segmento</th>
-            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide w-24">Ações</th>
+            <th class="px-5 py-3 w-12"></th>
           </tr>
         </thead>
         <tbody id="itensBody" class="divide-y divide-slate-50"></tbody>
@@ -3015,7 +3015,10 @@ function openActionMenu(button, event, type, id, ativo = true) {
 
   menu.dataset.type = type;
   menu.dataset.id = String(id);
-  menu.innerHTML = type === 'estabelecimento' ? `
+  menu.innerHTML = type === 'item' ? `
+    <button type="button" class="action-item" onclick="runActionMenuItem('edit-item',${id},event)">Editar</button>
+    <button type="button" class="action-item danger" onclick="runActionMenuItem('delete-item',${id},event)">Remover</button>
+  ` : type === 'estabelecimento' ? `
     <button type="button" class="action-item" onclick="runActionMenuItem('edit-estabelecimento',${id},event)">Editar</button>
     <button type="button" class="action-item danger" onclick="runActionMenuItem('delete-estabelecimento',${id},event)">Remover</button>
   ` : type === 'fornecedor' ? `
@@ -3050,6 +3053,8 @@ function runActionMenuItem(action, id, event) {
   const usuario = window.usuariosById?.get(stringId);
   closeActionMenus();
 
+  if (action === 'edit-item') { const it = itensCache.find(i => i.id === Number(id)); if (it) openMgmtDrawer('item', it); }
+  if (action === 'delete-item') deleteMgmtItem('item', Number(id));
   if (action === 'edit-estabelecimento') { const est = estabelecimentosCache.find(e => e.id === Number(id)); if (est) openMgmtDrawer('estabelecimento', est); }
   if (action === 'delete-estabelecimento') deleteEstabelecimento(Number(id));
   if (action === 'view-supplier' && fornecedor) showFornecedorDetail(fornecedor);
@@ -3177,10 +3182,11 @@ function renderItens() {
       <td class="px-5 py-3.5">
         <span class="unidade-sigla-tag text-xs font-semibold px-2 py-0.5 rounded">${item.segmento}</span>
       </td>
-      <td class="px-5 py-3.5">
-        <div class="flex gap-1">
-          ${EDIT_BTN('item', item)}
-          ${DEL_BTN('item', item.id)}
+      <td class="px-5 py-3.5" onclick="event.stopPropagation()">
+        <div class="action-menu">
+          <button type="button" class="action-menu-btn" onclick="openActionMenu(this,event,'item',${item.id})" title="Opções" aria-label="Opções do item" aria-haspopup="menu">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-1 2-2s-1-2-2-2-2 1-2 2 1 2 2 2zm0 2c-1.1 0-2 1-2 2s1 2 2 2 2-1 2-2-1-2-2-2zm0 6c-1.1 0-2 1-2 2s1 2 2 2 2-1 2-2-1-2-2-2z"/></svg>
+          </button>
         </div>
       </td>
     </tr>`).join('');
