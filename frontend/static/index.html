@@ -181,9 +181,50 @@
     .dark #page-fornecedores tbody tr td .text-slate-500 { color:rgba(255,255,255,0.8) !important; }
     .dark #fornecedoresEmpty { color:#fff !important; }
 
-    /* ── Filtros sempre acima da tabela (overflow/backdrop-filter criam stacking context) ── */
-    #page-suprimentos > div:first-child { position: relative; z-index: 2; }
-    #page-suprimentos > div:last-child  { position: relative; z-index: 1; }
+    /* ── Filter bar — padrão único para todas as telas ── */
+    .filter-bar {
+      background: rgba(255,255,255,0.35);
+      backdrop-filter: blur(4px);
+      border-radius: 1rem;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+      border: 1px solid #F1F5F9;
+      padding: 1.25rem;
+      margin-bottom: 1.5rem;
+      position: relative;
+      z-index: 2; /* sempre acima do card da tabela */
+    }
+    .dark .filter-bar {
+      background: rgba(0,0,0,0.45);
+      border-color: rgba(212,165,32,0.2);
+    }
+    .filter-bar input,
+    .filter-bar select {
+      border: 1px solid #E2E8F0;
+      border-radius: 0.5rem;
+      padding: 0.5rem 0.75rem;
+      font-size: 0.875rem;
+      background: #fff;
+      color: #334155;
+    }
+    .filter-bar input:focus,
+    .filter-bar select:focus {
+      outline: none;
+      border-color: #C8780A;
+      box-shadow: 0 0 0 3px rgba(200,120,10,0.15);
+    }
+    .filter-bar input::placeholder { color: #94A3B8; }
+    .dark .filter-bar input,
+    .dark .filter-bar select {
+      background: #0d0d0d;
+      border-color: rgba(212,165,32,0.3);
+      color: #F5E6BE;
+    }
+    .dark .filter-bar input::placeholder { color: #5A4A28; }
+    .dark .filter-bar .ms-trigger {
+      background: #0d0d0d !important;
+      border-color: rgba(212,165,32,0.3) !important;
+      color: #fff !important;
+    }
 
     /* ── Ícone lixo amarelo em dark mode nas telas de gestão simples ── */
     .dark #page-categorias .text-red-400,
@@ -659,7 +700,7 @@
 
   <!-- ── Suprimentos ── -->
   <section id="page-suprimentos" class="p-8 hidden">
-    <div class="card-glass bg-white rounded-2xl shadow-sm border border-slate-100 p-5 mb-6">
+    <div class="filter-bar">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
         <input id="fBusca" type="text" placeholder="Título, solicitante ou equipe..."
           class="border border-slate-200 rounded-lg px-3 py-2 text-sm" oninput="resetAndLoad()" />
@@ -698,7 +739,7 @@
 
   <!-- ── Usuários (admin only) ── -->
   <section id="page-usuarios" class="p-8 hidden">
-    <div class="card-glass bg-white rounded-2xl shadow-sm border border-slate-100 p-5 mb-6">
+    <div class="filter-bar">
       <div class="flex items-center gap-4 flex-wrap">
         <input id="uBusca" type="text" placeholder="Buscar por nome, email, perfil, time..."
           class="border border-slate-200 rounded-lg px-3 py-2 text-sm flex-1 min-w-48" oninput="loadUsuarios()" />
@@ -740,7 +781,7 @@
 
   <!-- ── Categorias ── -->
   <section id="page-categorias" class="p-8 hidden">
-    <div class="card-glass bg-white rounded-2xl shadow-sm border border-slate-100 p-5 mb-6">
+    <div class="filter-bar">
       <div class="flex items-center gap-4">
         <input id="catSearch" type="text" placeholder="Buscar segmento..."
           class="border border-slate-200 rounded-lg px-3 py-2 text-sm flex-1" oninput="renderCategorias()" />
@@ -770,7 +811,7 @@
 
   <!-- ── Área Demandante ── -->
   <section id="page-areas" class="p-8 hidden">
-    <div class="card-glass bg-white rounded-2xl shadow-sm border border-slate-100 p-5 mb-6">
+    <div class="filter-bar">
       <div class="flex items-center gap-4">
         <input id="areaSearch" type="text" placeholder="Buscar área..."
           class="border border-slate-200 rounded-lg px-3 py-2 text-sm flex-1" oninput="renderAreas()" />
@@ -800,7 +841,7 @@
 
   <!-- ── Unidades ── -->
   <section id="page-unidades" class="p-8 hidden">
-    <div class="card-glass bg-white rounded-2xl shadow-sm border border-slate-100 p-5 mb-6">
+    <div class="filter-bar">
       <div class="flex items-center gap-4">
         <input id="unidadeSearch" type="text" placeholder="Buscar unidade..."
           class="border border-slate-200 rounded-lg px-3 py-2 text-sm flex-1" oninput="renderUnidades()" />
@@ -831,7 +872,7 @@
 
   <!-- ── Fornecedores ── -->
   <section id="page-fornecedores" class="p-8 hidden">
-    <div class="card-glass bg-white rounded-2xl shadow-sm border border-slate-100 p-5 mb-6">
+    <div class="filter-bar">
       <div class="flex items-center gap-4">
         <input id="fornecedorSearch" type="text" placeholder="Buscar fornecedor..."
           class="border border-slate-200 rounded-lg px-3 py-2 text-sm flex-1" oninput="renderFornecedores()" />
@@ -862,7 +903,7 @@
 
   <!-- ── Estabelecimentos (admin) ── -->
   <section id="page-estabelecimentos" class="p-8 hidden">
-    <div class="card-glass bg-white rounded-2xl shadow-sm border border-slate-100 p-5 mb-6">
+    <div class="filter-bar">
       <div class="flex items-center gap-4">
         <input id="estabelecimentoSearch" type="text" placeholder="Buscar estabelecimento..."
           class="border border-slate-200 rounded-lg px-3 py-2 text-sm flex-1" oninput="renderEstabelecimentos()" />
