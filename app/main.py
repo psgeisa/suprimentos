@@ -89,7 +89,10 @@ def create_app() -> FastAPI:
 
     @app.get("/", response_class=FileResponse)
     def index():
-        return FileResponse(os.path.join(FRONTEND_DIR, "static", "index.html"))
+        return FileResponse(
+            os.path.join(FRONTEND_DIR, "static", "index.html"),
+            headers={"Cache-Control": "no-cache, no-store, must-revalidate"},
+        )
 
     return app
 
