@@ -1,6 +1,7 @@
 import math
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
+from sqlalchemy import case, asc
 from typing import Optional
 from datetime import datetime
 
@@ -9,6 +10,29 @@ from app.models.suprimento import Suprimento
 from app.models.estabelecimento import Estabelecimento
 from app.schemas.suprimento import SuprimentoCreate, SuprimentoUpdate, SuprimentoOut
 from app.auth import get_current_user
+
+# Grupo principal: urgente=0, pendente não-urgente=1, resto=2
+_GROUP = case(
+    (Suprimento.prioridade == 'urgente', 0),
+    (Suprimento.status == 'pendente', 1),
+    else_=2,
+)
+
+# Prioridade dentro de cada grupo: alta=1, media=2, baixa=3 (urgente=0 já está no grupo)
+_PRIO = case(
+    (Suprimento.prioridade == 'urgente', 0),
+    (Suprimento.prioridade == 'alta', 1),
+    (Suprimento.prioridade == 'media', 2),
+    else_=3,
+)
+
+# Hierarquia de equipe demandante
+_TEAM = case(
+    (Suprimento.departamento.ilike('%Diretoria%'), 0),
+    (Suprimento.departamento.ilike('%Cozinha%'), 1),
+    (Suprimento.departamento.ilike('%Limpeza%'), 2),
+    else_=3,
+)
 
 router = APIRouter(prefix="/api/suprimentos", tags=["suprimentos"])
 
@@ -50,7 +74,18 @@ def listar(
         )
     total = q.count()
     pages = max(1, math.ceil(total / limit))
-    items = q.order_by(Suprimento.created_at.desc()).offset((page - 1) * limit).limit(limit).all()
+    items = (
+        q.order_by(
+            _GROUP,
+            _PRIO,
+            asc(Suprimento.prazo_emergencia).nullslast(),
+            _TEAM,
+            Suprimento.created_at.desc(),
+        )
+        .offset((page - 1) * limit)
+        .limit(limit)
+        .all()
+    )
 
     est_ids = {i.estabelecimento_id for i in items if i.estabelecimento_id}
     est_map = {}
