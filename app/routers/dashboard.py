@@ -4,6 +4,7 @@ from sqlalchemy import func
 
 from app.database import get_db
 from app.models.suprimento import Suprimento
+from app.models.categoria import Categoria
 from app.schemas.suprimento import SuprimentoOut
 from app.auth import get_current_user
 
@@ -38,5 +39,6 @@ def dashboard(db: Session = Depends(get_db), _=Depends(get_current_user)):
 
 @router.get("/categorias")
 def categorias(db: Session = Depends(get_db), _=Depends(get_current_user)):
-    rows = db.query(Suprimento.categoria).distinct().all()
-    return [r[0] for r in rows]
+    from_suprimentos = {r[0] for r in db.query(Suprimento.categoria).distinct().all() if r[0]}
+    from_categorias = {r[0] for r in db.query(Categoria.nome).filter(Categoria.ativo == True).all()}
+    return sorted(from_suprimentos | from_categorias)
