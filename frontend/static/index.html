@@ -992,7 +992,7 @@
       <table class="w-full text-sm">
         <thead><tr class="bg-slate-50 border-b border-slate-100">
           <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Tipo</th>
-          <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Categorias</th>
+          <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Segmentos</th>
           <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide w-24">Ações</th>
         </tr></thead>
         <tbody id="estabelecimentosBody" class="divide-y divide-slate-50"></tbody>
@@ -3179,9 +3179,7 @@ function renderItens() {
   tbody.innerHTML = data.map(item => `
     <tr class="row-hover transition-colors">
       <td class="px-5 py-3.5 text-sm font-medium text-slate-800">${item.nome}</td>
-      <td class="px-5 py-3.5">
-        <span class="unidade-sigla-tag text-xs font-semibold px-2 py-0.5 rounded">${item.segmento}</span>
-      </td>
+      <td class="px-5 py-3.5 text-sm text-slate-600">${item.segmento}</td>
       <td class="px-5 py-3.5" onclick="event.stopPropagation()">
         <div class="action-menu">
           <button type="button" class="action-menu-btn" onclick="openActionMenu(this,event,'item',${item.id})" title="Opções" aria-label="Opções do item" aria-haspopup="menu">
