@@ -1484,10 +1484,34 @@ const MGMT_DEFAULTS = {
   unidade: [
     {id:1,sigla:'un',nome:'Unidade'},{id:2,sigla:'cx',nome:'Caixa'},
     {id:3,sigla:'pct',nome:'Pacote'},{id:4,sigla:'kg',nome:'Quilograma'},
-    {id:5,sigla:'l',nome:'Litro'},{id:6,sigla:'m',nome:'Metro'},{id:7,sigla:'hr',nome:'Hora'}
+    {id:5,sigla:'l',nome:'Litro'},{id:6,sigla:'m',nome:'Metro'},{id:7,sigla:'hr',nome:'Hora'},
+    {id:8,sigla:'fd',nome:'Fardo'},{id:9,sigla:'sc',nome:'Saco'},{id:10,sigla:'rl',nome:'Rolo'},
+    {id:11,sigla:'fr',nome:'Frasco'},{id:12,sigla:'gl',nome:'Galão'},{id:13,sigla:'tb',nome:'Tubo'},
+    {id:14,sigla:'env',nome:'Envelope'},{id:15,sigla:'bl',nome:'Blister'},{id:16,sigla:'kit',nome:'Kit'},
+    {id:17,sigla:'cj',nome:'Conjunto'},{id:18,sigla:'br',nome:'Barra'},{id:19,sigla:'ch',nome:'Chapa'},
+    {id:20,sigla:'pc',nome:'Peça'},{id:21,sigla:'tel',nome:'Telha'},{id:22,sigla:'m²',nome:'Metro quadrado'},
+    {id:23,sigla:'m³',nome:'Metro cúbico'},{id:24,sigla:'hh',nome:'Homem-hora'},{id:25,sigla:'dia',nome:'Diária'},
+    {id:26,sigla:'sv',nome:'Serviço'},{id:27,sigla:'mês',nome:'Mensalidade'},{id:28,sigla:'vb',nome:'Verba'},
+    {id:29,sigla:'projeto',nome:'Projeto'},{id:30,sigla:'lic',nome:'Licença'},{id:31,sigla:'ass',nome:'Assinatura'},
+    {id:32,sigla:'disp',nome:'Dispositivo'},{id:33,sigla:'eqp',nome:'Equipamento'},{id:34,sigla:'srv',nome:'Servidor'},
+    {id:35,sigla:'node',nome:'Nó'},{id:36,sigla:'rack',nome:'Rack'},{id:37,sigla:'MB',nome:'Megabyte (RAM)'},
+    {id:38,sigla:'GB',nome:'Gigabyte (RAM)'},{id:39,sigla:'TB',nome:'Terabyte'},{id:40,sigla:'vCPU',nome:'Virtual CPU'},
+    {id:41,sigla:'CPU',nome:'Processador'},{id:42,sigla:'Core',nome:'Núcleo de CPU'},{id:43,sigla:'GHz',nome:'Gigahertz'},
+    {id:44,sigla:'W',nome:'Watt'},{id:45,sigla:'kW',nome:'Quilowatt'},{id:46,sigla:'kWh',nome:'Quilowatt-hora'}
   ],
   fornecedor: []
 };
+
+function migrateUnidades() {
+  const existing = getMgmtData('unidade');
+  const siglas = new Set(existing.map(u => u.sigla));
+  const maxId = existing.length ? Math.max(...existing.map(u => u.id)) : 0;
+  let next = maxId + 1;
+  const toAdd = MGMT_DEFAULTS.unidade.filter(u => !siglas.has(u.sigla));
+  if (!toAdd.length) return;
+  const merged = [...existing, ...toAdd.map(u => ({ ...u, id: next++ }))];
+  saveMgmtData('unidade', merged);
+}
 
 function getMgmtData(type) {
   try { return JSON.parse(localStorage.getItem(MGMT_KEYS[type])) || MGMT_DEFAULTS[type]; }
@@ -1527,6 +1551,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   applySidebarState();
   applyDarkMode();
   await loadCategoriasCache();
+  migrateUnidades();
   buildCatOptions();
   buildAreaOptions();
   buildUnidadeOptions();
