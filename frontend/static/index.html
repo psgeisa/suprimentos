@@ -1377,6 +1377,11 @@ let supPage = 1;
 const SUP_LIMIT = 20;
 let catPage = 1, areaPage = 1, unidadePage = 1, fornPage = 1, estPage = 1, userPage = 1;
 const MGMT_PER_PAGE = 10;
+let categoriasCache = [];
+async function loadCategoriasCache() {
+  const res = await apiFetch('/api/categorias/list');
+  if (res && res.ok) categoriasCache = await res.json();
+}
 
 const STATUS_LABEL = { pendente:'Pendente', aprovado:'Aprovado', em_andamento:'Em Andamento', concluido:'Concluído', cancelado:'Cancelado' };
 const PRIO_LABEL   = { baixa:'Baixa', media:'Média', alta:'Alta', urgente:'Urgente' };
@@ -1493,9 +1498,8 @@ function nextId(items) { return items.length ? Math.max(...items.map(i=>i.id)) +
 
 // ── Categorias ────────────────────────────────────────────────────────────
 function buildCatOptions() {
-  const cats = getMgmtData('categoria');
   const dd = document.getElementById('catDropdown');
-  dd.innerHTML = cats.map(c =>
+  dd.innerHTML = categoriasCache.map(c =>
     `<label class="ms-option"><input type="checkbox" value="${c.nome}" onchange="updateMsTags('cat')"><span class="text-sm text-slate-700">${c.nome}</span></label>`
   ).join('');
 }
@@ -1522,6 +1526,7 @@ function buildUnidadeOptions() {
 window.addEventListener('DOMContentLoaded', async () => {
   applySidebarState();
   applyDarkMode();
+  await loadCategoriasCache();
   buildCatOptions();
   buildAreaOptions();
   buildUnidadeOptions();
@@ -1600,6 +1605,7 @@ function applyLogin() {
     adminLink.style.setProperty('display', 'none', 'important');
     establishmentLink.style.setProperty('display', 'none', 'important');
   }
+  loadCategoriasCache().then(() => { buildCatOptions(); });
   loadDashboard();
 }
 
@@ -1785,10 +1791,7 @@ const fixedFilterOptions = {
 };
 
 async function initializeSolicitacaoFilters() {
-  let nomesSegmentos = getMgmtData('categoria').map(item => item.nome);
-  const categoriasRes = await apiFetch('/api/categorias');
-  if (categoriasRes && categoriasRes.ok) nomesSegmentos = [...new Set([...nomesSegmentos, ...(await categoriasRes.json())])];
-  const segmentos = nomesSegmentos.map(nome => [nome,nome]);
+  const segmentos = categoriasCache.map(c => [c.nome, c.nome]);
   const estabelecimentos = (await loadEstabelecimentosOptions()).map(item => [String(item.id),item.tipo]);
   renderFilterOptions('status', fixedFilterOptions.status);
   renderFilterOptions('prioridade', fixedFilterOptions.prioridade);
@@ -2452,8 +2455,7 @@ let fornecedorSegmentosState = new Set();
 
 function setFornecedorSegmentos(values = []) {
   fornecedorSegmentosState = new Set(values);
-  const categorias = getMgmtData('categoria');
-  document.getElementById('fornecedorSegmentosDropdown').innerHTML = categorias.map(categoria => `
+  document.getElementById('fornecedorSegmentosDropdown').innerHTML = categoriasCache.map(categoria => `
     <label class="ms-option">
       <input type="checkbox" value="${categoria.nome}" ${fornecedorSegmentosState.has(categoria.nome) ? 'checked' : ''} onchange="updateFornecedorSegmentos(this)">
       <span class="text-sm text-slate-700">${categoria.nome}</span>
@@ -2486,7 +2488,7 @@ let estabelecimentoSegmentosState = new Set();
 
 function setEstabelecimentoSegmentos(values = []) {
   estabelecimentoSegmentosState = new Set(values);
-  document.getElementById('estabelecimentoSegmentosDropdown').innerHTML = getMgmtData('categoria').map(categoria => `
+  document.getElementById('estabelecimentoSegmentosDropdown').innerHTML = categoriasCache.map(categoria => `
     <label class="ms-option">
       <input type="checkbox" value="${categoria.nome}" ${estabelecimentoSegmentosState.has(categoria.nome) ? 'checked' : ''} onchange="updateEstabelecimentoSegmentos(this)">
       <span class="text-sm text-slate-700">${categoria.nome}</span>
@@ -2600,6 +2602,20 @@ async function submitMgmtForm(e) {
     return;
   }
 
+  if (type === 'categoria') {
+    const res = await apiFetch('/api/categorias', { method: 'POST', body: JSON.stringify({ nome }) });
+    if (res && res.ok) {
+      closeMgmtDrawer();
+      showToast('Segmento cadastrado!', 'success');
+      await loadCategoriasCache();
+      catPage = 1; renderCategorias(); buildCatOptions();
+    } else {
+      const err = res ? await res.json().catch(() => ({})) : {};
+      showToast(err.detail || 'Erro ao salvar segmento.', 'error');
+    }
+    return;
+  }
+
   const data = getMgmtData(type);
 
   if (editId) {
@@ -2643,14 +2659,23 @@ async function submitMgmtForm(e) {
   buildUnidadeOptions();
 }
 
-function deleteMgmtItem(type, id) {
+async function deleteMgmtItem(type, id) {
   if (!confirm('Confirmar exclusão?')) return;
+  if (type === 'categoria') {
+    const res = await apiFetch(`/api/categorias/${id}`, { method: 'DELETE' });
+    if (res && (res.ok || res.status === 204)) {
+      showToast('Excluído com sucesso.', 'success');
+      await loadCategoriasCache();
+      catPage = 1; renderCategorias(); buildCatOptions();
+    } else showToast('Erro ao excluir segmento.', 'error');
+    return;
+  }
   let data = getMgmtData(type);
   data = data.filter(i => i.id !== id);
   saveMgmtData(type, data);
   showToast('Excluído com sucesso.', 'success');
-  const renders = { categoria: renderCategorias, area: renderAreas, unidade: renderUnidades, fornecedor: renderFornecedores };
-  renders[type]();
+  const renders = { area: renderAreas, unidade: renderUnidades, fornecedor: renderFornecedores };
+  renders[type]?.();
   buildCatOptions();
   buildAreaOptions();
   buildUnidadeOptions();
@@ -2786,7 +2811,7 @@ const SOLICITACAO_MENU = item => `
 
 function renderCategorias() {
   const search = (document.getElementById('catSearch')?.value || '').toLowerCase();
-  const all    = getMgmtData('categoria').filter(i => !search || i.nome.toLowerCase().includes(search));
+  const all    = categoriasCache.filter(i => !search || i.nome.toLowerCase().includes(search));
   const tbody  = document.getElementById('categoriasBody');
   const empty  = document.getElementById('categoriasEmpty');
   if (!all.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); document.getElementById('catPagination').innerHTML=''; return; }

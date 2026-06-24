@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
@@ -6,7 +7,7 @@ from app.database import get_db
 from app.models.suprimento import Suprimento
 from app.models.categoria import Categoria
 from app.schemas.suprimento import SuprimentoOut
-from app.auth import get_current_user
+from app.auth import get_current_user, require_admin
 
 router = APIRouter(prefix="/api", tags=["dashboard"])
 
@@ -42,3 +43,36 @@ def categorias(db: Session = Depends(get_db), _=Depends(get_current_user)):
     from_suprimentos = {r[0] for r in db.query(Suprimento.categoria).distinct().all() if r[0]}
     from_categorias = {r[0] for r in db.query(Categoria.nome).filter(Categoria.ativo == True).all()}
     return sorted(from_suprimentos | from_categorias)
+
+
+class CategoriaCreate(BaseModel):
+    nome: str
+
+
+@router.get("/categorias/list")
+def listar_categorias(db: Session = Depends(get_db), _=Depends(get_current_user)):
+    rows = db.query(Categoria).filter(Categoria.ativo == True).order_by(Categoria.nome).all()
+    return [{"id": r.id, "nome": r.nome} for r in rows]
+
+
+@router.post("/categorias", status_code=201)
+def criar_categoria(data: CategoriaCreate, db: Session = Depends(get_db), _=Depends(require_admin)):
+    nome = data.nome.strip()
+    if not nome:
+        raise HTTPException(400, "Informe o nome do segmento")
+    if db.query(Categoria).filter(Categoria.nome.ilike(nome), Categoria.ativo == True).first():
+        raise HTTPException(400, "Segmento já cadastrado")
+    cat = Categoria(nome=nome)
+    db.add(cat)
+    db.commit()
+    db.refresh(cat)
+    return {"id": cat.id, "nome": cat.nome}
+
+
+@router.delete("/categorias/{id}", status_code=204)
+def remover_categoria(id: int, db: Session = Depends(get_db), _=Depends(require_admin)):
+    cat = db.query(Categoria).filter(Categoria.id == id).first()
+    if not cat:
+        raise HTTPException(404, "Segmento não encontrado")
+    cat.ativo = False
+    db.commit()
