@@ -181,9 +181,9 @@
     .dark #page-fornecedores tbody tr td .text-slate-500 { color:rgba(255,255,255,0.8) !important; }
     .dark #fornecedoresEmpty { color:#fff !important; }
 
-    /* ── Filtros sobrepõem tabela em dark mode (backdrop-filter cria stacking context) ── */
-    .dark #page-suprimentos > div:first-child { position: relative; z-index: 2; }
-    .dark #page-suprimentos > div:last-child  { position: relative; z-index: 1; }
+    /* ── Filtros sempre acima da tabela (overflow/backdrop-filter criam stacking context) ── */
+    #page-suprimentos > div:first-child { position: relative; z-index: 2; }
+    #page-suprimentos > div:last-child  { position: relative; z-index: 1; }
 
     /* ── Tag sigla Unidade — automática por tema ── */
     .unidade-sigla-tag { background:#F1F5F9; color:#334155; }
