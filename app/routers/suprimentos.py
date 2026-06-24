@@ -39,8 +39,14 @@ def listar(
     if busca:
         q = q.filter(
             Suprimento.titulo.ilike(f"%{busca}%")
+            | Suprimento.descricao.ilike(f"%{busca}%")
+            | Suprimento.categoria.ilike(f"%{busca}%")
             | Suprimento.solicitante.ilike(f"%{busca}%")
             | Suprimento.departamento.ilike(f"%{busca}%")
+            | Suprimento.fornecedor_sugerido.ilike(f"%{busca}%")
+            | Suprimento.status.ilike(f"%{busca}%")
+            | Suprimento.prioridade.ilike(f"%{busca}%")
+            | Suprimento.observacoes.ilike(f"%{busca}%")
         )
     total = q.count()
     pages = max(1, math.ceil(total / limit))

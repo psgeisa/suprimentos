@@ -185,6 +185,14 @@
     #page-suprimentos > div:first-child { position: relative; z-index: 2; }
     #page-suprimentos > div:last-child  { position: relative; z-index: 1; }
 
+    /* ── Ícone lixo amarelo em dark mode nas telas de gestão simples ── */
+    .dark #page-categorias .text-red-400,
+    .dark #page-areas .text-red-400,
+    .dark #page-unidades .text-red-400 { color: #D4A520 !important; }
+    .dark #page-categorias .hover\:text-red-600:hover,
+    .dark #page-areas .hover\:text-red-600:hover,
+    .dark #page-unidades .hover\:text-red-600:hover { color: #F5C842 !important; }
+
     /* ── Tag sigla Unidade — automática por tema ── */
     .unidade-sigla-tag { background:#F1F5F9; color:#334155; }
     .dark .unidade-sigla-tag { background:#000; color:#fff; }
@@ -692,6 +700,8 @@
   <section id="page-usuarios" class="p-8 hidden">
     <div class="card-glass bg-white rounded-2xl shadow-sm border border-slate-100 p-5 mb-6">
       <div class="flex items-center gap-4 flex-wrap">
+        <input id="uBusca" type="text" placeholder="Buscar por nome, email, perfil, time..."
+          class="border border-slate-200 rounded-lg px-3 py-2 text-sm flex-1 min-w-48" oninput="loadUsuarios()" />
         <select id="uFiltroRole" class="border border-slate-200 rounded-lg px-3 py-2 text-sm" onchange="loadUsuarios()">
           <option value="">Todos os perfis</option>
           <option value="admin">Administrador</option>
@@ -703,7 +713,6 @@
           <option value="true">Ativo</option>
           <option value="false">Inativo</option>
         </select>
-        <div class="flex-1"></div>
         <button onclick="openUserModal()" class="btn-primary flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold shadow-md">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
           Novo Usuário
@@ -2100,6 +2109,7 @@ function editCurrentDetail() {
 async function loadUsuarios() {
   const role  = document.getElementById('uFiltroRole').value;
   const ativo = document.getElementById('uFiltroAtivo').value;
+  const busca = (document.getElementById('uBusca')?.value || '').toLowerCase();
   const res   = await apiFetch('/api/usuarios');
   if (!res) return;
   const todos = await res.json();
@@ -2108,6 +2118,9 @@ async function loadUsuarios() {
   let lista = todos;
   if (role)  lista = lista.filter(u => u.role === role);
   if (ativo !== '') lista = lista.filter(u => String(u.ativo) === ativo);
+  if (busca) lista = lista.filter(u =>
+    [u.nome, u.email, u.role, u.time, String(u.id)].some(v => (v||'').toLowerCase().includes(busca))
+  );
 
   const tbody = document.getElementById('usuariosBody');
   const empty = document.getElementById('usuariosEmpty');
@@ -2618,7 +2631,10 @@ function openActionMenu(button, event, type, id, ativo = true) {
 
   menu.dataset.type = type;
   menu.dataset.id = String(id);
-  menu.innerHTML = type === 'fornecedor' ? `
+  menu.innerHTML = type === 'estabelecimento' ? `
+    <button type="button" class="action-item" onclick="runActionMenuItem('edit-estabelecimento',${id},event)">Editar</button>
+    <button type="button" class="action-item danger" onclick="runActionMenuItem('delete-estabelecimento',${id},event)">Remover</button>
+  ` : type === 'fornecedor' ? `
     <button type="button" class="action-item" onclick="runActionMenuItem('view-supplier',${id},event)">Visualizar</button>
     <button type="button" class="action-item danger" onclick="runActionMenuItem('discard-supplier',${id},event)">Descartar</button>
   ` : type === 'solicitacao' ? `
@@ -2650,6 +2666,8 @@ function runActionMenuItem(action, id, event) {
   const usuario = window.usuariosById?.get(stringId);
   closeActionMenus();
 
+  if (action === 'edit-estabelecimento') { const est = estabelecimentosCache.find(e => e.id === Number(id)); if (est) openMgmtDrawer('estabelecimento', est); }
+  if (action === 'delete-estabelecimento') deleteEstabelecimento(Number(id));
   if (action === 'view-supplier' && fornecedor) showFornecedorDetail(fornecedor);
   if (action === 'edit-supplier' && fornecedor) openMgmtDrawer('fornecedor', fornecedor);
   if (action === 'discard-supplier') deleteMgmtItem('fornecedor', Number(id));
@@ -2784,11 +2802,18 @@ async function renderEstabelecimentos() {
   empty.classList.add('hidden');
   tbody.innerHTML = data.map(item => `
     <tr class="row-hover transition-colors">
-      <td class="px-5 py-3.5 font-semibold text-slate-700">${item.tipo}</td>
-      <td class="px-5 py-3.5 text-slate-500">${item.segmentos || '—'}</td>
-      <td class="px-5 py-3.5"><div class="flex gap-1">${EDIT_BTN('estabelecimento', item)}${DEL_BTN_ESTABELECIMENTO(item.id)}</div></td>
+      <td class="px-5 py-3.5 font-semibold">${item.tipo}</td>
+      <td class="px-5 py-3.5">${item.segmentos || '—'}</td>
+      <td class="px-5 py-3.5">${ESTABELECIMENTO_MENU(item)}</td>
     </tr>`).join('');
 }
+
+const ESTABELECIMENTO_MENU = (item) => `
+  <div class="action-menu">
+    <button type="button" class="action-menu-btn" onclick="openActionMenu(this,event,'estabelecimento',${item.id})" title="Opções" aria-label="Opções do estabelecimento" aria-haspopup="menu">
+      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-1 2-2s-1-2-2-2-2 1-2 2 1 2 2 2zm0 2c-1.1 0-2 1-2 2s1 2 2 2 2-1 2-2-1-2-2-2zm0 6c-1.1 0-2 1-2 2s1 2 2 2 2-1 2-2-1-2-2-2z"/></svg>
+    </button>
+  </div>`;
 
 const DEL_BTN_ESTABELECIMENTO = id => `
   <button onclick="deleteEstabelecimento(${id})" class="text-red-400 hover:text-red-600 p-1 rounded hover:bg-red-50" title="Remover">
