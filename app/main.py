@@ -11,11 +11,96 @@ from app.database import Base, engine, SessionLocal
 import app.models  # noqa — garante registro de todos os modelos antes do create_all
 from app.routers import suprimentos, dashboard
 from app.routers import auth as routers_auth
-from app.routers import usuarios, anexos, lugares, estabelecimentos
+from app.routers import usuarios, anexos, lugares, estabelecimentos, itens
 from sqlalchemy import inspect, text
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
+
+
+_ITENS_SEED = [
+    ("Leite", "Alimentação"), ("Arroz", "Alimentação"), ("Feijão", "Alimentação"),
+    ("Macarrão", "Alimentação"), ("Açúcar", "Alimentação"), ("Sal", "Alimentação"),
+    ("Óleo de Soja", "Alimentação"), ("Farinha de Trigo", "Alimentação"),
+    ("Café", "Alimentação"), ("Biscoito", "Alimentação"), ("Pão de Forma", "Alimentação"),
+    ("Queijo", "Alimentação"), ("Presunto", "Alimentação"), ("Iogurte", "Alimentação"),
+    ("Refrigerante", "Alimentação"), ("Suco", "Alimentação"),
+    ("Água Mineral", "Alimentação"), ("Ovos", "Alimentação"),
+    ("Margarina", "Alimentação"), ("Molho de Tomate", "Alimentação"),
+    ("Detergente", "Limpeza"), ("Sabão em Pó", "Limpeza"), ("Amaciante", "Limpeza"),
+    ("Água Sanitária", "Limpeza"), ("Desinfetante", "Limpeza"),
+    ("Esponja de Louça", "Limpeza"), ("Pano de Limpeza", "Limpeza"),
+    ("Limpador Multiuso", "Limpeza"), ("Saco de Lixo", "Limpeza"),
+    ("Papel Toalha", "Limpeza"), ("Detergente Neutro", "Limpeza"),
+    ("Saco de Lixo 100L", "Limpeza"),
+    ("Papel Higiênico", "Higiene"), ("Sabonete", "Higiene"),
+    ("Shampoo", "Higiene"), ("Creme Dental", "Higiene"),
+    ("Escova de Dentes", "Higiene"),
+    ("Papel Sulfite A4", "Material de Escritório"),
+    ("Caneta Esferográfica", "Material de Escritório"),
+    ("Pasta Suspensa", "Material de Escritório"),
+    ("Toner para Impressora", "Material de Escritório"),
+    ("Notebook", "Informática"), ("Monitor 24\"", "Informática"),
+    ("Teclado USB", "Informática"), ("Mouse Sem Fio", "Informática"),
+    ("Licença Microsoft 365", "Software"),
+    ("Licença Adobe Creative Cloud", "Software"),
+    ("Licença Power BI Pro", "Software"),
+    ("Assinatura GitHub Copilot", "Software"),
+    ("SSD 1TB", "Tecnologia"), ("Memória RAM 16GB", "Tecnologia"),
+    ("Switch de Rede", "Tecnologia"), ("Access Point Wi-Fi", "Tecnologia"),
+    ("Cabo de Rede Cat6", "Telecomunicações"),
+    ("Telefone IP", "Telecomunicações"),
+    ("Chip de Dados Corporativo", "Telecomunicações"),
+    ("Mesa de Escritório", "Mobiliário"), ("Cadeira Ergonômica", "Mobiliário"),
+    ("Armário Arquivo", "Mobiliário"),
+    ("Lâmpada LED", "Elétrico"), ("Disjuntor", "Elétrico"),
+    ("Filtro de Linha", "Elétrico"),
+    ("Torneira", "Hidráulico"), ("Registro de Água", "Hidráulico"),
+    ("Tubo PVC", "Hidráulico"),
+    ("Furadeira", "Ferramentas"), ("Parafusadeira", "Ferramentas"),
+    ("Jogo de Chaves Allen", "Ferramentas"),
+    ("Capacete de Segurança", "EPI"), ("Luva de Proteção", "EPI"),
+    ("Óculos de Segurança", "EPI"),
+    ("Camiseta Uniforme", "Uniformes"), ("Jaqueta Corporativa", "Uniformes"),
+    ("Café em Pó", "Copa"), ("Açúcar Refinado", "Copa"),
+    ("Filtro de Café", "Copa"), ("Copo Descartável", "Copa"),
+    ("Banner Institucional", "Gráfica"), ("Cartão de Visita", "Gráfica"),
+    ("Adesivo Personalizado", "Gráfica"),
+    ("Placa de Sinalização", "Sinalização"),
+    ("Placa de Saída de Emergência", "Sinalização"),
+    ("Muda de Palmeira", "Jardinagem"), ("Adubo Orgânico", "Jardinagem"),
+    ("Ar Condicionado Split", "Climatização"),
+    ("Filtro para Ar Condicionado", "Climatização"),
+    ("Extintor de Incêndio", "Segurança"),
+    ("Câmera de Monitoramento", "Segurança"),
+    ("Fechadura Eletrônica", "Segurança"),
+    ("Combustível Diesel", "Transporte"), ("Vale Transporte", "Transporte"),
+    ("Rastreador Veicular", "Transporte"),
+    ("Caixa de Papelão", "Embalagens"), ("Filme Stretch", "Embalagens"),
+    ("Etiqueta Adesiva", "Embalagens"),
+    ("Exame Admissional", "Saúde Ocupacional"),
+    ("Kit de Primeiros Socorros", "Saúde Ocupacional"),
+    ("Consultoria Jurídica", "Jurídico"), ("Parecer Jurídico", "Jurídico"),
+    ("Serviço de Auditoria", "Auditoria"),
+    ("Consultoria Financeira", "Contabilidade"),
+    ("Servidor Cloud", "Cloud Computing"), ("Storage 1TB", "Cloud Computing"),
+    ("Banco de Dados Gerenciado", "Cloud Computing"),
+    ("Sensor IoT", "IoT"), ("Gateway IoT", "IoT"),
+    ("Rack 44U", "Data Center"), ("Nobreak", "Data Center"),
+]
+
+
+def seed_itens():
+    from app.models.item import Item
+
+    db = SessionLocal()
+    try:
+        if db.query(Item).count() == 0:
+            db.bulk_save_objects([Item(nome=nome, segmento=seg) for nome, seg in _ITENS_SEED])
+            db.commit()
+            print(f"[seed] {len(_ITENS_SEED)} itens inseridos.")
+    finally:
+        db.close()
 
 
 def seed_admin():
@@ -67,6 +152,7 @@ def create_app() -> FastAPI:
         Base.metadata.create_all(bind=engine)
         migrate_schema()
         seed_admin()
+        seed_itens()
 
     app.include_router(routers_auth.router)
     app.include_router(usuarios.router)
@@ -75,6 +161,7 @@ def create_app() -> FastAPI:
     app.include_router(dashboard.router)
     app.include_router(lugares.router)
     app.include_router(estabelecimentos.router)
+    app.include_router(itens.router)
 
     app.mount(
         "/static",

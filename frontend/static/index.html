@@ -78,7 +78,17 @@
     /* ── Multiselect ─── */
     .ms-dropdown { position:absolute; z-index:10; top:calc(100% + 4px); left:0; right:0;
       background:#fff; border:1px solid #E2E8F0; border-radius:10px;
-      box-shadow:0 8px 24px rgba(0,0,0,.1); max-height:200px; overflow-y:auto; }
+      box-shadow:0 8px 24px rgba(0,0,0,.1); max-height:240px; overflow-y:auto; }
+    .ms-search { width:100%; border:1px solid #E2E8F0; border-radius:7px; padding:6px 10px; font-size:.8rem; outline:none; margin-bottom:4px; box-sizing:border-box; }
+    .ms-search:focus { border-color:#C8780A; }
+    .ms-search-wrap { padding:8px 8px 4px; position:sticky; top:0; background:#fff; z-index:1; }
+    .ss-trigger { display:flex; align-items:center; justify-content:space-between; border:1px solid #E2E8F0; border-radius:8px; padding:9px 12px; cursor:pointer; background:#fff; font-size:.875rem; transition:border-color .2s, box-shadow .2s; min-height:40px; }
+    .ss-trigger:focus-within, .ss-trigger.open { border-color:#C8780A; box-shadow:0 0 0 3px rgba(200,120,10,0.15); }
+    .ss-dropdown { position:absolute; z-index:10; top:calc(100% + 4px); left:0; right:0; background:#fff; border:1px solid #E2E8F0; border-radius:10px; box-shadow:0 8px 24px rgba(0,0,0,.1); max-height:220px; overflow-y:auto; display:none; }
+    .ss-dropdown.open { display:block; }
+    .ss-option { padding:8px 12px; font-size:.875rem; cursor:pointer; transition:background .15s; }
+    .ss-option:hover, .ss-option.active { background:#FEF3DC; }
+    .ss-option.hidden { display:none; }
     .ms-option { display:flex; align-items:center; gap:8px; padding:8px 12px; cursor:pointer; transition:background .15s; }
     .ms-option:hover { background:#FEF3DC; }
     .ms-option input[type=checkbox] { accent-color:#C8780A; width:15px; height:15px; flex-shrink:0; }
@@ -141,8 +151,13 @@
     .dark .drawer .bg-slate-50 { background:rgba(0,0,0,0.25) !important; }
     .dark .drawer input, .dark .drawer select, .dark .drawer textarea { background:rgba(0,0,0,0.65) !important; border-color:rgba(212,165,32,0.35) !important; color:#fff !important; }
     .dark .drawer input::placeholder, .dark .drawer textarea::placeholder { color:rgba(255,255,255,0.45) !important; }
-    .dark .drawer .ms-trigger { background:rgba(0,0,0,0.65) !important; border-color:rgba(212,165,32,0.35) !important; color:#fff !important; }
-    .dark .drawer .ms-trigger span { color:rgba(255,255,255,0.45) !important; }
+    .dark .drawer .ms-trigger, .dark .drawer .ss-trigger { background:rgba(0,0,0,0.65) !important; border-color:rgba(212,165,32,0.35) !important; color:#fff !important; }
+    .dark .drawer .ms-trigger span, .dark .drawer .ss-trigger span { color:rgba(255,255,255,0.45) !important; }
+    .dark .drawer .ss-dropdown, .dark .drawer .ms-dropdown { background:#111 !important; border-color:rgba(212,165,32,0.3) !important; }
+    .dark .drawer .ss-option { color:#e2e8f0 !important; }
+    .dark .drawer .ss-option:hover, .dark .drawer .ss-option.active { background:rgba(212,165,32,0.15) !important; }
+    .dark .drawer .ms-search { background:rgba(0,0,0,0.5) !important; border-color:rgba(212,165,32,0.3) !important; color:#fff !important; }
+    .dark .drawer .ms-search-wrap { background:#111 !important; }
     .dark .drawer .ms-tag { background:rgba(212,165,32,0.2) !important; color:#fff !important; }
     .dark .drawer #fSolicitanteDisplay { color:#fff !important; }
     .dark .drawer .border-slate-100 { border-color:rgba(255,255,255,0.1) !important; }
@@ -153,7 +168,11 @@
     .dark #detailContent .text-slate-700, .dark #detailContent .text-slate-800 { color:#F5E6BE !important; }
     .dark #detailContent .text-slate-400 { color:#9A7A3A !important; }
     .dark .hover\:bg-slate-50:hover { background:rgba(212,165,32,0.08) !important; }
-    .dark .ms-trigger, .dark .ms-dropdown { background:#0d0d0d !important; border-color:rgba(212,165,32,0.3) !important; color:#fff !important; }
+    .dark .ms-trigger, .dark .ms-dropdown, .dark .ss-trigger, .dark .ss-dropdown { background:#0d0d0d !important; border-color:rgba(212,165,32,0.3) !important; color:#fff !important; }
+    .dark .ss-option { color:#e2e8f0; }
+    .dark .ss-option:hover, .dark .ss-option.active { background:rgba(212,165,32,0.15) !important; }
+    .dark .ms-search { background:#1a1a1a !important; border-color:rgba(212,165,32,0.3) !important; color:#fff !important; }
+    .dark .ms-search-wrap { background:#0d0d0d !important; }
     .dark .ms-option:hover { background:rgba(212,165,32,0.1) !important; }
     .dark .ms-option span { color:#D4B87A !important; }
     .dark .filter-ms-menu { background:#17191D; border-color:#6B7280; }
@@ -634,6 +653,13 @@
           </svg>
           Estabelecimentos
         </a>
+        <a onclick="showPage('itens')"
+          class="sidebar-item flex items-center gap-3 px-3 py-2 rounded-lg text-yellow-200/80 hover:text-white text-sm font-medium cursor-pointer transition-all">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+          </svg>
+          Itens
+        </a>
       </div>
     </div>
   </nav>
@@ -886,6 +912,38 @@
     </div>
   </section>
 
+  <!-- ── Itens ── -->
+  <section id="page-itens" class="p-8 hidden" style="min-height:calc(100vh - 73px)">
+    <div class="filter-bar">
+      <div class="flex items-center gap-4">
+        <input id="itemSearch" type="text" placeholder="Buscar item ou segmento..."
+          class="border border-slate-200 rounded-lg px-3 py-2 text-sm flex-1" oninput="itemPage=1;renderItens()" />
+        <button onclick="openMgmtDrawer('item')" class="btn-primary flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold shadow-md">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          Novo Item
+        </button>
+      </div>
+    </div>
+    <div class="card-glass bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-slate-50 border-b border-slate-100">
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Item</th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Segmento</th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide w-24">Ações</th>
+          </tr>
+        </thead>
+        <tbody id="itensBody" class="divide-y divide-slate-50"></tbody>
+      </table>
+      <div id="itensEmpty" class="hidden flex flex-col items-center py-16 text-slate-400">
+        <svg class="w-10 h-10 mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        <p class="font-medium">Nenhum item cadastrado</p>
+        <p class="text-xs mt-1">Clique em "Novo Item" para começar</p>
+      </div>
+      <div id="itemPagination" class="px-5 py-4 border-t border-slate-100"></div>
+    </div>
+  </section>
+
   <!-- ── Fornecedores ── -->
   <section id="page-fornecedores" class="p-8 hidden" style="min-height:calc(100vh - 73px)">
     <div class="filter-bar">
@@ -984,7 +1042,10 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
             </svg>
           </div>
-          <div class="ms-dropdown hidden" id="catDropdown"></div>
+          <div class="ms-dropdown hidden" id="catDropdown">
+            <div class="ms-search-wrap"><input class="ms-search" placeholder="Pesquisar segmento..." oninput="searchMsOptions('cat',this.value)" autocomplete="off" /></div>
+            <div id="catOptions"></div>
+          </div>
         </div>
       </div>
 
@@ -1008,7 +1069,10 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
             </svg>
           </div>
-          <div class="ms-dropdown hidden" id="equipeDropdown"></div>
+          <div class="ms-dropdown hidden" id="equipeDropdown">
+            <div class="ms-search-wrap"><input class="ms-search" placeholder="Pesquisar equipe..." oninput="searchMsOptions('equipe',this.value)" autocomplete="off" /></div>
+            <div id="equipeOptions"></div>
+          </div>
         </div>
       </div>
 
@@ -1027,7 +1091,21 @@
       <div class="grid grid-cols-2 gap-4">
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">Unidade</label>
-          <select id="fUnidade" class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm"></select>
+          <input type="hidden" id="fUnidade" value="un" />
+          <div class="relative" id="unidadeWrapper">
+            <div class="ss-trigger" id="unidadeTrigger" onclick="toggleSs('unidade')">
+              <span id="unidadeDisplay" class="text-sm text-slate-700">un (Unidade)</span>
+              <svg class="w-4 h-4 text-slate-400 flex-shrink-0 ml-2 transition-transform" id="unidadeChevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </div>
+            <div class="ss-dropdown" id="unidadeDropdown">
+              <div class="ms-search-wrap">
+                <input class="ms-search" placeholder="Pesquisar unidade..." oninput="searchSs('unidade',this.value)" autocomplete="off" />
+              </div>
+              <div id="unidadeOptions"></div>
+            </div>
+          </div>
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">Valor Estimado (R$)</label>
@@ -1044,9 +1122,21 @@
 
       <div>
         <label class="block text-xs font-semibold text-slate-600 mb-1">Estabelecimento</label>
-        <select id="fEstabelecimento" class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm">
-          <option value="">Selecionar estabelecimento...</option>
-        </select>
+        <input type="hidden" id="fEstabelecimento" value="" />
+        <div class="relative" id="estabelecimentoWrapper">
+          <div class="ss-trigger" id="estabelecimentoTrigger" onclick="toggleSs('estabelecimento')">
+            <span id="estabelecimentoDisplay" class="text-sm text-slate-400">Selecionar estabelecimento...</span>
+            <svg class="w-4 h-4 text-slate-400 flex-shrink-0 ml-2 transition-transform" id="estabelecimentoChevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </div>
+          <div class="ss-dropdown" id="estabelecimentoDropdown">
+            <div class="ms-search-wrap">
+              <input class="ms-search" placeholder="Pesquisar estabelecimento..." oninput="searchSs('estabelecimento',this.value)" autocomplete="off" />
+            </div>
+            <div id="estabelecimentoOptions"></div>
+          </div>
+        </div>
       </div>
 
       <div class="bg-slate-50 rounded-xl p-4 space-y-3">
@@ -1172,6 +1262,12 @@
       <div id="mgmtSiglaRow" class="hidden">
         <label class="block text-xs font-semibold text-slate-600 mb-1">Sigla *</label>
         <input id="mgmtSigla" type="text" placeholder="Ex: un"
+          class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" />
+      </div>
+
+      <div id="mgmtItemSegmentoRow" class="hidden">
+        <label class="block text-xs font-semibold text-slate-600 mb-1">Segmento *</label>
+        <input id="mgmtItemSegmento" type="text" placeholder="Ex: Alimentação"
           class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" />
       </div>
 
@@ -1387,7 +1483,7 @@ let currentUser = null;     // { id, nome, email, role }
 let emergenciaOn = false;
 let supPage = 1;
 const SUP_LIMIT = 20;
-let catPage = 1, areaPage = 1, unidadePage = 1, fornPage = 1, estPage = 1, userPage = 1;
+let catPage = 1, areaPage = 1, unidadePage = 1, fornPage = 1, estPage = 1, userPage = 1, itemPage = 1;
 const MGMT_PER_PAGE = 10;
 let categoriasCache = [];
 async function loadCategoriasCache() {
@@ -1398,6 +1494,12 @@ let unidadesCache = [];
 async function loadUnidadesCache() {
   const res = await apiFetch('/api/unidades/list');
   if (res && res.ok) unidadesCache = await res.json();
+}
+
+let itensCache = [];
+async function loadItensCache() {
+  const res = await apiFetch('/api/itens?apenas_ativos=false');
+  if (res && res.ok) itensCache = await res.json();
 }
 
 const STATUS_LABEL = { pendente:'Pendente', aprovado:'Aprovado', em_andamento:'Em Andamento', concluido:'Concluído', cancelado:'Cancelado' };
@@ -1539,26 +1641,106 @@ function nextId(items) { return items.length ? Math.max(...items.map(i=>i.id)) +
 
 // ── Categorias ────────────────────────────────────────────────────────────
 function buildCatOptions() {
-  const dd = document.getElementById('catDropdown');
-  dd.innerHTML = categoriasCache.map(c =>
-    `<label class="ms-option"><input type="checkbox" value="${c.nome}" onchange="updateMsTags('cat')"><span class="text-sm text-slate-700">${c.nome}</span></label>`
+  document.getElementById('catOptions').innerHTML = categoriasCache.map(c =>
+    `<label class="ms-option" data-search="${c.nome.toLowerCase()}"><input type="checkbox" value="${c.nome}" onchange="updateMsTags('cat')"><span class="text-sm text-slate-700">${c.nome}</span></label>`
   ).join('');
 }
 
 function buildAreaOptions() {
   const areas = getMgmtData('area');
-  const dd = document.getElementById('equipeDropdown');
-  dd.innerHTML = areas.map(a =>
-    `<label class="ms-option"><input type="checkbox" value="${a.nome}" onchange="updateMsTags('equipe')"><span class="text-sm text-slate-700">${a.nome}</span></label>`
+  document.getElementById('equipeOptions').innerHTML = areas.map(a =>
+    `<label class="ms-option" data-search="${a.nome.toLowerCase()}"><input type="checkbox" value="${a.nome}" onchange="updateMsTags('equipe')"><span class="text-sm text-slate-700">${a.nome}</span></label>`
   ).join('');
 }
 
+function searchMsOptions(id, q) {
+  const term = q.toLowerCase();
+  document.getElementById(id+'Options').querySelectorAll('.ms-option').forEach(el => {
+    el.style.display = el.dataset.search.includes(term) ? '' : 'none';
+  });
+}
+
+// ── Single-select pesquisável (ss) ────────────────────────────────────────
+function toggleSs(id) {
+  const dd = document.getElementById(id+'Dropdown');
+  const chevron = document.getElementById(id+'Chevron');
+  const trigger = document.getElementById(id+'Trigger');
+  const isOpen = dd.classList.contains('open');
+  closeSsAll();
+  if (!isOpen) {
+    dd.classList.add('open');
+    chevron.style.transform = 'rotate(180deg)';
+    trigger.classList.add('open');
+    dd.querySelector('.ms-search')?.focus();
+  }
+}
+
+function closeSsAll() {
+  ['unidade','estabelecimento'].forEach(id => {
+    document.getElementById(id+'Dropdown')?.classList.remove('open');
+    if (document.getElementById(id+'Chevron')) document.getElementById(id+'Chevron').style.transform = '';
+    document.getElementById(id+'Trigger')?.classList.remove('open');
+  });
+}
+
+function selectSsOption(id, value, label) {
+  document.getElementById('f'+id.charAt(0).toUpperCase()+id.slice(1)).value = value;
+  const display = document.getElementById(id+'Display');
+  display.textContent = label;
+  display.classList.remove('text-slate-400');
+  display.classList.add('text-slate-700');
+  document.getElementById(id+'Options').querySelectorAll('.ss-option').forEach(o => {
+    o.classList.toggle('active', o.dataset.value === value);
+  });
+  closeSsAll();
+}
+
+function searchSs(id, q) {
+  const term = q.toLowerCase();
+  document.getElementById(id+'Options').querySelectorAll('.ss-option').forEach(el => {
+    el.classList.toggle('hidden', !el.dataset.search.includes(term));
+  });
+}
+
+function setSsValue(id, value) {
+  const hidden = document.getElementById('f'+id.charAt(0).toUpperCase()+id.slice(1));
+  if (hidden) hidden.value = value;
+  const container = document.getElementById(id+'Options');
+  const display = document.getElementById(id+'Display');
+  if (!container || !display) return;
+  const opt = container.querySelector(`.ss-option[data-value="${value}"]`);
+  container.querySelectorAll('.ss-option').forEach(o => o.classList.remove('active'));
+  if (opt) {
+    opt.classList.add('active');
+    display.textContent = opt.textContent;
+    display.classList.remove('text-slate-400');
+    display.classList.add('text-slate-700');
+  } else {
+    display.textContent = id === 'unidade' ? (value || '—') : 'Selecionar estabelecimento...';
+    display.classList.toggle('text-slate-400', !value || id !== 'unidade');
+    display.classList.toggle('text-slate-700', !(!value || id !== 'unidade'));
+  }
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('#unidadeWrapper') && !e.target.closest('#estabelecimentoWrapper')) closeSsAll();
+});
+
 function buildUnidadeOptions() {
-  const sel = document.getElementById('fUnidade');
-  const cur = sel ? sel.value : 'un';
-  if (sel) {
-    sel.innerHTML = unidadesCache.map(u => `<option value="${u.sigla}">${u.sigla} (${u.nome})</option>`).join('');
-    sel.value = cur || unidadesCache[0]?.sigla || 'un';
+  const hidden = document.getElementById('fUnidade');
+  const cur = hidden ? hidden.value || 'un' : 'un';
+  const container = document.getElementById('unidadeOptions');
+  if (!container) return;
+  container.innerHTML = unidadesCache.map(u => {
+    const label = `${u.sigla} (${u.nome})`;
+    return `<div class="ss-option${u.sigla===cur?' active':''}" data-value="${u.sigla}" data-search="${label.toLowerCase()}" onclick="selectSsOption('unidade','${u.sigla}','${label.replace(/'/g,"&#39;")}')">${label}</div>`;
+  }).join('');
+  const active = unidadesCache.find(u => u.sigla === cur) || unidadesCache[0];
+  if (active) {
+    const label = `${active.sigla} (${active.nome})`;
+    if (hidden) hidden.value = active.sigla;
+    const display = document.getElementById('unidadeDisplay');
+    if (display) { display.textContent = label; display.classList.remove('text-slate-400'); display.classList.add('text-slate-700'); }
   }
 }
 
@@ -1754,7 +1936,7 @@ function showPage(page) {
   document.getElementById('page-'+page).classList.remove('hidden');
 
   const headerNovaBtn = document.getElementById('headerNovaBtn');
-  const mgmtPages = ['categorias','areas','unidades','fornecedores','usuarios','estabelecimentos'];
+  const mgmtPages = ['categorias','areas','unidades','fornecedores','usuarios','estabelecimentos','itens'];
   const titles = {
     dashboard:    ['Dashboard',         'Visão geral do sistema'],
     suprimentos:  ['Solicitações',      'Gerenciar todas as solicitações'],
@@ -1764,6 +1946,7 @@ function showPage(page) {
     unidades:     ['Unidade',           'Gerenciar unidades de medida'],
     fornecedores: ['Fornecedores',      'Gerenciar fornecedores cadastrados'],
     estabelecimentos: ['Estabelecimentos', 'Gerenciar estabelecimentos cadastrados'],
+    itens:            ['Itens',            'Gerenciar catálogo de itens'],
   };
   document.getElementById('pageTitle').textContent    = titles[page][0];
   document.getElementById('pageSubtitle').textContent = titles[page][1];
@@ -1777,6 +1960,7 @@ function showPage(page) {
   if (page === 'unidades')     { unidadePage=1; renderUnidades(); }
   if (page === 'fornecedores') { fornPage=1; renderFornecedores(); }
   if (page === 'estabelecimentos') { estPage=1; renderEstabelecimentos(); }
+  if (page === 'itens')        { itemPage=1; loadItensCache().then(renderItens); }
 }
 
 // ── Dashboard ─────────────────────────────────────────────────────────────
@@ -1989,10 +2173,10 @@ async function openDrawer(item = null) {
     document.getElementById('fTitulo').value      = item.titulo || '';
     document.getElementById('fDataNec').value     = item.data_necessidade || todayStr();
     document.getElementById('fQtd').value         = item.quantidade || '';
-    document.getElementById('fUnidade').value     = item.unidade || 'un';
+    setSsValue('unidade', item.unidade || 'un');
     document.getElementById('fValor').value       = item.valor_estimado || '';
     document.getElementById('fFornecedor').value  = item.fornecedor_sugerido || '';
-    document.getElementById('fEstabelecimento').value = item.estabelecimento_id ? String(item.estabelecimento_id) : '';
+    setSsValue('estabelecimento', item.estabelecimento_id ? String(item.estabelecimento_id) : '');
     document.getElementById('fPrioridade2').value = item.prioridade || 'media';
     document.getElementById('fStatus2').value     = item.status || 'pendente';
     document.getElementById('fDescricao').value   = item.descricao || '';
@@ -2007,7 +2191,8 @@ async function openDrawer(item = null) {
   } else {
     document.getElementById('supForm').reset();
     document.getElementById('fPrioridade2').value = 'media';
-    document.getElementById('fUnidade').value     = 'un';
+    setSsValue('unidade', 'un');
+    setSsValue('estabelecimento', '');
     document.getElementById('fDataNec').value     = todayStr();
     document.getElementById('fSolicitante').value = nome;
     document.getElementById('fSolicitanteDisplay').textContent = nome;
@@ -2570,6 +2755,7 @@ const MGMT_TITLES = {
   unidade:    ['Nova Unidade',     'Editar Unidade'],
   fornecedor: ['Novo Fornecedor',  'Editar Fornecedor'],
   estabelecimento: ['Novo Estabelecimento', 'Editar Estabelecimento'],
+  item:       ['Novo Item',        'Editar Item'],
 };
 const MGMT_PLACEHOLDERS = {
   categoria:  'Ex: Material de Escritório',
@@ -2577,6 +2763,7 @@ const MGMT_PLACEHOLDERS = {
   unidade:    'Ex: Unidade',
   fornecedor: 'Ex: Fornecedor ABC Ltda',
   estabelecimento: 'Ex: Mercado Central',
+  item:       'Ex: Papel Sulfite A4',
 };
 
 function openMgmtDrawer(type, item = null) {
@@ -2589,6 +2776,7 @@ function openMgmtDrawer(type, item = null) {
   document.getElementById('mgmtForm').reset();
 
   document.getElementById('mgmtSiglaRow').classList.toggle('hidden', type !== 'unidade');
+  document.getElementById('mgmtItemSegmentoRow').classList.toggle('hidden', type !== 'item');
   document.getElementById('mgmtNomeRow').classList.toggle('hidden', type === 'estabelecimento');
   document.getElementById('mgmtNome').required = type !== 'estabelecimento';
   document.getElementById('mgmtFornecedorExtra').classList.toggle('hidden', type !== 'fornecedor');
@@ -2599,7 +2787,8 @@ function openMgmtDrawer(type, item = null) {
 
   if (item) {
     document.getElementById('mgmtNome').value = item.nome || '';
-    if (type === 'unidade')    document.getElementById('mgmtSigla').value    = item.sigla    || '';
+    if (type === 'unidade') document.getElementById('mgmtSigla').value = item.sigla || '';
+    if (type === 'item')    document.getElementById('mgmtItemSegmento').value = item.segmento || '';
     if (type === 'fornecedor') {
       document.getElementById('mgmtContato').value   = item.contato   || '';
       document.getElementById('mgmtTelefone').value  = item.telefone  || '';
@@ -2659,6 +2848,25 @@ async function submitMgmtForm(e) {
     } else {
       const err = res ? await res.json().catch(() => ({})) : {};
       showToast(err.detail || 'Erro ao salvar segmento.', 'error');
+    }
+    return;
+  }
+
+  if (type === 'item') {
+    const segmento = document.getElementById('mgmtItemSegmento')?.value.trim();
+    if (!segmento) { showToast('Informe o segmento.', 'error'); return; }
+    const editId2 = parseInt(document.getElementById('mgmtEditId').value) || null;
+    const url = editId2 ? `/api/itens/${editId2}` : '/api/itens';
+    const method = editId2 ? 'PUT' : 'POST';
+    const res = await apiFetch(url, { method, body: JSON.stringify({ nome, segmento }) });
+    if (res && res.ok) {
+      closeMgmtDrawer();
+      showToast(editId2 ? 'Item atualizado!' : 'Item cadastrado!', 'success');
+      await loadItensCache();
+      itemPage = 1; renderItens();
+    } else {
+      const err = res ? await res.json().catch(() => ({})) : {};
+      showToast(err.detail || 'Erro ao salvar item.', 'error');
     }
     return;
   }
@@ -2730,6 +2938,15 @@ async function deleteMgmtItem(type, id) {
       await loadCategoriasCache();
       catPage = 1; renderCategorias(); buildCatOptions();
     } else showToast('Erro ao excluir segmento.', 'error');
+    return;
+  }
+  if (type === 'item') {
+    const res = await apiFetch(`/api/itens/${id}`, { method: 'DELETE' });
+    if (res && (res.ok || res.status === 204)) {
+      showToast('Excluído com sucesso.', 'success');
+      await loadItensCache();
+      itemPage = 1; renderItens();
+    } else showToast('Erro ao excluir item.', 'error');
     return;
   }
   if (type === 'unidade') {
@@ -2946,6 +3163,33 @@ function renderUnidades() {
 }
 function goPageUnidade(p) { unidadePage=p; renderUnidades(); }
 
+function renderItens() {
+  const search = (document.getElementById('itemSearch')?.value || '').toLowerCase();
+  const all    = itensCache.filter(i => !search || i.nome.toLowerCase().includes(search) || i.segmento.toLowerCase().includes(search));
+  const tbody  = document.getElementById('itensBody');
+  const empty  = document.getElementById('itensEmpty');
+  if (!all.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); document.getElementById('itemPagination').innerHTML=''; return; }
+  empty.classList.add('hidden');
+  const pages = Math.ceil(all.length / MGMT_PER_PAGE);
+  itemPage = Math.min(itemPage, pages);
+  const data = all.slice((itemPage-1)*MGMT_PER_PAGE, itemPage*MGMT_PER_PAGE);
+  tbody.innerHTML = data.map(item => `
+    <tr class="row-hover transition-colors">
+      <td class="px-5 py-3.5 text-sm font-medium text-slate-800">${item.nome}</td>
+      <td class="px-5 py-3.5">
+        <span class="unidade-sigla-tag text-xs font-semibold px-2 py-0.5 rounded">${item.segmento}</span>
+      </td>
+      <td class="px-5 py-3.5">
+        <div class="flex gap-1">
+          ${EDIT_BTN('item', item)}
+          ${DEL_BTN('item', item.id)}
+        </div>
+      </td>
+    </tr>`).join('');
+  renderMgmtPagination('itemPagination', all.length, itemPage, pages, 'goPageItem');
+}
+function goPageItem(p) { itemPage=p; renderItens(); }
+
 function renderFornecedores() {
   const search = (document.getElementById('fornecedorSearch')?.value || '').toLowerCase();
   const all    = getMgmtData('fornecedor').filter(i => !search || i.nome.toLowerCase().includes(search) || (i.contato||'').toLowerCase().includes(search));
@@ -3024,10 +3268,25 @@ async function deleteEstabelecimento(id) {
 async function loadEstabelecimentosOptions(selectedId = '') {
   await loadEstabelecimentos();
   const ativos = estabelecimentosCache.filter(item => item.ativo);
-  const select = document.getElementById('fEstabelecimento');
-  if (select) {
-    select.innerHTML = '<option value="">Selecionar estabelecimento...</option>' + ativos.map(item => `<option value="${item.id}">${item.tipo}</option>`).join('');
-    select.value = selectedId ? String(selectedId) : '';
+  const container = document.getElementById('estabelecimentoOptions');
+  if (container) {
+    const selId = selectedId ? String(selectedId) : '';
+    container.innerHTML = `<div class="ss-option${!selId?' active':''}" data-value="" data-search="selecionar estabelecimento" onclick="selectSsOption('estabelecimento','','Selecionar estabelecimento...')">Selecionar estabelecimento...</div>` +
+      ativos.map(item => {
+        const label = item.tipo;
+        return `<div class="ss-option${String(item.id)===selId?' active':''}" data-value="${item.id}" data-search="${label.toLowerCase()}" onclick="selectSsOption('estabelecimento','${item.id}','${label.replace(/'/g,"&#39;")}')">${label}</div>`;
+      }).join('');
+    const hidden = document.getElementById('fEstabelecimento');
+    const display = document.getElementById('estabelecimentoDisplay');
+    if (selId && hidden && display) {
+      hidden.value = selId;
+      const found = ativos.find(i => String(i.id) === selId);
+      if (found) { display.textContent = found.tipo; display.classList.remove('text-slate-400'); display.classList.add('text-slate-700'); }
+    } else if (display) {
+      display.textContent = 'Selecionar estabelecimento...';
+      display.classList.add('text-slate-400');
+      display.classList.remove('text-slate-700');
+    }
   }
   return ativos;
 }
