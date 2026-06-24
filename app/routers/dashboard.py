@@ -6,6 +6,7 @@ from sqlalchemy import func
 from app.database import get_db
 from app.models.suprimento import Suprimento
 from app.models.categoria import Categoria
+from app.models.unidade import Unidade
 from app.schemas.suprimento import SuprimentoOut
 from app.auth import get_current_user, require_admin
 
@@ -75,4 +76,39 @@ def remover_categoria(id: int, db: Session = Depends(get_db), _=Depends(require_
     if not cat:
         raise HTTPException(404, "Segmento não encontrado")
     cat.ativo = False
+    db.commit()
+
+
+class UnidadeCreate(BaseModel):
+    sigla: str
+    nome: str
+
+
+@router.get("/unidades/list")
+def listar_unidades(db: Session = Depends(get_db), _=Depends(get_current_user)):
+    rows = db.query(Unidade).filter(Unidade.ativo == True).order_by(Unidade.nome).all()
+    return [{"id": r.id, "sigla": r.sigla, "nome": r.nome} for r in rows]
+
+
+@router.post("/unidades", status_code=201)
+def criar_unidade(data: UnidadeCreate, db: Session = Depends(get_db), _=Depends(require_admin)):
+    sigla = data.sigla.strip()
+    nome = data.nome.strip()
+    if not sigla or not nome:
+        raise HTTPException(400, "Informe sigla e nome")
+    if db.query(Unidade).filter(Unidade.sigla == sigla, Unidade.ativo == True).first():
+        raise HTTPException(400, "Sigla já cadastrada")
+    u = Unidade(sigla=sigla, nome=nome)
+    db.add(u)
+    db.commit()
+    db.refresh(u)
+    return {"id": u.id, "sigla": u.sigla, "nome": u.nome}
+
+
+@router.delete("/unidades/{id}", status_code=204)
+def remover_unidade(id: int, db: Session = Depends(get_db), _=Depends(require_admin)):
+    u = db.query(Unidade).filter(Unidade.id == id).first()
+    if not u:
+        raise HTTPException(404, "Unidade não encontrada")
+    u.ativo = False
     db.commit()

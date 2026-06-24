@@ -1382,6 +1382,11 @@ async function loadCategoriasCache() {
   const res = await apiFetch('/api/categorias/list');
   if (res && res.ok) categoriasCache = await res.json();
 }
+let unidadesCache = [];
+async function loadUnidadesCache() {
+  const res = await apiFetch('/api/unidades/list');
+  if (res && res.ok) unidadesCache = await res.json();
+}
 
 const STATUS_LABEL = { pendente:'Pendente', aprovado:'Aprovado', em_andamento:'Em Andamento', concluido:'Concluído', cancelado:'Cancelado' };
 const PRIO_LABEL   = { baixa:'Baixa', media:'Média', alta:'Alta', urgente:'Urgente' };
@@ -1537,12 +1542,11 @@ function buildAreaOptions() {
 }
 
 function buildUnidadeOptions() {
-  const units = getMgmtData('unidade');
   const sel = document.getElementById('fUnidade');
   const cur = sel ? sel.value : 'un';
   if (sel) {
-    sel.innerHTML = units.map(u => `<option value="${u.sigla}">${u.sigla} (${u.nome})</option>`).join('');
-    sel.value = cur || units[0]?.sigla || 'un';
+    sel.innerHTML = unidadesCache.map(u => `<option value="${u.sigla}">${u.sigla} (${u.nome})</option>`).join('');
+    sel.value = cur || unidadesCache[0]?.sigla || 'un';
   }
 }
 
@@ -1551,7 +1555,7 @@ window.addEventListener('DOMContentLoaded', async () => {
   applySidebarState();
   applyDarkMode();
   await loadCategoriasCache();
-  migrateUnidades();
+  await loadUnidadesCache();
   buildCatOptions();
   buildAreaOptions();
   buildUnidadeOptions();
@@ -1631,6 +1635,7 @@ function applyLogin() {
     establishmentLink.style.setProperty('display', 'none', 'important');
   }
   loadCategoriasCache().then(() => { buildCatOptions(); });
+  loadUnidadesCache().then(() => { buildUnidadeOptions(); });
   loadDashboard();
 }
 
@@ -2641,6 +2646,21 @@ async function submitMgmtForm(e) {
     return;
   }
 
+  if (type === 'unidade') {
+    const sigla = document.getElementById('mgmtSigla')?.value.trim() || nome.substring(0,3).toLowerCase();
+    const res = await apiFetch('/api/unidades', { method: 'POST', body: JSON.stringify({ sigla, nome }) });
+    if (res && res.ok) {
+      closeMgmtDrawer();
+      showToast('Unidade cadastrada!', 'success');
+      await loadUnidadesCache();
+      unidadePage = 1; renderUnidades(); buildUnidadeOptions();
+    } else {
+      const err = res ? await res.json().catch(() => ({})) : {};
+      showToast(err.detail || 'Erro ao salvar unidade.', 'error');
+    }
+    return;
+  }
+
   const data = getMgmtData(type);
 
   if (editId) {
@@ -2693,6 +2713,15 @@ async function deleteMgmtItem(type, id) {
       await loadCategoriasCache();
       catPage = 1; renderCategorias(); buildCatOptions();
     } else showToast('Erro ao excluir segmento.', 'error');
+    return;
+  }
+  if (type === 'unidade') {
+    const res = await apiFetch(`/api/unidades/${id}`, { method: 'DELETE' });
+    if (res && (res.ok || res.status === 204)) {
+      showToast('Excluído com sucesso.', 'success');
+      await loadUnidadesCache();
+      unidadePage = 1; renderUnidades(); buildUnidadeOptions();
+    } else showToast('Erro ao excluir unidade.', 'error');
     return;
   }
   let data = getMgmtData(type);
@@ -2878,7 +2907,7 @@ function goPageArea(p) { areaPage=p; renderAreas(); }
 
 function renderUnidades() {
   const search = (document.getElementById('unidadeSearch')?.value || '').toLowerCase();
-  const all    = getMgmtData('unidade').filter(i => !search || i.nome.toLowerCase().includes(search) || i.sigla.toLowerCase().includes(search));
+  const all    = unidadesCache.filter(i => !search || i.nome.toLowerCase().includes(search) || i.sigla.toLowerCase().includes(search));
   const tbody  = document.getElementById('unidadesBody');
   const empty  = document.getElementById('unidadesEmpty');
   if (!all.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); document.getElementById('unidadePagination').innerHTML=''; return; }
