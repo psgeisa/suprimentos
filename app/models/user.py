@@ -12,5 +12,6 @@ class User(Base):
     email = Column(String(200), unique=True, nullable=False, index=True)
     senha_hash = Column(String(200), nullable=False)
     role = Column(String(20), nullable=False, default="solicitante")
+    time = Column(String(150), nullable=True)
     ativo = Column(Boolean, default=True)
     criado_em = Column(DateTime, default=datetime.utcnow)

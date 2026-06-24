@@ -28,6 +28,7 @@ def criar(data: UserCreate, db: Session = Depends(get_db), _=Depends(require_adm
         email=data.email,
         senha_hash=hash_password(data.senha),
         role=data.role,
+        time=data.time,
     )
     db.add(user)
     db.commit()

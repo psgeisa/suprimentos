@@ -53,6 +53,10 @@ def migrate_schema():
     if "segmentos" not in estabelecimento_columns:
         with engine.begin() as connection:
             connection.execute(text("ALTER TABLE estabelecimentos ADD COLUMN segmentos VARCHAR(500)"))
+    user_columns = {column["name"] for column in inspect(engine).get_columns("users")}
+    if "time" not in user_columns:
+        with engine.begin() as connection:
+            connection.execute(text("ALTER TABLE users ADD COLUMN time VARCHAR(150)"))
 
 
 def create_app() -> FastAPI:

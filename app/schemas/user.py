@@ -8,11 +8,13 @@ class UserCreate(BaseModel):
     email: str
     senha: str
     role: str = "solicitante"
+    time: Optional[str] = None
 
 
 class UserUpdate(BaseModel):
     nome: Optional[str] = None
     role: Optional[str] = None
+    time: Optional[str] = None
     ativo: Optional[bool] = None
 
 
@@ -21,6 +23,7 @@ class UserOut(BaseModel):
     nome: str
     email: str
     role: str
+    time: Optional[str] = None
     ativo: bool
     criado_em: datetime
 

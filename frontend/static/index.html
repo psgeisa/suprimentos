@@ -181,9 +181,23 @@
     .dark #page-fornecedores tbody tr td .text-slate-500 { color:rgba(255,255,255,0.8) !important; }
     .dark #fornecedoresEmpty { color:#fff !important; }
 
-    /* ── Textos da tela de Solicitações — cor automática por tema ── */
-    #page-suprimentos table { color: #334155; }
-    .dark #page-suprimentos table { color: rgba(255,255,255,0.87); }
+    /* ── Tag sigla Unidade — automática por tema ── */
+    .unidade-sigla-tag { background:#F1F5F9; color:#334155; }
+    .dark .unidade-sigla-tag { background:#000; color:#fff; }
+
+    /* ── Cor de texto das tabelas — automática por tema ── */
+    #page-suprimentos table,
+    #page-categorias table,
+    #page-areas table,
+    #page-unidades table,
+    #page-fornecedores table,
+    #page-estabelecimentos table { color: #334155; }
+    .dark #page-suprimentos table,
+    .dark #page-categorias table,
+    .dark #page-areas table,
+    .dark #page-unidades table,
+    .dark #page-fornecedores table,
+    .dark #page-estabelecimentos table { color: rgba(255,255,255,0.87); }
     .dark #page-suprimentos #emptyState,
     .dark #page-suprimentos #emptyState p,
     .dark #page-suprimentos #pagination p,
@@ -516,13 +530,13 @@
       </svg>
       <span class="sidebar-label">Stakeholders</span>
     </a>
-    <a onclick="showPage('categorias')" data-tip="Categorias"
+    <a onclick="showPage('categorias')" data-tip="Segmento"
       class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-yellow-200 hover:text-white text-sm font-medium cursor-pointer transition-all">
       <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
           d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/>
       </svg>
-      <span class="sidebar-label">Categorias</span>
+      <span class="sidebar-label">Segmento</span>
     </a>
     <a onclick="showPage('areas')" data-tip="Área Demandante"
       class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-yellow-200 hover:text-white text-sm font-medium cursor-pointer transition-all">
@@ -715,11 +729,11 @@
   <section id="page-categorias" class="p-8 hidden">
     <div class="card-glass bg-white rounded-2xl shadow-sm border border-slate-100 p-5 mb-6">
       <div class="flex items-center gap-4">
-        <input id="catSearch" type="text" placeholder="Buscar categoria..."
+        <input id="catSearch" type="text" placeholder="Buscar segmento..."
           class="border border-slate-200 rounded-lg px-3 py-2 text-sm flex-1" oninput="renderCategorias()" />
         <button onclick="openMgmtDrawer('categoria')" class="btn-primary flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold shadow-md">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-          Nova Categoria
+          Novo Segmento
         </button>
       </div>
     </div>
@@ -728,15 +742,15 @@
         <thead>
           <tr class="bg-slate-50 border-b border-slate-100">
             <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Nome</th>
-            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide w-24">Ações</th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide w-24">Excluir</th>
           </tr>
         </thead>
         <tbody id="categoriasBody" class="divide-y divide-slate-50"></tbody>
       </table>
       <div id="categoriasEmpty" class="hidden flex flex-col items-center py-16 text-slate-400">
         <svg class="w-10 h-10 mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/></svg>
-        <p class="font-medium">Nenhuma categoria cadastrada</p>
-        <p class="text-xs mt-1">Clique em "Nova Categoria" para começar</p>
+        <p class="font-medium">Nenhum segmento cadastrado</p>
+        <p class="text-xs mt-1">Clique em "Novo Segmento" para começar</p>
       </div>
     </div>
   </section>
@@ -758,7 +772,7 @@
         <thead>
           <tr class="bg-slate-50 border-b border-slate-100">
             <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Nome da Área</th>
-            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide w-24">Ações</th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide w-24">Excluir</th>
           </tr>
         </thead>
         <tbody id="areasBody" class="divide-y divide-slate-50"></tbody>
@@ -789,7 +803,7 @@
           <tr class="bg-slate-50 border-b border-slate-100">
             <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Sigla</th>
             <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Nome</th>
-            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide w-24">Ações</th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide w-24">Excluir</th>
           </tr>
         </thead>
         <tbody id="unidadesBody" class="divide-y divide-slate-50"></tbody>
@@ -820,7 +834,7 @@
           <tr class="bg-slate-50 border-b border-slate-100">
             <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Nome / Contato</th>
             <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Segmento</th>
-            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide w-24">Ações</th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide w-24">Excluir</th>
           </tr>
         </thead>
         <tbody id="fornecedoresBody" class="divide-y divide-slate-50"></tbody>
@@ -1628,7 +1642,7 @@ function showPage(page) {
     dashboard:    ['Dashboard',         'Visão geral do sistema'],
     suprimentos:  ['Solicitações',      'Gerenciar todas as solicitações'],
     usuarios:     ['Stakeholders',      'Gerenciar contas de acesso'],
-    categorias:   ['Categorias',        'Gerenciar categorias de suprimentos'],
+    categorias:   ['Segmento',          'Gerenciar segmentos de suprimentos'],
     areas:        ['Área Demandante',   'Gerenciar áreas que fazem solicitações'],
     unidades:     ['Unidade',           'Gerenciar unidades de medida'],
     fornecedores: ['Fornecedores',      'Gerenciar fornecedores cadastrados'],
@@ -2602,7 +2616,6 @@ function openActionMenu(button, event, type, id, ativo = true) {
   menu.dataset.id = String(id);
   menu.innerHTML = type === 'fornecedor' ? `
     <button type="button" class="action-item" onclick="runActionMenuItem('view-supplier',${id},event)">Visualizar</button>
-    <button type="button" class="action-item" onclick="runActionMenuItem('edit-supplier',${id},event)">Editar</button>
     <button type="button" class="action-item danger" onclick="runActionMenuItem('discard-supplier',${id},event)">Descartar</button>
   ` : type === 'solicitacao' ? `
     <button type="button" class="action-item" onclick="runActionMenuItem('view-request',${id},event)">Visualizar</button>
@@ -2685,11 +2698,9 @@ function renderCategorias() {
   empty.classList.add('hidden');
   tbody.innerHTML = data.map(item => `
     <tr class="row-hover transition-colors">
+      <td class="px-5 py-3.5 text-sm">${item.nome}</td>
       <td class="px-5 py-3.5">
-        <span class="ms-tag">${item.nome}</span>
-      </td>
-      <td class="px-5 py-3.5">
-        <div class="flex gap-1">${EDIT_BTN('categoria', item)}${DEL_BTN('categoria', item.id)}</div>
+        <div class="flex gap-1">${DEL_BTN('categoria', item.id)}</div>
       </td>
     </tr>`).join('');
 }
@@ -2703,11 +2714,9 @@ function renderAreas() {
   empty.classList.add('hidden');
   tbody.innerHTML = data.map(item => `
     <tr class="row-hover transition-colors">
+      <td class="px-5 py-3.5 text-sm">${item.nome}</td>
       <td class="px-5 py-3.5">
-        <span class="bg-amber-50 text-amber-800 text-xs px-2.5 py-1 rounded font-medium">${item.nome}</span>
-      </td>
-      <td class="px-5 py-3.5">
-        <div class="flex gap-1">${EDIT_BTN('area', item)}${DEL_BTN('area', item.id)}</div>
+        <div class="flex gap-1">${DEL_BTN('area', item.id)}</div>
       </td>
     </tr>`).join('');
 }
@@ -2722,11 +2731,11 @@ function renderUnidades() {
   tbody.innerHTML = data.map(item => `
     <tr class="row-hover transition-colors">
       <td class="px-5 py-3.5">
-        <span class="font-mono font-bold text-slate-700 text-sm bg-slate-100 px-2 py-0.5 rounded">${item.sigla}</span>
+        <span class="unidade-sigla-tag font-mono font-bold text-sm px-2 py-0.5 rounded">${item.sigla}</span>
       </td>
-      <td class="px-5 py-3.5 text-sm text-slate-600">${item.nome}</td>
+      <td class="px-5 py-3.5 text-sm">${item.nome}</td>
       <td class="px-5 py-3.5">
-        <div class="flex gap-1">${EDIT_BTN('unidade', item)}${DEL_BTN('unidade', item.id)}</div>
+        <div class="flex gap-1">${DEL_BTN('unidade', item.id)}</div>
       </td>
     </tr>`).join('');
 }
