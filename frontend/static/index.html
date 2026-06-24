@@ -1660,8 +1660,10 @@ function toggleEmergencia(force) {
   const row   = document.getElementById('prazoEmergRow');
   track.classList.toggle('on', emergenciaOn);
   row.classList.toggle('hidden', !emergenciaOn);
-  if (emergenciaOn && !document.getElementById('fPrazoEmerg').value) {
-    document.getElementById('fPrazoEmerg').value = toDatetimeLocal(new Date(Date.now() + 3600000));
+  if (emergenciaOn) {
+    document.getElementById('fPrioridade').value = 'urgente';
+    if (!document.getElementById('fPrazoEmerg').value)
+      document.getElementById('fPrazoEmerg').value = toDatetimeLocal(new Date(Date.now() + 3600000));
   }
 }
 
