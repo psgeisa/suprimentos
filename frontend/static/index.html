@@ -1927,10 +1927,8 @@ function showPage(page) {
     el.classList.remove('active','text-white');
     el.classList.add('text-yellow-200');
   });
-  const pageMap = { dashboard:0, suprimentos:1, usuarios:2, categorias:3, areas:4, unidades:5, fornecedores:6, estabelecimentos:7 };
-  const idx = pageMap[page] ?? 0;
-  const links = document.querySelectorAll('.sidebar-item');
-  if (links[idx]) { links[idx].classList.add('active','text-white'); links[idx].classList.remove('text-yellow-200'); }
+  const activeLink = document.querySelector(`.sidebar-item[onclick*="showPage('${page}')"]`);
+  if (activeLink) { activeLink.classList.add('active','text-white'); activeLink.classList.remove('text-yellow-200'); }
 
   document.querySelectorAll('section[id^="page-"]').forEach(s => s.classList.add('hidden'));
   document.getElementById('page-'+page).classList.remove('hidden');
