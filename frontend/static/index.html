@@ -575,14 +575,6 @@
       </svg>
       <span class="sidebar-label">Solicitações</span>
     </a>
-    <a id="sidebarStakeholders" onclick="showPage('usuarios')" data-tip="Stakeholders" style="display:none"
-      class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-yellow-200 hover:text-white text-sm font-medium cursor-pointer transition-all">
-      <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-      </svg>
-      <span class="sidebar-label">Stakeholders</span>
-    </a>
     <a onclick="showPage('categorias')" data-tip="Segmento"
       class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-yellow-200 hover:text-white text-sm font-medium cursor-pointer transition-all">
       <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -590,24 +582,6 @@
           d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/>
       </svg>
       <span class="sidebar-label">Segmento</span>
-    </a>
-    <a onclick="showPage('areas')" data-tip="Área Demandante"
-      class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-yellow-200 hover:text-white text-sm font-medium cursor-pointer transition-all">
-      <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-      </svg>
-      <span class="sidebar-label">Área Demandante</span>
-    </a>
-    <a onclick="showPage('unidades')" data-tip="Unidade"
-      class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-yellow-200 hover:text-white text-sm font-medium cursor-pointer transition-all">
-      <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M2 9a1 1 0 011-1h18a1 1 0 011 1v6a1 1 0 01-1 1H3a1 1 0 01-1-1V9z"/>
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M6 9v3M9 9v2M12 9v3M15 9v2M18 9v3"/>
-      </svg>
-      <span class="sidebar-label">Unidade</span>
     </a>
     <a onclick="showPage('fornecedores')" data-tip="Fornecedores"
       class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-yellow-200 hover:text-white text-sm font-medium cursor-pointer transition-all">
@@ -617,13 +591,51 @@
       </svg>
       <span class="sidebar-label">Fornecedores</span>
     </a>
-    <a id="sidebarEstabelecimentos" onclick="showPage('estabelecimentos')" data-tip="Estabelecimentos" style="display:none"
-      class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-yellow-200 hover:text-white text-sm font-medium cursor-pointer transition-all">
-      <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21h18M5 21V7l7-4 7 4v14M9 10h2m2 0h2M9 14h2m2 0h2M9 18h6"/>
-      </svg>
-      <span class="sidebar-label">Estabelecimentos</span>
-    </a>
+
+    <!-- ── Grupo Admin ── -->
+    <div id="sidebarAdminGroup" style="display:none">
+      <button type="button" onclick="toggleAdminMenu()" data-tip="Admin"
+        class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-yellow-200 hover:text-white text-sm font-medium cursor-pointer transition-all">
+        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+        </svg>
+        <span class="sidebar-label">Admin</span>
+        <svg id="adminChevron" class="sidebar-label w-4 h-4 ml-auto transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </button>
+      <div id="adminSubmenu" class="hidden sidebar-label overflow-hidden pl-2">
+        <a onclick="showPage('usuarios')"
+          class="sidebar-item flex items-center gap-3 px-3 py-2 rounded-lg text-yellow-200/80 hover:text-white text-sm font-medium cursor-pointer transition-all">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+          </svg>
+          Stakeholders
+        </a>
+        <a onclick="showPage('areas')"
+          class="sidebar-item flex items-center gap-3 px-3 py-2 rounded-lg text-yellow-200/80 hover:text-white text-sm font-medium cursor-pointer transition-all">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+          </svg>
+          Área Demandante
+        </a>
+        <a onclick="showPage('unidades')"
+          class="sidebar-item flex items-center gap-3 px-3 py-2 rounded-lg text-yellow-200/80 hover:text-white text-sm font-medium cursor-pointer transition-all">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 9a1 1 0 011-1h18a1 1 0 011 1v6a1 1 0 01-1 1H3a1 1 0 01-1-1V9z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9v3M9 9v2M12 9v3M15 9v2M18 9v3"/>
+          </svg>
+          Unidade
+        </a>
+        <a onclick="showPage('estabelecimentos')"
+          class="sidebar-item flex items-center gap-3 px-3 py-2 rounded-lg text-yellow-200/80 hover:text-white text-sm font-medium cursor-pointer transition-all">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21h18M5 21V7l7-4 7 4v14M9 10h2m2 0h2M9 14h2m2 0h2M9 18h6"/>
+          </svg>
+          Estabelecimentos
+        </a>
+      </div>
+    </div>
   </nav>
 
   <div class="px-3 pb-1">
@@ -1625,18 +1637,23 @@ function applyLogin() {
   document.getElementById('userRoleDisplay').textContent = ROLE_LABEL[currentUser.role] || currentUser.role;
   // Mostrar item de usuários só para admin
   const normalizedRole = String(currentUser.role || '').trim().toLowerCase();
-  const adminLink = document.getElementById('sidebarStakeholders');
-  const establishmentLink = document.getElementById('sidebarEstabelecimentos');
+  const adminGroup = document.getElementById('sidebarAdminGroup');
   if (normalizedRole === 'admin') {
-    adminLink.style.setProperty('display', 'flex', 'important');
-    establishmentLink.style.setProperty('display', 'flex', 'important');
+    adminGroup.style.setProperty('display', 'block', 'important');
   } else {
-    adminLink.style.setProperty('display', 'none', 'important');
-    establishmentLink.style.setProperty('display', 'none', 'important');
+    adminGroup.style.setProperty('display', 'none', 'important');
   }
   loadCategoriasCache().then(() => { buildCatOptions(); });
   loadUnidadesCache().then(() => { buildUnidadeOptions(); });
   loadDashboard();
+}
+
+function toggleAdminMenu() {
+  const submenu = document.getElementById('adminSubmenu');
+  const chevron = document.getElementById('adminChevron');
+  const open = !submenu.classList.contains('hidden');
+  submenu.classList.toggle('hidden', open);
+  chevron.style.transform = open ? '' : 'rotate(180deg)';
 }
 
 function doLogout() {
