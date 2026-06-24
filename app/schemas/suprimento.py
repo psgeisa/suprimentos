@@ -7,6 +7,8 @@ class SuprimentoCreate(BaseModel):
     titulo: str
     descricao: Optional[str] = None
     categoria: str
+    item_id: Optional[int] = None
+    item_nome: Optional[str] = None
     quantidade: float
     unidade: str = "un"
     valor_estimado: Optional[float] = None
@@ -26,6 +28,8 @@ class SuprimentoUpdate(BaseModel):
     titulo: Optional[str] = None
     descricao: Optional[str] = None
     categoria: Optional[str] = None
+    item_id: Optional[int] = None
+    item_nome: Optional[str] = None
     quantidade: Optional[float] = None
     unidade: Optional[str] = None
     valor_estimado: Optional[float] = None
@@ -46,6 +50,8 @@ class SuprimentoOut(BaseModel):
     titulo: str
     descricao: Optional[str]
     categoria: str
+    item_id: Optional[int] = None
+    item_nome: Optional[str] = None
     quantidade: float
     unidade: str
     valor_estimado: Optional[float]

@@ -142,6 +142,13 @@ def migrate_schema():
     if "time" not in user_columns:
         with engine.begin() as connection:
             connection.execute(text("ALTER TABLE users ADD COLUMN time VARCHAR(150)"))
+    sup_columns2 = {column["name"] for column in inspect(engine).get_columns("suprimentos")}
+    if "item_id" not in sup_columns2:
+        with engine.begin() as connection:
+            connection.execute(text("ALTER TABLE suprimentos ADD COLUMN item_id INTEGER"))
+    if "item_nome" not in sup_columns2:
+        with engine.begin() as connection:
+            connection.execute(text("ALTER TABLE suprimentos ADD COLUMN item_nome VARCHAR(200)"))
 
 
 def create_app() -> FastAPI:

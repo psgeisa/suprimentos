@@ -13,6 +13,8 @@ class Suprimento(Base):
     quantidade = Column(Float, nullable=False)
     unidade = Column(String(50), nullable=False, default="un")
     valor_estimado = Column(Float, nullable=True)
+    item_id = Column(Integer, nullable=True)
+    item_nome = Column(String(200), nullable=True)
     fornecedor_sugerido = Column(String(200), nullable=True)
     estabelecimento_id = Column(Integer, nullable=True)
     solicitante = Column(String(150), nullable=False)

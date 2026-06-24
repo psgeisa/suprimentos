@@ -89,6 +89,8 @@
     .ss-option { padding:8px 12px; font-size:.875rem; cursor:pointer; transition:background .15s; }
     .ss-option:hover, .ss-option.active { background:#FEF3DC; }
     .ss-option.hidden { display:none; }
+    .matrix-input { transition:border-color .15s; }
+    .matrix-input:focus { outline:none; border-color:#C8780A; box-shadow:0 0 0 2px rgba(200,120,10,0.15); }
     .ms-option { display:flex; align-items:center; gap:8px; padding:8px 12px; cursor:pointer; transition:background .15s; }
     .ms-option:hover { background:#FEF3DC; }
     .ms-option input[type=checkbox] { accent-color:#C8780A; width:15px; height:15px; flex-shrink:0; }
@@ -1040,17 +1042,17 @@
       </div>
 
       <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1">Segmento *</label>
-        <div class="relative" id="catWrapper">
-          <div class="ms-trigger" id="catTrigger" onclick="toggleMs('cat')">
-            <div class="ms-tags" id="catTags"><span class="text-slate-400 text-sm">Selecionar categorias...</span></div>
-            <svg class="w-4 h-4 text-slate-400 flex-shrink-0 ml-2 transition-transform" id="catChevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <label class="block text-xs font-semibold text-slate-600 mb-1">Itens *</label>
+        <div class="relative" id="itemSelectorWrapper">
+          <div class="ms-trigger" id="itemSelectorTrigger" onclick="toggleItemSelector()">
+            <div class="ms-tags" id="itemSelectorTags"><span class="text-slate-400 text-sm">Selecionar itens...</span></div>
+            <svg class="w-4 h-4 text-slate-400 flex-shrink-0 ml-2 transition-transform" id="itemSelectorChevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
             </svg>
           </div>
-          <div class="ms-dropdown hidden" id="catDropdown">
-            <div class="ms-search-wrap"><input class="ms-search" placeholder="Pesquisar segmento..." oninput="searchMsOptions('cat',this.value)" autocomplete="off" /></div>
-            <div id="catOptions"></div>
+          <div class="ms-dropdown hidden" id="itemSelectorDropdown">
+            <div class="ms-search-wrap"><input class="ms-search" id="itemSelectorSearch" placeholder="Pesquisar item..." oninput="searchItemSelector(this.value)" autocomplete="off" /></div>
+            <div id="itemSelectorOptions"></div>
           </div>
         </div>
       </div>
@@ -1082,66 +1084,86 @@
         </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-4">
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Data do Pedido</label>
-          <input id="fDataNec" type="date" class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" />
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Quantidade *</label>
-          <input id="fQtd" type="number" step="0.01" min="0.01" required placeholder="0"
-            class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" />
-        </div>
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1">Data do Pedido</label>
+        <input id="fDataNec" type="date" class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" />
       </div>
 
-      <div class="grid grid-cols-2 gap-4">
+      <!-- ── Layout único (1 item ou edição) ── -->
+      <div id="singleItemFields">
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Quantidade *</label>
+            <input id="fQtd" type="number" step="0.01" min="0.01" placeholder="0"
+              class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Unidade</label>
+            <input type="hidden" id="fUnidade" value="un" />
+            <div class="relative" id="unidadeWrapper">
+              <div class="ss-trigger" id="unidadeTrigger" onclick="toggleSs('unidade')">
+                <span id="unidadeDisplay" class="text-sm text-slate-700">un (Unidade)</span>
+                <svg class="w-4 h-4 text-slate-400 flex-shrink-0 ml-2 transition-transform" id="unidadeChevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </div>
+              <div class="ss-dropdown" id="unidadeDropdown">
+                <div class="ms-search-wrap">
+                  <input class="ms-search" placeholder="Pesquisar unidade..." oninput="searchSs('unidade',this.value)" autocomplete="off" />
+                </div>
+                <div id="unidadeOptions"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Valor Estimado (R$)</label>
+            <input id="fValor" type="number" step="0.01" min="0" placeholder="0,00"
+              class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Fornecedor Sugerido</label>
+            <input id="fFornecedor" type="text" placeholder="Opcional"
+              class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" />
+          </div>
+        </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Unidade</label>
-          <input type="hidden" id="fUnidade" value="un" />
-          <div class="relative" id="unidadeWrapper">
-            <div class="ss-trigger" id="unidadeTrigger" onclick="toggleSs('unidade')">
-              <span id="unidadeDisplay" class="text-sm text-slate-700">un (Unidade)</span>
-              <svg class="w-4 h-4 text-slate-400 flex-shrink-0 ml-2 transition-transform" id="unidadeChevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Estabelecimento</label>
+          <input type="hidden" id="fEstabelecimento" value="" />
+          <div class="relative" id="estabelecimentoWrapper">
+            <div class="ss-trigger" id="estabelecimentoTrigger" onclick="toggleSs('estabelecimento')">
+              <span id="estabelecimentoDisplay" class="text-sm text-slate-400">Selecionar estabelecimento...</span>
+              <svg class="w-4 h-4 text-slate-400 flex-shrink-0 ml-2 transition-transform" id="estabelecimentoChevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
               </svg>
             </div>
-            <div class="ss-dropdown" id="unidadeDropdown">
+            <div class="ss-dropdown" id="estabelecimentoDropdown">
               <div class="ms-search-wrap">
-                <input class="ms-search" placeholder="Pesquisar unidade..." oninput="searchSs('unidade',this.value)" autocomplete="off" />
+                <input class="ms-search" placeholder="Pesquisar estabelecimento..." oninput="searchSs('estabelecimento',this.value)" autocomplete="off" />
               </div>
-              <div id="unidadeOptions"></div>
+              <div id="estabelecimentoOptions"></div>
             </div>
           </div>
         </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Valor Estimado (R$)</label>
-          <input id="fValor" type="number" step="0.01" min="0" placeholder="0,00"
-            class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" />
-        </div>
       </div>
 
-      <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1">Fornecedor Sugerido</label>
-        <input id="fFornecedor" type="text" placeholder="Opcional"
-          class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" />
-      </div>
-
-      <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1">Estabelecimento</label>
-        <input type="hidden" id="fEstabelecimento" value="" />
-        <div class="relative" id="estabelecimentoWrapper">
-          <div class="ss-trigger" id="estabelecimentoTrigger" onclick="toggleSs('estabelecimento')">
-            <span id="estabelecimentoDisplay" class="text-sm text-slate-400">Selecionar estabelecimento...</span>
-            <svg class="w-4 h-4 text-slate-400 flex-shrink-0 ml-2 transition-transform" id="estabelecimentoChevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-            </svg>
-          </div>
-          <div class="ss-dropdown" id="estabelecimentoDropdown">
-            <div class="ms-search-wrap">
-              <input class="ms-search" placeholder="Pesquisar estabelecimento..." oninput="searchSs('estabelecimento',this.value)" autocomplete="off" />
-            </div>
-            <div id="estabelecimentoOptions"></div>
-          </div>
+      <!-- ── Matriz (múltiplos itens) ── -->
+      <div id="multiItemMatrix" class="hidden">
+        <div class="overflow-x-auto rounded-xl border border-slate-200">
+          <table class="w-full text-xs">
+            <thead>
+              <tr class="bg-slate-50 border-b border-slate-100">
+                <th class="text-left px-3 py-2 font-semibold text-slate-500 min-w-32">Item</th>
+                <th class="text-left px-3 py-2 font-semibold text-slate-500 w-20">Qtd *</th>
+                <th class="text-left px-3 py-2 font-semibold text-slate-500 w-24">Unidade</th>
+                <th class="text-left px-3 py-2 font-semibold text-slate-500 w-24">Valor Est.</th>
+                <th class="text-left px-3 py-2 font-semibold text-slate-500 min-w-28">Fornecedor</th>
+                <th class="text-left px-3 py-2 font-semibold text-slate-500 min-w-28">Estabelecimento</th>
+              </tr>
+            </thead>
+            <tbody id="multiItemBody"></tbody>
+          </table>
         </div>
       </div>
 
@@ -1705,6 +1727,133 @@ function buildAreaOptions() {
   ).join('');
 }
 
+// ── Seletor de itens (multi-select pesquisável) ───────────────────────────
+let selectedItems = []; // [{id, nome, segmento}]
+
+function buildItemSelectorOptions() {
+  const container = document.getElementById('itemSelectorOptions');
+  if (!container) return;
+  container.innerHTML = itensCache.filter(i => i.ativo !== false).map(i =>
+    `<label class="ms-option" data-search="${i.nome.toLowerCase()} ${i.segmento.toLowerCase()}">
+      <input type="checkbox" value="${i.id}" data-nome="${i.nome}" data-segmento="${i.segmento}" onchange="onItemSelectorChange(this)">
+      <span class="text-sm text-slate-700">${i.nome} <span class="text-xs text-slate-400">${i.segmento}</span></span>
+    </label>`
+  ).join('') || '<p class="text-xs text-slate-400 p-3">Nenhum item cadastrado</p>';
+  // restore checked state
+  selectedItems.forEach(si => {
+    const cb = container.querySelector(`input[value="${si.id}"]`);
+    if (cb) cb.checked = true;
+  });
+}
+
+function searchItemSelector(q) {
+  const term = q.toLowerCase();
+  document.getElementById('itemSelectorOptions').querySelectorAll('.ms-option').forEach(el => {
+    el.style.display = el.dataset.search.includes(term) ? '' : 'none';
+  });
+}
+
+function toggleItemSelector() {
+  const dd = document.getElementById('itemSelectorDropdown');
+  const chevron = document.getElementById('itemSelectorChevron');
+  const trigger = document.getElementById('itemSelectorTrigger');
+  const isOpen = !dd.classList.contains('hidden');
+  dd.classList.toggle('hidden', isOpen);
+  chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
+  trigger.classList.toggle('open', !isOpen);
+  if (!isOpen) document.getElementById('itemSelectorSearch')?.focus();
+}
+
+function onItemSelectorChange(cb) {
+  const id = parseInt(cb.value);
+  const nome = cb.dataset.nome;
+  const segmento = cb.dataset.segmento;
+  if (cb.checked) {
+    if (!selectedItems.find(i => i.id === id)) selectedItems.push({ id, nome, segmento });
+  } else {
+    selectedItems = selectedItems.filter(i => i.id !== id);
+  }
+  renderItemSelectorTags();
+  updateFormLayout();
+}
+
+function renderItemSelectorTags() {
+  const container = document.getElementById('itemSelectorTags');
+  if (!selectedItems.length) {
+    container.innerHTML = '<span class="text-slate-400 text-sm">Selecionar itens...</span>';
+  } else {
+    container.innerHTML = selectedItems.map(i =>
+      `<span class="ms-tag">${i.nome}</span>`
+    ).join('');
+  }
+}
+
+function updateFormLayout() {
+  const single = document.getElementById('singleItemFields');
+  const matrix = document.getElementById('multiItemMatrix');
+  const qtdInput = document.getElementById('fQtd');
+  if (selectedItems.length <= 1) {
+    single.classList.remove('hidden');
+    matrix.classList.add('hidden');
+    if (qtdInput) qtdInput.required = true;
+  } else {
+    single.classList.add('hidden');
+    matrix.classList.remove('hidden');
+    if (qtdInput) qtdInput.required = false;
+    renderMultiItemMatrix();
+  }
+}
+
+function renderMultiItemMatrix() {
+  const tbody = document.getElementById('multiItemBody');
+  const unidadeOpts = unidadesCache.map(u =>
+    `<option value="${u.sigla}">${u.sigla}</option>`
+  ).join('');
+  const estabOpts = '<option value="">—</option>' + estabelecimentosCache.filter(e => e.ativo).map(e =>
+    `<option value="${e.id}">${e.tipo}</option>`
+  ).join('');
+  tbody.innerHTML = selectedItems.map((item, idx) => `
+    <tr class="border-b border-slate-100 last:border-0">
+      <td class="px-3 py-2 font-medium text-slate-700 text-xs">${item.nome}<br><span class="text-slate-400 font-normal">${item.segmento}</span></td>
+      <td class="px-3 py-2"><input type="number" step="0.01" min="0.01" required placeholder="0" data-item="${idx}" data-field="qtd" class="matrix-input w-full border border-slate-200 rounded px-2 py-1.5 text-xs" /></td>
+      <td class="px-3 py-2"><select data-item="${idx}" data-field="unidade" class="matrix-input w-full border border-slate-200 rounded px-2 py-1.5 text-xs">${unidadeOpts}</select></td>
+      <td class="px-3 py-2"><input type="number" step="0.01" min="0" placeholder="0,00" data-item="${idx}" data-field="valor" class="matrix-input w-full border border-slate-200 rounded px-2 py-1.5 text-xs" /></td>
+      <td class="px-3 py-2"><input type="text" placeholder="Opcional" data-item="${idx}" data-field="fornecedor" class="matrix-input w-full border border-slate-200 rounded px-2 py-1.5 text-xs" /></td>
+      <td class="px-3 py-2"><select data-item="${idx}" data-field="estabelecimento" class="matrix-input w-full border border-slate-200 rounded px-2 py-1.5 text-xs">${estabOpts}</select></td>
+    </tr>`
+  ).join('');
+}
+
+function getMatrixRow(idx) {
+  const inputs = document.querySelectorAll(`.matrix-input[data-item="${idx}"]`);
+  const row = {};
+  inputs.forEach(el => { row[el.dataset.field] = el.value; });
+  return row;
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('#itemSelectorWrapper')) {
+    document.getElementById('itemSelectorDropdown')?.classList.add('hidden');
+    document.getElementById('itemSelectorChevron').style.transform = '';
+    document.getElementById('itemSelectorTrigger')?.classList.remove('open');
+  }
+});
+
+function resetItemSelector() {
+  selectedItems = [];
+  renderItemSelectorTags();
+  document.getElementById('itemSelectorOptions').querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = false);
+  document.getElementById('itemSelectorSearch').value = '';
+  searchItemSelector('');
+  updateFormLayout();
+}
+
+function setItemSelectorSingle(item) {
+  selectedItems = [{ id: item.item_id || 0, nome: item.item_nome || '', segmento: item.categoria || '' }];
+  renderItemSelectorTags();
+  updateFormLayout();
+}
+
 function searchMsOptions(id, q) {
   const term = q.toLowerCase();
   document.getElementById(id+'Options').querySelectorAll('.ms-option').forEach(el => {
@@ -1903,7 +2052,7 @@ function toggleMs(id) {
   const dd = document.getElementById(id + 'Dropdown');
   const chevron = document.getElementById(id + 'Chevron');
   const isOpen = !dd.classList.contains('hidden');
-  ['cat','equipe'].forEach(k => {
+  ['equipe'].forEach(k => {
     document.getElementById(k+'Dropdown').classList.add('hidden');
     document.getElementById(k+'Chevron').style.transform = '';
     document.getElementById(k+'Trigger').classList.remove('open');
@@ -1939,8 +2088,8 @@ function setMsValues(id, values) {
 }
 
 document.addEventListener('click', e => {
-  if (!e.target.closest('#catWrapper') && !e.target.closest('#equipeWrapper')) {
-    ['cat','equipe'].forEach(k => {
+  if (!e.target.closest('#equipeWrapper')) {
+    ['equipe'].forEach(k => {
       document.getElementById(k+'Dropdown').classList.add('hidden');
       document.getElementById(k+'Chevron').style.transform = '';
       document.getElementById(k+'Trigger').classList.remove('open');
@@ -2211,9 +2360,9 @@ function renderMgmtPagination(containerId, total, page, pages, goFnName) {
 async function openDrawer(item = null) {
   const sbW = window.innerWidth < 1024 ? 0 : (sidebarPinned ? 256 : 72);
   document.documentElement.style.setProperty('--drawer-offset', sbW + 'px');
-  buildCatOptions();
   buildAreaOptions();
   buildUnidadeOptions();
+  buildItemSelectorOptions();
   await loadEstabelecimentosOptions(item?.estabelecimento_id || '');
 
   document.getElementById('editId').value = item ? item.id : '';
@@ -2236,7 +2385,7 @@ async function openDrawer(item = null) {
     document.getElementById('fStatus2').value     = item.status || 'pendente';
     document.getElementById('fDescricao').value   = item.descricao || '';
     document.getElementById('fObs').value         = item.observacoes || '';
-    setMsValues('cat',    (item.categoria   ||'').split(',').map(s=>s.trim()).filter(Boolean));
+    setItemSelectorSingle(item);
     setMsValues('equipe', (item.departamento||'').split(',').map(s=>s.trim()).filter(Boolean));
     toggleEmergencia(!!item.emergencia);
     if (item.prazo_emergencia) document.getElementById('fPrazoEmerg').value = item.prazo_emergencia;
@@ -2251,7 +2400,7 @@ async function openDrawer(item = null) {
     document.getElementById('fDataNec').value     = todayStr();
     document.getElementById('fSolicitante').value = nome;
     document.getElementById('fSolicitanteDisplay').textContent = nome;
-    setMsValues('cat', []);
+    resetItemSelector();
     setMsValues('equipe', []);
     toggleEmergencia(false);
     document.getElementById('fPrazoEmerg').value = '';
@@ -2273,42 +2422,84 @@ function closeDrawer() {
 async function submitForm(e) {
   e.preventDefault();
   const id     = document.getElementById('editId').value;
-  const cats   = [...msState.cat].join(', ');
   const equipe = [...msState.equipe].join(', ');
 
-  if (!cats)   { showToast('Selecione ao menos um segmento.', 'error'); return; }
-  if (!equipe) { showToast('Selecione ao menos uma equipe demandante.', 'error'); return; }
+  if (!selectedItems.length) { showToast('Selecione ao menos um item.', 'error'); return; }
+  if (!equipe)               { showToast('Selecione ao menos uma equipe demandante.', 'error'); return; }
 
-  const body = {
-    titulo:              document.getElementById('fTitulo').value,
-    categoria:           cats,
-    solicitante:         currentUser ? currentUser.nome : '',
-    departamento:        equipe,
-    quantidade:          parseFloat(document.getElementById('fQtd').value),
-    unidade:             document.getElementById('fUnidade').value,
-    prioridade:          document.getElementById('fPrioridade2').value,
-    emergencia:          emergenciaOn ? 1 : 0,
-    prazo_emergencia:    emergenciaOn ? document.getElementById('fPrazoEmerg').value : null,
-    data_necessidade:    document.getElementById('fDataNec').value || null,
-    valor_estimado:      document.getElementById('fValor').value ? parseFloat(document.getElementById('fValor').value) : null,
-    fornecedor_sugerido: document.getElementById('fFornecedor').value || null,
-    estabelecimento_id:  document.getElementById('fEstabelecimento').value ? Number(document.getElementById('fEstabelecimento').value) : null,
-    descricao:           document.getElementById('fDescricao').value || null,
-    observacoes:         document.getElementById('fObs').value || null,
-  };
-  if (id) body.status = document.getElementById('fStatus2').value;
+  const titulo          = document.getElementById('fTitulo').value;
+  const prioridade      = document.getElementById('fPrioridade2').value;
+  const emergencia      = emergenciaOn ? 1 : 0;
+  const prazo_emergencia= emergenciaOn ? document.getElementById('fPrazoEmerg').value : null;
+  const data_necessidade= document.getElementById('fDataNec').value || null;
+  const descricao       = document.getElementById('fDescricao').value || null;
+  const observacoes     = document.getElementById('fObs').value || null;
+  const solicitante     = currentUser ? currentUser.nome : '';
 
-  const url    = id ? `/api/suprimentos/${id}` : '/api/suprimentos';
-  const method = id ? 'PUT' : 'POST';
-  const res    = await apiFetch(url, { method, body: JSON.stringify(body) });
-  if (!res) return;
-  if (res.ok) {
+  // Edição: sempre um item, layout único
+  if (id) {
+    const item = selectedItems[0] || {};
+    const body = {
+      titulo, solicitante, departamento: equipe, categoria: item.segmento || '',
+      item_id: item.id || null, item_nome: item.nome || null,
+      quantidade: parseFloat(document.getElementById('fQtd').value),
+      unidade: document.getElementById('fUnidade').value,
+      prioridade, emergencia, prazo_emergencia, data_necessidade,
+      valor_estimado: document.getElementById('fValor').value ? parseFloat(document.getElementById('fValor').value) : null,
+      fornecedor_sugerido: document.getElementById('fFornecedor').value || null,
+      estabelecimento_id: document.getElementById('fEstabelecimento').value ? Number(document.getElementById('fEstabelecimento').value) : null,
+      descricao, observacoes, status: document.getElementById('fStatus2').value,
+    };
+    const res = await apiFetch(`/api/suprimentos/${id}`, { method: 'PUT', body: JSON.stringify(body) });
+    if (!res) return;
+    if (res.ok) { closeDrawer(); showToast('Solicitação atualizada!', 'success'); supPage=1; loadSuprimentos(); }
+    else showToast('Erro ao salvar. Verifique os campos.', 'error');
+    return;
+  }
+
+  // Criação: um POST por item
+  const isMulti = selectedItems.length > 1;
+  let errors = 0;
+
+  for (let idx = 0; idx < selectedItems.length; idx++) {
+    const si = selectedItems[idx];
+    let quantidade, unidade, valor_estimado, fornecedor_sugerido, estabelecimento_id;
+
+    if (isMulti) {
+      const row = getMatrixRow(idx);
+      quantidade        = parseFloat(row.qtd);
+      unidade           = row.unidade || 'un';
+      valor_estimado    = row.valor ? parseFloat(row.valor) : null;
+      fornecedor_sugerido = row.fornecedor || null;
+      estabelecimento_id  = row.estabelecimento ? Number(row.estabelecimento) : null;
+      if (!quantidade || isNaN(quantidade)) { showToast(`Informe a quantidade para "${si.nome}".`, 'error'); errors++; continue; }
+    } else {
+      quantidade        = parseFloat(document.getElementById('fQtd').value);
+      unidade           = document.getElementById('fUnidade').value;
+      valor_estimado    = document.getElementById('fValor').value ? parseFloat(document.getElementById('fValor').value) : null;
+      fornecedor_sugerido = document.getElementById('fFornecedor').value || null;
+      estabelecimento_id  = document.getElementById('fEstabelecimento').value ? Number(document.getElementById('fEstabelecimento').value) : null;
+      if (!quantidade || isNaN(quantidade)) { showToast('Informe a quantidade.', 'error'); return; }
+    }
+
+    const body = {
+      titulo, solicitante, departamento: equipe, categoria: si.segmento,
+      item_id: si.id, item_nome: si.nome,
+      quantidade, unidade, prioridade, emergencia, prazo_emergencia,
+      data_necessidade, valor_estimado, fornecedor_sugerido, estabelecimento_id,
+      descricao, observacoes,
+    };
+    const res = await apiFetch('/api/suprimentos', { method: 'POST', body: JSON.stringify(body) });
+    if (!res || !res.ok) errors++;
+  }
+
+  if (errors === 0) {
     closeDrawer();
-    showToast(id ? 'Solicitação atualizada!' : 'Solicitação criada!', 'success');
-    if (document.getElementById('page-dashboard').classList.contains('hidden') === false) loadDashboard();
+    showToast(selectedItems.length > 1 ? `${selectedItems.length} solicitações criadas!` : 'Solicitação criada!', 'success');
+    if (!document.getElementById('page-dashboard').classList.contains('hidden')) loadDashboard();
     else { supPage = 1; loadSuprimentos(); }
   } else {
-    showToast('Erro ao salvar. Verifique os campos.', 'error');
+    showToast(`${errors} erro(s) ao criar solicitações.`, 'error');
   }
 }
 
