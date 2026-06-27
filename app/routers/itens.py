@@ -5,7 +5,7 @@ from typing import Optional
 from app.database import get_db
 from app.models.item import Item
 from app.schemas.item import ItemCreate, ItemUpdate, ItemOut
-from app.auth import get_current_user
+from app.auth import get_current_user, get_viewer
 
 router = APIRouter(prefix="/api/itens", tags=["itens"])
 
@@ -16,7 +16,7 @@ def listar(
     busca: Optional[str] = Query(None),
     apenas_ativos: bool = Query(True),
     db: Session = Depends(get_db),
-    _=Depends(get_current_user),
+    _=Depends(get_viewer),
 ):
     q = db.query(Item)
     if apenas_ativos:

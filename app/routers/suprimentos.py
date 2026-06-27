@@ -9,7 +9,7 @@ from app.database import get_db
 from app.models.suprimento import Suprimento
 from app.models.estabelecimento import Estabelecimento
 from app.schemas.suprimento import SuprimentoCreate, SuprimentoUpdate, SuprimentoOut
-from app.auth import get_current_user
+from app.auth import get_current_user, get_viewer
 
 # Grupo principal: urgente=0, pendente não-urgente=1, resto=2
 _GROUP = case(
@@ -47,7 +47,7 @@ def listar(
     page: int = Query(1, ge=1),
     limit: int = Query(20, ge=1, le=100),
     db: Session = Depends(get_db),
-    _=Depends(get_current_user),
+    _=Depends(get_viewer),
 ):
     q = db.query(Suprimento)
     if status:
@@ -112,7 +112,7 @@ def criar(data: SuprimentoCreate, db: Session = Depends(get_db), _=Depends(get_c
 
 
 @router.get("/{id}", response_model=SuprimentoOut)
-def obter(id: int, db: Session = Depends(get_db), _=Depends(get_current_user)):
+def obter(id: int, db: Session = Depends(get_db), _=Depends(get_viewer)):
     item = db.query(Suprimento).filter(Suprimento.id == id).first()
     if not item:
         raise HTTPException(404, "Suprimento não encontrado")

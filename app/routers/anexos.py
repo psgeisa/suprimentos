@@ -8,7 +8,7 @@ from app.database import get_db
 from app.models.anexo import Anexo
 from app.models.suprimento import Suprimento
 from app.schemas.anexo import AnexoOut
-from app.auth import get_current_user
+from app.auth import get_current_user, get_viewer
 
 router = APIRouter(tags=["anexos"])
 
@@ -29,7 +29,7 @@ def _get_supabase():
 
 
 @router.get("/api/suprimentos/{sup_id}/anexos", response_model=List[AnexoOut])
-def listar_anexos(sup_id: int, db: Session = Depends(get_db), _=Depends(get_current_user)):
+def listar_anexos(sup_id: int, db: Session = Depends(get_db), _=Depends(get_viewer)):
     if not db.query(Suprimento).filter(Suprimento.id == sup_id).first():
         raise HTTPException(404, "Suprimento não encontrado")
     return (

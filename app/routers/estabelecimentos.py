@@ -3,7 +3,7 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.auth import get_current_user, require_admin
+from app.auth import get_current_user, get_viewer, require_admin
 from app.database import get_db
 from app.models.estabelecimento import Estabelecimento
 from app.schemas.estabelecimento import (
@@ -15,7 +15,7 @@ from app.schemas.estabelecimento import (
 router = APIRouter(prefix="/api/estabelecimentos", tags=["estabelecimentos"])
 
 @router.get("", response_model=List[EstabelecimentoOut])
-def listar(db: Session = Depends(get_db), _=Depends(get_current_user)):
+def listar(db: Session = Depends(get_db), _=Depends(get_viewer)):
     return db.query(Estabelecimento).order_by(Estabelecimento.tipo).all()
 
 

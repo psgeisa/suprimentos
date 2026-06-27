@@ -8,13 +8,13 @@ from app.models.suprimento import Suprimento
 from app.models.categoria import Categoria
 from app.models.unidade import Unidade
 from app.schemas.suprimento import SuprimentoOut
-from app.auth import get_current_user, require_admin
+from app.auth import get_current_user, get_viewer, require_admin
 
 router = APIRouter(prefix="/api", tags=["dashboard"])
 
 
 @router.get("/dashboard")
-def dashboard(db: Session = Depends(get_db), _=Depends(get_current_user)):
+def dashboard(db: Session = Depends(get_db), _=Depends(get_viewer)):
     total = db.query(func.count(Suprimento.id)).scalar()
     por_status = dict(
         db.query(Suprimento.status, func.count(Suprimento.id))
@@ -51,7 +51,7 @@ def dashboard(db: Session = Depends(get_db), _=Depends(get_current_user)):
 
 
 @router.get("/categorias")
-def categorias(db: Session = Depends(get_db), _=Depends(get_current_user)):
+def categorias(db: Session = Depends(get_db), _=Depends(get_viewer)):
     from_suprimentos = {r[0] for r in db.query(Suprimento.categoria).distinct().all() if r[0]}
     from_categorias = {r[0] for r in db.query(Categoria.nome).filter(Categoria.ativo == True).all()}
     return sorted(from_suprimentos | from_categorias)
@@ -62,7 +62,7 @@ class CategoriaCreate(BaseModel):
 
 
 @router.get("/categorias/list")
-def listar_categorias(db: Session = Depends(get_db), _=Depends(get_current_user)):
+def listar_categorias(db: Session = Depends(get_db), _=Depends(get_viewer)):
     rows = db.query(Categoria).filter(Categoria.ativo == True).order_by(Categoria.nome).all()
     return [{"id": r.id, "nome": r.nome} for r in rows]
 
@@ -96,7 +96,7 @@ class UnidadeCreate(BaseModel):
 
 
 @router.get("/unidades/list")
-def listar_unidades(db: Session = Depends(get_db), _=Depends(get_current_user)):
+def listar_unidades(db: Session = Depends(get_db), _=Depends(get_viewer)):
     rows = db.query(Unidade).filter(Unidade.ativo == True).order_by(Unidade.nome).all()
     return [{"id": r.id, "sigla": r.sigla, "nome": r.nome} for r in rows]
 

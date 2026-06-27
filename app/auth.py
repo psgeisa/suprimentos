@@ -16,6 +16,7 @@ ACCESS_TOKEN_EXPIRE_HOURS = int(os.environ.get("ACCESS_TOKEN_EXPIRE_HOURS", "8")
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
+oauth2_optional = OAuth2PasswordBearer(tokenUrl="/api/auth/login", auto_error=False)
 
 
 def hash_password(password: str) -> str:
@@ -53,6 +54,21 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     if not user:
         raise exc
     return user
+
+
+def get_viewer(token: Optional[str] = Depends(oauth2_optional), db: Session = Depends(get_db)):
+    """Permite acesso sem token (modo vitrine). Retorna o usuário se autenticado, None caso contrário."""
+    if not token:
+        return None
+    try:
+        from app.models.user import User
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        if user_id is None:
+            return None
+        return db.query(User).filter(User.id == int(user_id), User.ativo == True).first()
+    except JWTError:
+        return None
 
 
 def require_admin(current_user=Depends(get_current_user)):
