@@ -2001,6 +2001,10 @@ window.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('loginEmail').addEventListener('keydown', e => { if (e.key==='Enter') document.getElementById('loginSenha').focus(); });
   document.getElementById('loginSenha').addEventListener('keydown', e => { if (e.key==='Enter') doLogin(); });
 
+  // Entra em modo vitrine imediatamente para não deixar o usuário esperando
+  enterVitrineMode();
+
+  // Verifica silenciosamente se há sessão ativa e faz upgrade para autenticado
   const token = localStorage.getItem('sup_token');
   if (token) {
     const res = await fetch('/api/auth/me', { headers: { Authorization: `Bearer ${token}` } });
@@ -2009,11 +2013,11 @@ window.addEventListener('DOMContentLoaded', async () => {
       currentUser = user;
       VITRINE_MODE = false;
       applyLogin();
+      updateSidebarAuthBtn();
       return;
     }
     localStorage.removeItem('sup_token');
   }
-  enterVitrineMode();
 });
 
 // ── Login / Logout ─────────────────────────────────────────────────────────
