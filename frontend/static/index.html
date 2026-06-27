@@ -552,17 +552,6 @@
       <button onclick="doLogin()" id="loginBtn" class="w-full btn-primary rounded-lg py-2.5 text-sm font-semibold shadow-md">
         Entrar
       </button>
-      <div class="relative my-4">
-        <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-200"></div></div>
-        <div class="relative flex justify-center"><span class="bg-white px-3 text-xs text-slate-400">ou</span></div>
-      </div>
-      <button onclick="enterVitrineMode()" class="w-full rounded-lg py-2.5 text-sm font-semibold border border-slate-200 text-slate-500 hover:bg-slate-50 transition-colors flex items-center justify-center gap-2">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
-        </svg>
-        Explorar como visitante
-      </button>
     </div>
   </div>
 </div>
@@ -700,13 +689,13 @@
         <p id="userRoleDisplay" class="text-yellow-300 text-xs">—</p>
       </div>
     </div>
-    <button type="button" onclick="doLogout()" data-tip="Sair"
+    <button type="button" id="sidebarAuthBtn" onclick="handleSidebarAuth()" data-tip="Sair"
       class="sidebar-util w-full flex items-center gap-3 px-3 py-2 rounded-lg text-yellow-200 hover:text-white hover:bg-white/10 text-sm font-medium cursor-pointer transition-all">
-      <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg id="sidebarAuthIcon" class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
           d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
       </svg>
-      <span class="sidebar-label">Sair</span>
+      <span id="sidebarAuthLabel" class="sidebar-label">Sair</span>
     </button>
   </div>
 </aside>
@@ -1628,6 +1617,7 @@ function enterVitrineMode() {
   VITRINE_MODE = true;
   currentUser = { id: 0, nome: 'Visitante', email: '', role: 'admin' };
   applyLogin();
+  updateSidebarAuthBtn();
 }
 
 // ── API fetch com JWT ─────────────────────────────────────────────────────
@@ -2017,12 +2007,13 @@ window.addEventListener('DOMContentLoaded', async () => {
     if (res.ok) {
       const user = await res.json();
       currentUser = user;
+      VITRINE_MODE = false;
       applyLogin();
       return;
     }
     localStorage.removeItem('sup_token');
   }
-  showLoginModal();
+  enterVitrineMode();
 });
 
 // ── Login / Logout ─────────────────────────────────────────────────────────
@@ -2063,6 +2054,7 @@ async function doLogin() {
     currentUser = data.user;
     VITRINE_MODE = false;
     applyLogin();
+    updateSidebarAuthBtn();
   } finally {
     btn.disabled = false;
     btn.textContent = 'Entrar';
@@ -2094,11 +2086,34 @@ function toggleAdminMenu() {
   chevron.style.transform = open ? '' : 'rotate(180deg)';
 }
 
+function handleSidebarAuth() {
+  if (VITRINE_MODE) {
+    showLoginModal();
+  } else {
+    doLogout();
+  }
+}
+
+function updateSidebarAuthBtn() {
+  const label = document.getElementById('sidebarAuthLabel');
+  const icon  = document.getElementById('sidebarAuthIcon');
+  const btn   = document.getElementById('sidebarAuthBtn');
+  if (!label) return;
+  if (VITRINE_MODE) {
+    label.textContent = 'Entrar';
+    btn.dataset.tip   = 'Entrar';
+    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>';
+  } else {
+    label.textContent = 'Sair';
+    btn.dataset.tip   = 'Sair';
+    icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>';
+  }
+}
+
 function doLogout() {
   localStorage.removeItem('sup_token');
   currentUser = null;
-  VITRINE_MODE = false;
-  showLoginModal();
+  enterVitrineMode();
 }
 
 // ── Multiselect ───────────────────────────────────────────────────────────
