@@ -7,13 +7,13 @@ from typing import List
 from app.database import get_db
 from app.models.user import User
 from app.schemas.user import UserCreate, UserUpdate, UserOut
-from app.auth import hash_password, require_admin
+from app.auth import hash_password, get_viewer, require_admin
 
 router = APIRouter(prefix="/api/usuarios", tags=["usuarios"])
 
 
 @router.get("", response_model=List[UserOut])
-def listar(db: Session = Depends(get_db), _=Depends(require_admin)):
+def listar(db: Session = Depends(get_db), _=Depends(get_viewer)):
     return db.query(User).order_by(User.criado_em.desc()).all()
 
 
