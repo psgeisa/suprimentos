@@ -328,8 +328,24 @@
     .dark #page-suprimentos #pagination p,
     .dark #page-suprimentos #pagination span { color: rgba(255,255,255,0.87) !important; }
     .dark #page-suprimentos input,
-    .dark #page-suprimentos select { color:#fff !important; }
-    .dark #page-suprimentos input::placeholder { color:#fff !important; opacity:1; }
+    .dark #page-suprimentos select,
+    .dark #page-suprimentos textarea {
+      color: #fff !important;
+      background: rgba(0,0,0,0.45) !important;
+      border-color: rgba(212,165,32,0.3) !important;
+    }
+    .dark #page-suprimentos input::placeholder,
+    .dark #page-suprimentos textarea::placeholder { color: rgba(255,255,255,0.4) !important; }
+    .dark #page-suprimentos .ms-trigger {
+      background: rgba(0,0,0,0.45) !important;
+      border-color: rgba(212,165,32,0.3) !important;
+      color: #fff !important;
+    }
+    .dark #page-suprimentos .ms-trigger .text-slate-400 { color: rgba(255,255,255,0.4) !important; }
+    .dark #page-suprimentos .ms-tag {
+      background: rgba(212,165,32,0.25) !important;
+      color: #F5E6BE !important;
+    }
 
     /* ── Menu Dropdown (3 pontos) ── */
     .action-menu { position:relative; display:inline-block; }
