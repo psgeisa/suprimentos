@@ -1993,16 +1993,19 @@ function buildUnidadeOptions() {
 window.addEventListener('DOMContentLoaded', async () => {
   applySidebarState();
   applyDarkMode();
+
+  // Mostra a UI de visitante imediatamente, antes de qualquer chamada async
+  enterVitrineMode();
+
+  document.getElementById('loginEmail').addEventListener('keydown', e => { if (e.key==='Enter') document.getElementById('loginSenha').focus(); });
+  document.getElementById('loginSenha').addEventListener('keydown', e => { if (e.key==='Enter') doLogin(); });
+
+  // Carrega caches e reconstrói dropdowns em paralelo com o carregamento dos dados
   await loadCategoriasCache();
   await loadUnidadesCache();
   buildCatOptions();
   buildAreaOptions();
   buildUnidadeOptions();
-  document.getElementById('loginEmail').addEventListener('keydown', e => { if (e.key==='Enter') document.getElementById('loginSenha').focus(); });
-  document.getElementById('loginSenha').addEventListener('keydown', e => { if (e.key==='Enter') doLogin(); });
-
-  // Entra em modo vitrine imediatamente para não deixar o usuário esperando
-  enterVitrineMode();
 
   // Verifica silenciosamente se há sessão ativa e faz upgrade para autenticado
   const token = localStorage.getItem('sup_token');
