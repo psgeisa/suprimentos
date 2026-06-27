@@ -202,6 +202,57 @@
     .dark #page-fornecedores tbody tr td .text-slate-500 { color:rgba(255,255,255,0.8) !important; }
     .dark #fornecedoresEmpty { color:#fff !important; }
 
+    /* ── Dark mode — inputs/selects/multiselects nas telas de gestão ── */
+    .dark #page-categorias input, .dark #page-categorias select, .dark #page-categorias textarea,
+    .dark #page-fornecedores input, .dark #page-fornecedores select, .dark #page-fornecedores textarea,
+    .dark #page-usuarios input, .dark #page-usuarios select, .dark #page-usuarios textarea,
+    .dark #page-areas input, .dark #page-areas select, .dark #page-areas textarea,
+    .dark #page-unidades input, .dark #page-unidades select, .dark #page-unidades textarea,
+    .dark #page-estabelecimentos input, .dark #page-estabelecimentos select, .dark #page-estabelecimentos textarea,
+    .dark #page-itens input, .dark #page-itens select, .dark #page-itens textarea {
+      color: #fff !important;
+      background: rgba(0,0,0,0.45) !important;
+      border-color: rgba(212,165,32,0.3) !important;
+    }
+    .dark #page-categorias input::placeholder, .dark #page-categorias textarea::placeholder,
+    .dark #page-fornecedores input::placeholder, .dark #page-fornecedores textarea::placeholder,
+    .dark #page-usuarios input::placeholder, .dark #page-usuarios textarea::placeholder,
+    .dark #page-areas input::placeholder, .dark #page-areas textarea::placeholder,
+    .dark #page-unidades input::placeholder, .dark #page-unidades textarea::placeholder,
+    .dark #page-estabelecimentos input::placeholder, .dark #page-estabelecimentos textarea::placeholder,
+    .dark #page-itens input::placeholder, .dark #page-itens textarea::placeholder {
+      color: rgba(255,255,255,0.4) !important;
+    }
+    /* multiselect trigger text (placeholder do ms) */
+    .dark #page-categorias .ms-trigger .text-slate-400,
+    .dark #page-fornecedores .ms-trigger .text-slate-400,
+    .dark #page-usuarios .ms-trigger .text-slate-400,
+    .dark #page-areas .ms-trigger .text-slate-400,
+    .dark #page-unidades .ms-trigger .text-slate-400,
+    .dark #page-estabelecimentos .ms-trigger .text-slate-400,
+    .dark #page-itens .ms-trigger .text-slate-400 { color: rgba(255,255,255,0.4) !important; }
+    .dark #page-categorias .ms-trigger,
+    .dark #page-fornecedores .ms-trigger,
+    .dark #page-usuarios .ms-trigger,
+    .dark #page-areas .ms-trigger,
+    .dark #page-unidades .ms-trigger,
+    .dark #page-estabelecimentos .ms-trigger,
+    .dark #page-itens .ms-trigger {
+      background: rgba(0,0,0,0.45) !important;
+      border-color: rgba(212,165,32,0.3) !important;
+      color: #fff !important;
+    }
+    .dark #page-categorias .ms-tag,
+    .dark #page-fornecedores .ms-tag,
+    .dark #page-usuarios .ms-tag,
+    .dark #page-areas .ms-tag,
+    .dark #page-unidades .ms-tag,
+    .dark #page-estabelecimentos .ms-tag,
+    .dark #page-itens .ms-tag {
+      background: rgba(212,165,32,0.25) !important;
+      color: #F5E6BE !important;
+    }
+
     /* ── Filter bar — padrão único para todas as telas ── */
     .filter-bar {
       background: rgba(255,255,255,0.35);
