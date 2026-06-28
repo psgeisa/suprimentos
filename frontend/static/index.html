@@ -353,6 +353,30 @@
     .btn-remove-item:hover { background: #FEE2E2; color: #DC2626; border-color: #FCA5A5; }
     .dark .btn-remove-item { border-color: rgba(255,255,255,0.15); color: rgba(255,255,255,0.4); }
     .dark .btn-remove-item:hover { background: rgba(239,68,68,0.2); color: #FCA5A5; border-color: rgba(239,68,68,0.4); }
+    /* ── group-by chips ── */
+    .group-by-chip {
+      font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px;
+      border: 1px solid rgba(203,213,225,0.8); color: #64748B; background: transparent;
+      cursor: pointer; transition: all .15s;
+    }
+    .group-by-chip:hover { border-color: #D97706; color: #B45309; background: rgba(217,119,6,0.06); }
+    .group-by-chip.active { background: #FEF3C7; color: #92400E; border-color: #FCD34D; }
+    .dark .group-by-chip { border-color: rgba(255,255,255,0.15); color: rgba(255,255,255,0.55); }
+    .dark .group-by-chip.active { background: rgba(212,165,32,0.15); color: #F5E6BE; border-color: rgba(212,165,32,0.5); }
+    /* ── group header row ── */
+    .group-header-row td { background: rgba(254,243,199,0.6); font-size: 11px; font-weight: 700; color: #92400E; letter-spacing: 0.04em; }
+    .dark .group-header-row td { background: rgba(212,165,32,0.1) !important; color: #F5E6BE !important; }
+    /* ── priority pills na matriz ── */
+    .prio-pill {
+      font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px;
+      border: 1px solid transparent; cursor: pointer; opacity: 0.45; transition: opacity .15s;
+    }
+    .prio-pill.active { opacity: 1; }
+    .prio-pill:hover { opacity: 0.85; }
+    .prio-pill-b { background: #DCFCE7; color: #166534; border-color: #BBF7D0; }
+    .prio-pill-m { background: #FEF3C7; color: #92400E; border-color: #FDE68A; }
+    .prio-pill-a { background: #FFEDD5; color: #9A3412; border-color: #FED7AA; }
+    .prio-pill-u { background: #FEE2E2; color: #991B1B; border-color: #FECACA; }
     .dark #page-compras table { color: rgba(255,255,255,0.87); }
     .dark #page-compras input,
     .dark #page-compras select { color:#fff !important; background:rgba(0,0,0,0.45) !important; border-color:rgba(212,165,32,0.3) !important; }
@@ -885,10 +909,19 @@
       </div>
     </div>
 
-    <div class="card-glass bg-white rounded-2xl shadow-sm border border-slate-100" style="overflow-x:auto;">
+    <!-- ── Controle de agrupamento ── -->
+    <div class="flex items-center gap-2 mt-3 mb-0 px-1">
+      <span class="text-xs text-slate-500 font-medium">Agrupar por:</span>
+      <button id="groupByNone" onclick="setGroupBy(null)" class="group-by-chip active">Nenhum</button>
+      <button id="groupByData" onclick="setGroupBy('data')" class="group-by-chip">Data</button>
+      <button id="groupByOrdem" onclick="setGroupBy('ordem_compra')" class="group-by-chip">Ordem de Compra</button>
+    </div>
+
+    <div class="card-glass bg-white rounded-2xl shadow-sm border border-slate-100 mt-3" style="overflow-x:auto;">
       <table class="w-full text-sm">
         <thead>
           <tr class="bg-slate-50 border-b border-slate-100">
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Ordem</th>
             <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide"><abbr title="Estabelecimento" style="text-decoration:none;cursor:default;">Estab.</abbr></th>
             <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Solicitante</th>
             <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Segmento</th>
@@ -1391,6 +1424,7 @@
                 <th class="text-left px-3 py-2 font-semibold text-slate-500 w-28">Valor Est.<span class="info-tip" data-tip="Valor estimado unitário em R$.">i</span></th>
                 <th class="text-left px-3 py-2 font-semibold text-slate-500 min-w-32">Fornecedor<span class="info-tip" data-tip="Fornecedor sugerido para este item. Opcional.">i</span></th>
                 <th class="text-left px-3 py-2 font-semibold text-slate-500 min-w-32">Estabelecimento<span class="info-tip" data-tip="Local/unidade que receberá o item.">i</span></th>
+                <th class="text-left px-3 py-2 font-semibold text-slate-500 w-36">Prioridade<span class="info-tip" data-tip="Prioridade individual do item. Urgente exige prazo.">i</span></th>
                 <th class="text-left px-3 py-2 font-semibold text-slate-500 w-10"></th>
               </tr>
             </thead>
@@ -1783,6 +1817,43 @@
   </div>
 </div>
 
+<!-- ── Modal Urgência por Item ──────────────────────────────────────────────── -->
+<div id="modalUrgentePrio" class="modal-overlay hidden" style="z-index:9999;">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full mx-4 p-6">
+    <div class="flex items-start gap-4 mb-4">
+      <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+        </svg>
+      </div>
+      <div>
+        <h3 class="font-bold text-slate-800 mb-1">Marcar como Urgente</h3>
+        <p class="text-sm text-slate-500">Aplicar urgência a este item ou a todos os itens do pedido?</p>
+      </div>
+    </div>
+    <div class="space-y-2 mt-5">
+      <button onclick="confirmarUrgentePrio(false)"
+        class="w-full px-4 py-2.5 rounded-xl border border-red-200 text-red-700 font-semibold text-sm hover:bg-red-50 transition-colors text-left flex items-center gap-3">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+        </svg>
+        Apenas este item
+      </button>
+      <button onclick="confirmarUrgentePrio(true)"
+        class="w-full px-4 py-2.5 rounded-xl bg-red-600 text-white font-semibold text-sm hover:bg-red-700 transition-colors text-left flex items-center gap-3">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+        </svg>
+        Todos os itens do pedido
+      </button>
+      <button onclick="document.getElementById('modalUrgentePrio').classList.add('hidden')"
+        class="w-full px-4 py-2 rounded-xl text-slate-500 text-sm hover:bg-slate-50 transition-colors">
+        Cancelar
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- ── Modal Finalizar Compra ─────────────────────────────────────────────── -->
 <div id="modalFinalizarCompra" class="modal-overlay">
   <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6">
@@ -2075,7 +2146,7 @@ function onItemSelectorChange(cb) {
   const nome = cb.dataset.nome;
   const segmento = cb.dataset.segmento;
   if (cb.checked) {
-    if (!selectedItems.find(i => i.id === id)) selectedItems.push({ id, nome, segmento });
+    if (!selectedItems.find(i => i.id === id)) selectedItems.push({ id, nome, segmento, prioridade: 'baixa', prazo_urgente: null });
   } else {
     selectedItems = selectedItems.filter(i => i.id !== id);
   }
@@ -2155,6 +2226,22 @@ function renderMultiItemMatrix() {
       <td class="px-3 py-2"><select data-item="${idx}" data-field="fornecedor" class="matrix-input w-full border border-slate-200 rounded px-2 py-1.5 text-xs"
         onchange="onMatrixFornecedorChange(this)">${fornOpts}</select></td>
       <td class="px-3 py-2"><select data-item="${idx}" data-field="estabelecimento" class="matrix-input w-full border border-slate-200 rounded px-2 py-1.5 text-xs">${estabOpts}</select></td>
+      <td class="px-2 py-2">
+        <div class="flex gap-0.5 flex-wrap">
+          ${['baixa','media','alta','urgente'].map(p => {
+            const labels = {baixa:'B',media:'M',alta:'A',urgente:'U'};
+            const cls = {baixa:'prio-pill-b',media:'prio-pill-m',alta:'prio-pill-a',urgente:'prio-pill-u'};
+            const titles = {baixa:'Baixa',media:'Média',alta:'Alta',urgente:'Urgente'};
+            const active = (item.prioridade||'baixa') === p ? 'active' : '';
+            return `<button type="button" class="prio-pill ${cls[p]} ${active}" title="${titles[p]}"
+              onclick="setItemPrio(${idx},'${p}')">${labels[p]}</button>`;
+          }).join('')}
+        </div>
+        ${(item.prioridade === 'urgente') ? `
+        <input type="datetime-local" value="${item.prazo_urgente || nextHour()}"
+          onchange="setItemPrazo(${idx},this.value)"
+          class="mt-1 text-xs border border-red-200 rounded px-1 py-0.5 w-full bg-red-50 text-red-800" />` : ''}
+      </td>
       <td class="px-2 py-2 text-center">
         <button type="button" onclick="removeSelectedItem(${idx})" class="btn-remove-item" title="Remover item">
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2435,6 +2522,66 @@ function buildUnidadeOptions(segmento = null) {
     const display = document.getElementById('unidadeDisplay');
     if (display) { display.textContent = label; display.classList.remove('text-slate-400'); display.classList.add('text-slate-700'); }
   }
+}
+
+// ── Agrupamento da tabela de Solicitações ─────────────────────────────────
+let supGroupBy = null; // null | 'data' | 'ordem_compra'
+
+function setGroupBy(mode) {
+  supGroupBy = mode;
+  ['groupByNone','groupByData','groupByOrdem'].forEach(id => {
+    document.getElementById(id)?.classList.remove('active');
+  });
+  const activeId = mode === 'data' ? 'groupByData' : mode === 'ordem_compra' ? 'groupByOrdem' : 'groupByNone';
+  document.getElementById(activeId)?.classList.add('active');
+  loadSuprimentos();
+}
+
+function formatDateLabel(dateStr) {
+  if (!dateStr || dateStr === '—') return '—';
+  try {
+    const d = new Date(dateStr + 'T00:00:00');
+    return d.toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  } catch { return dateStr; }
+}
+
+// ── Prioridade por item na matriz ──────────────────────────────────────────
+let _urgentePrioIdx = -1;
+
+function setItemPrio(idx, prio) {
+  if (prio === 'urgente') {
+    _urgentePrioIdx = idx;
+    document.getElementById('modalUrgentePrio').classList.remove('hidden');
+    return;
+  }
+  selectedItems[idx].prioridade = prio;
+  selectedItems[idx].prazo_urgente = null;
+  renderMultiItemMatrix();
+}
+
+function confirmarUrgentePrio(todos) {
+  document.getElementById('modalUrgentePrio').classList.add('hidden');
+  const prazo = nextHour();
+  if (todos) {
+    selectedItems.forEach(i => { i.prioridade = 'urgente'; i.prazo_urgente = prazo; });
+  } else {
+    if (_urgentePrioIdx >= 0) {
+      selectedItems[_urgentePrioIdx].prioridade = 'urgente';
+      selectedItems[_urgentePrioIdx].prazo_urgente = prazo;
+    }
+  }
+  _urgentePrioIdx = -1;
+  renderMultiItemMatrix();
+}
+
+function setItemPrazo(idx, value) {
+  selectedItems[idx].prazo_urgente = value;
+}
+
+function nextHour() {
+  const d = new Date();
+  d.setHours(d.getHours() + 1, 0, 0, 0);
+  return d.toISOString().slice(0, 16);
 }
 
 // ── Mapeamento Segmento → Unidades recomendadas ───────────────────────────
@@ -2952,15 +3099,36 @@ async function loadSuprimentos() {
     return;
   }
   empty.classList.add('hidden');
-  tbody.innerHTML = items.map(s => `
+
+  let lastGroup = null;
+  tbody.innerHTML = items.map(s => {
+    let groupRow = '';
+    if (supGroupBy) {
+      let groupVal;
+      if (supGroupBy === 'data') {
+        const d = s.created_at ? s.created_at.split('T')[0] : '—';
+        groupVal = d;
+      } else {
+        groupVal = s.ordem_compra || '—';
+      }
+      if (groupVal !== lastGroup) {
+        const label = supGroupBy === 'data' ? formatDateLabel(groupVal) : groupVal;
+        groupRow = `<tr class="group-header-row"><td colspan="7" class="px-5 py-2 border-b border-amber-100">▸ ${label}</td></tr>`;
+        lastGroup = groupVal;
+      }
+    }
+    const oc = s.ordem_compra || '—';
+    return groupRow + `
     <tr class="row-hover transition-colors cursor-pointer" onclick="showDetail(${s.id})">
+      <td class="px-5 py-3.5"><span class="text-xs font-mono font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded">${oc}</span></td>
       <td class="px-5 py-3.5"><p class="font-semibold text-sm">${s.estabelecimento_tipo || '—'}</p></td>
       <td class="px-5 py-3.5"><p class="text-sm">${s.solicitante}</p></td>
       <td class="px-5 py-3.5 text-sm">${s.categoria}</td>
       <td class="px-5 py-3.5">${priorityIcon(s.prioridade, s.emergencia)}</td>
       <td class="px-5 py-3.5">${statusIcon(s.status)}</td>
       <td class="px-5 py-3.5" onclick="event.stopPropagation()">${SOLICITACAO_MENU(s)}</td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
 
   renderPagination(data.total, data.page, data.pages);
 }
@@ -3129,9 +3297,20 @@ async function submitForm(e) {
   const isMulti = selectedItems.length > 1;
   let errors = 0;
 
+  // Gera uma Ordem de Compra compartilhada para todo o lote
+  let ordem_compra = null;
+  const ordemRes = await apiFetch('/api/suprimentos/nova-ordem');
+  if (ordemRes && ordemRes.ok) {
+    const ordemData = await ordemRes.json();
+    ordem_compra = ordemData.ordem_compra;
+  }
+
   for (let idx = 0; idx < selectedItems.length; idx++) {
     const si = selectedItems[idx];
     let quantidade, unidade, valor_estimado, fornecedor_sugerido, estabelecimento_id;
+    let itemPrioridade = prioridade;
+    let itemEmergencia = emergencia;
+    let itemPrazo = prazo_emergencia;
 
     if (isMulti) {
       const row = getMatrixRow(idx);
@@ -3141,6 +3320,10 @@ async function submitForm(e) {
       fornecedor_sugerido = row.fornecedor || null;
       estabelecimento_id  = row.estabelecimento ? Number(row.estabelecimento) : null;
       if (!quantidade || isNaN(quantidade)) { showToast(`Informe a quantidade para "${si.nome}".`, 'error'); errors++; continue; }
+      // prioridade e prazo por item
+      itemPrioridade = si.prioridade || 'baixa';
+      itemEmergencia = itemPrioridade === 'urgente' ? 1 : 0;
+      itemPrazo      = itemPrioridade === 'urgente' ? (si.prazo_urgente || null) : null;
     } else {
       quantidade        = parseFloat(document.getElementById('fQtd').value);
       unidade           = document.getElementById('fUnidade').value;
@@ -3152,8 +3335,8 @@ async function submitForm(e) {
 
     const body = {
       titulo, solicitante, solicitante_responsavel, departamento: equipe, categoria: si.segmento,
-      item_id: si.id, item_nome: si.nome,
-      quantidade, unidade, prioridade, emergencia, prazo_emergencia,
+      item_id: si.id, item_nome: si.nome, ordem_compra,
+      quantidade, unidade, prioridade: itemPrioridade, emergencia: itemEmergencia, prazo_emergencia: itemPrazo,
       data_necessidade, valor_estimado, fornecedor_sugerido, estabelecimento_id,
       descricao, observacoes,
     };

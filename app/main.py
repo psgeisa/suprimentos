@@ -152,6 +152,10 @@ def migrate_schema():
     if "solicitante_responsavel" not in sup_columns2:
         with engine.begin() as connection:
             connection.execute(text("ALTER TABLE suprimentos ADD COLUMN solicitante_responsavel VARCHAR(150)"))
+    sup_columns3 = {column["name"] for column in inspect(engine).get_columns("suprimentos")}
+    if "ordem_compra" not in sup_columns3:
+        with engine.begin() as connection:
+            connection.execute(text("ALTER TABLE suprimentos ADD COLUMN ordem_compra VARCHAR(20)"))
 
 
 def create_app() -> FastAPI:

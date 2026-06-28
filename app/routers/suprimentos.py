@@ -37,6 +37,21 @@ _TEAM = case(
 router = APIRouter(prefix="/api/suprimentos", tags=["suprimentos"])
 
 
+@router.get("/nova-ordem")
+def nova_ordem(db: Session = Depends(get_db), _=Depends(get_current_user)):
+    """Gera o próximo código de Ordem de Compra (SOLxxxx)."""
+    rows = db.query(Suprimento.ordem_compra).filter(Suprimento.ordem_compra.isnot(None)).all()
+    nums = []
+    for (oc,) in rows:
+        if oc and oc.upper().startswith("SOL"):
+            try:
+                nums.append(int(oc[3:]))
+            except ValueError:
+                pass
+    next_num = (max(nums) + 1) if nums else 1
+    return {"ordem_compra": f"SOL{next_num:04d}"}
+
+
 @router.get("")
 def listar(
     status: Optional[str] = Query(None),

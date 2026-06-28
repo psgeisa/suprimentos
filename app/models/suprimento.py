@@ -17,6 +17,7 @@ class Suprimento(Base):
     item_nome = Column(String(200), nullable=True)
     fornecedor_sugerido = Column(String(200), nullable=True)
     estabelecimento_id = Column(Integer, nullable=True)
+    ordem_compra = Column(String(20), nullable=True, index=True)
     solicitante = Column(String(150), nullable=False)
     solicitante_responsavel = Column(String(150), nullable=True)
     departamento = Column(String(500), nullable=False)

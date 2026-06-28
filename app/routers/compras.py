@@ -32,7 +32,7 @@ def listar_ordens(
         .limit(500)
         .all()
     )
-    return [{"id": i.id, "label": f"#{i.id} — {(i.titulo or '')[:50]}"} for i in items]
+    return [{"id": i.id, "ordem_compra": i.ordem_compra or f"SOL{i.id:04d}", "label": f"{i.ordem_compra or f'SOL{i.id:04d}'} — {(i.titulo or '')[:50]}"} for i in items]
 
 
 @router.get("/itens")
