@@ -5,3 +5,5 @@ from app.models.estabelecimento import Estabelecimento  # noqa
 from app.models.categoria import Categoria  # noqa
 from app.models.unidade import Unidade  # noqa
 from app.models.item import Item  # noqa
+from app.models.compra_log import CompraLog  # noqa
+from app.models.item_eliminado_log import ItemEliminadoLog  # noqa

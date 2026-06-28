@@ -310,6 +310,33 @@
     .unidade-sigla-tag { background:#F1F5F9; color:#334155; }
     .dark .unidade-sigla-tag { background:#000; color:#fff; }
 
+    /* ── Checkbox de Compras ── */
+    .compra-check {
+      width: 20px; height: 20px; cursor: pointer;
+      accent-color: #C8780A; flex-shrink: 0;
+    }
+    .compra-row-checked td { opacity: 0.5; }
+    .compra-row-checked td p,
+    .compra-row-checked td span { text-decoration: line-through; }
+    .btn-eliminar {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 34px; height: 34px; border-radius: 8px;
+      border: 1px solid #FEE2E2; background: transparent;
+      color: #EF4444; cursor: pointer; transition: background .15s, color .15s;
+    }
+    .btn-eliminar:hover { background: #FEE2E2; color: #DC2626; }
+    .dark .btn-eliminar { border-color: rgba(239,68,68,0.3); color: #EF4444; }
+    .dark .btn-eliminar:hover { background: rgba(239,68,68,0.15); }
+    .dark #page-compras table { color: rgba(255,255,255,0.87); }
+    .dark #page-compras input,
+    .dark #page-compras select { color:#fff !important; background:rgba(0,0,0,0.45) !important; border-color:rgba(212,165,32,0.3) !important; }
+    .dark #page-compras input::placeholder { color:rgba(255,255,255,0.4) !important; }
+    .dark #page-compras .ms-trigger { background:#0d0d0d !important; border-color:rgba(212,165,32,0.3) !important; color:#fff !important; }
+
+    /* ── Modal Finalizar Compra ── */
+    #modalFinalizarCompra .itens-pendentes-list { max-height: 220px; overflow-y: auto; }
+    .dark #modalFinalizarCompra > div { background: rgba(10,10,10,0.97) !important; border: 1px solid rgba(212,165,32,0.2); }
+
     /* ── Cor de texto das tabelas — automática por tema ── */
     #page-suprimentos table,
     #page-categorias table,
@@ -663,6 +690,14 @@
       </svg>
       <span class="sidebar-label">Solicitações</span>
     </a>
+    <a id="sidebarComprasItem" onclick="showPage('compras')" data-tip="Compras"
+      class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-yellow-200 hover:text-white text-sm font-medium cursor-pointer transition-all" style="display:none">
+      <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+      </svg>
+      <span class="sidebar-label">Compras</span>
+    </a>
     <a onclick="showPage('categorias')" data-tip="Segmento"
       class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-yellow-200 hover:text-white text-sm font-medium cursor-pointer transition-all">
       <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -847,6 +882,45 @@
         <p class="text-xs mt-1">Clique em "Nova Solicitação" para começar</p>
       </div>
       <div id="pagination" class="px-5 py-4 border-t border-slate-100"></div>
+    </div>
+  </section>
+
+  <!-- ── Compras ── -->
+  <section id="page-compras" class="p-8 hidden" style="min-height:calc(100vh - 73px)">
+    <div class="filter-bar">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+        <input id="cBusca" type="text" placeholder="Item, segmento, estabelecimento..."
+          class="border border-slate-200 rounded-lg px-3 py-2 text-sm" oninput="comprasResetAndLoad()" />
+        <div class="filter-ms" data-filter="cOrdem"><button type="button" class="ms-trigger w-full" onclick="toggleComprasFilter('cOrdem',event)"><span id="filterCOrdemLabel">Ordem de Compra</span><span>▾</span></button><div id="filterCOrdemMenu" class="filter-ms-menu hidden"><input class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs mb-2" placeholder="Pesquisar ID..." oninput="searchComprasFilter('cOrdem',this.value)"><div id="filterCOrdemOptions"></div></div></div>
+        <div class="filter-ms" data-filter="cSegmento"><button type="button" class="ms-trigger w-full" onclick="toggleComprasFilter('cSegmento',event)"><span id="filterCSegmentoLabel">Segmentos</span><span>▾</span></button><div id="filterCSegmentoMenu" class="filter-ms-menu hidden"><input class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs mb-2" placeholder="Pesquisar..." oninput="searchComprasFilter('cSegmento',this.value)"><div id="filterCSegmentoOptions"></div></div></div>
+        <div class="filter-ms" data-filter="cPrioridade"><button type="button" class="ms-trigger w-full" onclick="toggleComprasFilter('cPrioridade',event)"><span id="filterCPrioridadeLabel">Prioridades</span><span>▾</span></button><div id="filterCPrioridadeMenu" class="filter-ms-menu hidden"><input class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs mb-2" placeholder="Pesquisar..." oninput="searchComprasFilter('cPrioridade',this.value)"><div id="filterCPrioridadeOptions"></div></div></div>
+        <div class="filter-ms" data-filter="cEstabelecimento"><button type="button" class="ms-trigger w-full" onclick="toggleComprasFilter('cEstabelecimento',event)"><span id="filterCEstabelecimentoLabel">Estabelecimento</span><span>▾</span></button><div id="filterCEstabelecimentoMenu" class="filter-ms-menu hidden"><input class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs mb-2" placeholder="Pesquisar..." oninput="searchComprasFilter('cEstabelecimento',this.value)"><div id="filterCEstabelecimentoOptions"></div></div></div>
+      </div>
+    </div>
+
+    <div class="card-glass bg-white rounded-2xl shadow-sm border border-slate-100" style="overflow-x:auto;">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-slate-50 border-b border-slate-100">
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Estab.</th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Item</th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Segmento</th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Prioridade</th>
+            <th class="text-center px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Comprado</th>
+            <th class="text-center px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide w-20">Eliminar</th>
+          </tr>
+        </thead>
+        <tbody id="comprasBody" class="divide-y divide-slate-50"></tbody>
+      </table>
+      <div id="comprasEmpty" class="hidden flex flex-col items-center py-16 text-slate-400">
+        <svg class="w-12 h-12 mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
+        </svg>
+        <p class="font-medium">Nenhum item em aberto para compra</p>
+        <p class="text-xs mt-1">Selecione uma Ordem de Compra ou aguarde novas solicitações</p>
+      </div>
+      <div id="comprasPagination" class="px-5 py-4 border-t border-slate-100"></div>
     </div>
   </section>
 
@@ -1618,6 +1692,30 @@
   </div>
 </div>
 
+<!-- ── Modal Finalizar Compra ─────────────────────────────────────────────── -->
+<div id="modalFinalizarCompra" class="modal-overlay">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-6">
+    <div class="flex items-start gap-4 mb-5">
+      <div class="w-11 h-11 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
+        <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+        </svg>
+      </div>
+      <div class="flex-1">
+        <h3 class="font-bold text-slate-800 text-base mb-1">Itens não marcados como comprados</h3>
+        <p class="text-slate-500 text-sm leading-relaxed mb-3">Os itens abaixo <strong>não foram marcados</strong> e permanecerão em aberto na tela de Solicitações. Deseja continuar mesmo assim?</p>
+        <div class="itens-pendentes-list bg-slate-50 rounded-xl p-3 space-y-1.5">
+          <div id="finalizarPendentesList"></div>
+        </div>
+      </div>
+    </div>
+    <div class="flex gap-3 justify-end mt-2">
+      <button onclick="fecharModalFinalizar()" class="px-4 py-2 rounded-lg border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors">Voltar e revisar</button>
+      <button onclick="confirmarFinalizarCompra()" class="px-4 py-2 rounded-lg btn-primary text-sm font-semibold shadow-md">Finalizar assim mesmo</button>
+    </div>
+  </div>
+</div>
+
 <!-- ── Toast ──────────────────────────────────────────────────────────────── -->
 <div id="toast" class="toast bg-white rounded-xl shadow-xl border border-slate-100 px-5 py-3 flex items-center gap-3">
   <div id="toastIcon" class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"></div>
@@ -2153,6 +2251,15 @@ function applyLogin() {
   } else {
     adminGroup.style.setProperty('display', 'none', 'important');
   }
+  // Mostrar Compras para compras e admin
+  const comprasItem = document.getElementById('sidebarComprasItem');
+  if (comprasItem) {
+    if (normalizedRole === 'compras' || normalizedRole === 'admin') {
+      comprasItem.style.setProperty('display', 'flex', 'important');
+    } else {
+      comprasItem.style.setProperty('display', 'none', 'important');
+    }
+  }
   loadCategoriasCache().then(() => { buildCatOptions(); });
   loadUnidadesCache().then(() => { buildUnidadeOptions(); });
   loadDashboard();
@@ -2290,6 +2397,7 @@ function showPage(page) {
   const titles = {
     dashboard:    ['Dashboard',         'Visão geral do sistema'],
     suprimentos:  ['Solicitações',      'Gerenciar todas as solicitações'],
+    compras:      ['Compras',           'Executar e registrar compras de suprimentos'],
     usuarios:     ['Stakeholders',      'Gerenciar contas de acesso'],
     categorias:   ['Segmento',          'Gerenciar segmentos de suprimentos'],
     areas:        ['Área Demandante',   'Gerenciar áreas que fazem solicitações'],
@@ -2300,10 +2408,21 @@ function showPage(page) {
   };
   document.getElementById('pageTitle').textContent    = titles[page][0];
   document.getElementById('pageSubtitle').textContent = titles[page][1];
-  headerNovaBtn.style.display = mgmtPages.includes(page) ? 'none' : '';
+
+  if (page === 'compras') {
+    headerNovaBtn.style.display = '';
+    headerNovaBtn.textContent = '';
+    headerNovaBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Finalizar Compra';
+    headerNovaBtn.onclick = finalizarCompra;
+  } else {
+    headerNovaBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg> Nova Solicitação';
+    headerNovaBtn.onclick = () => openDrawer();
+    headerNovaBtn.style.display = mgmtPages.includes(page) ? 'none' : '';
+  }
 
   if (page === 'dashboard')    loadDashboard();
   if (page === 'suprimentos')  { supPage = 1; initializeSolicitacaoFilters(); loadSuprimentos(); }
+  if (page === 'compras')      { comprasPage = 1; initComprasFilters(); loadCompras(); }
   if (page === 'usuarios')     { userPage=1; loadUsuarios(); }
   if (page === 'categorias')   { catPage=1; renderCategorias(); }
   if (page === 'areas')        { areaPage=1; renderAreas(); }
@@ -3691,6 +3810,309 @@ async function loadEstabelecimentosOptions(selectedId = '') {
   }
   return ativos;
 }
+
+// ══════════════════════════════════════════════════════════════════════════
+// ── COMPRAS ───────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════════════
+
+let comprasPage = 1;
+const COMPRAS_LIMIT = 50;
+
+// Estado dos filtros de compras
+const comprasFilterState = {
+  cOrdem: new Set(),
+  cSegmento: new Set(),
+  cPrioridade: new Set(),
+  cEstabelecimento: new Set(),
+};
+
+// Mapa de checkboxes: suprimento_id → boolean (true = comprado)
+let comprasCheckMap = {};
+
+// Cache dos itens carregados (para finalizar)
+let comprasItensCache = [];
+
+// ── Inicialização dos filtros da tela de Compras ──────────────────────────
+async function initComprasFilters() {
+  // Ordem de compra: carrega IDs de suprimentos em aberto
+  const res = await apiFetch('/api/compras/ordens');
+  if (res && res.ok) {
+    const ordens = await res.json();
+    const container = document.getElementById('filterCOrdemOptions');
+    if (container) {
+      container.innerHTML = ordens.map(o =>
+        `<label class="filter-ms-option" data-search="${o.label.toLowerCase()}">
+          <input type="checkbox" value="${o.id}" ${comprasFilterState.cOrdem.has(String(o.id)) ? 'checked' : ''}
+            onchange="updateComprasFilter('cOrdem',this)">
+          <span>${o.label}</span>
+        </label>`
+      ).join('') || '<p class="text-xs text-slate-400 p-2">Nenhuma solicitação em aberto</p>';
+    }
+  }
+
+  // Segmentos
+  const segmentos = categoriasCache.map(c => [c.nome, c.nome]);
+  renderComprasFilterOptions('cSegmento', segmentos);
+
+  // Prioridades
+  renderComprasFilterOptions('cPrioridade', [
+    ['baixa','Baixa'],['media','Média'],['alta','Alta'],['urgente','Urgente']
+  ]);
+
+  // Estabelecimentos
+  await loadEstabelecimentos();
+  const ests = estabelecimentosCache.filter(e => e.ativo).map(e => [String(e.id), e.tipo]);
+  renderComprasFilterOptions('cEstabelecimento', ests);
+}
+
+function renderComprasFilterOptions(type, options) {
+  const container = document.getElementById(`filter${type[0].toUpperCase()+type.slice(1)}Options`);
+  if (!container) return;
+  container.innerHTML = options.map(([value, label]) =>
+    `<label class="filter-ms-option" data-search="${label.toLowerCase()}">
+      <input type="checkbox" value="${value}" ${comprasFilterState[type].has(String(value)) ? 'checked' : ''}
+        onchange="updateComprasFilter('${type}',this)">
+      <span>${label}</span>
+    </label>`
+  ).join('') || '<p class="text-xs text-slate-400 p-2">Nenhum registro</p>';
+}
+
+function toggleComprasFilter(type, event) {
+  event.stopPropagation();
+  const target = document.getElementById(`filter${type[0].toUpperCase()+type.slice(1)}Menu`);
+  document.querySelectorAll('#page-compras .filter-ms-menu').forEach(m => { if (m !== target) m.classList.add('hidden'); });
+  target.classList.toggle('hidden');
+}
+
+function searchComprasFilter(type, term) {
+  const q = term.trim().toLowerCase();
+  const container = document.getElementById(`filter${type[0].toUpperCase()+type.slice(1)}Options`);
+  if (!container) return;
+  container.querySelectorAll('.filter-ms-option').forEach(opt =>
+    opt.classList.toggle('hidden', Boolean(q) && !opt.dataset.search.includes(q))
+  );
+}
+
+function updateComprasFilter(type, checkbox) {
+  checkbox.checked
+    ? comprasFilterState[type].add(String(checkbox.value))
+    : comprasFilterState[type].delete(String(checkbox.value));
+
+  const defaults = { cOrdem:'Ordem de Compra', cSegmento:'Segmentos', cPrioridade:'Prioridades', cEstabelecimento:'Estabelecimento' };
+  const labelEl = document.getElementById(`filterC${type[1].toUpperCase()+type.slice(2)}Label`);
+  if (labelEl) labelEl.textContent = comprasFilterState[type].size
+    ? `${defaults[type]} (${comprasFilterState[type].size})`
+    : defaults[type];
+  comprasResetAndLoad();
+}
+
+document.addEventListener('click', event => {
+  if (!event.target.closest('#page-compras .filter-ms'))
+    document.querySelectorAll('#page-compras .filter-ms-menu').forEach(m => m.classList.add('hidden'));
+});
+
+function comprasResetAndLoad() { comprasPage = 1; loadCompras(); }
+
+// ── Carrega itens para a tela de Compras ─────────────────────────────────
+async function loadCompras() {
+  const params = new URLSearchParams();
+  const busca = document.getElementById('cBusca').value.trim();
+  if (busca) params.set('busca', busca);
+  if (comprasFilterState.cOrdem.size)         params.set('ids',            [...comprasFilterState.cOrdem].join(','));
+  if (comprasFilterState.cSegmento.size)      params.set('segmento',       [...comprasFilterState.cSegmento].join(','));
+  if (comprasFilterState.cPrioridade.size)    params.set('prioridade',     [...comprasFilterState.cPrioridade].join(','));
+  if (comprasFilterState.cEstabelecimento.size) params.set('estabelecimento', [...comprasFilterState.cEstabelecimento].join(','));
+  params.set('page', comprasPage);
+  params.set('limit', COMPRAS_LIMIT);
+
+  const res = await apiFetch('/api/compras/itens?' + params);
+  if (!res) return;
+  const data = await res.json();
+  const items = data.items || [];
+
+  comprasItensCache = items;
+
+  // Preserva checks existentes; inicializa novos como false
+  items.forEach(i => { if (!(i.id in comprasCheckMap)) comprasCheckMap[i.id] = false; });
+
+  const tbody = document.getElementById('comprasBody');
+  const empty = document.getElementById('comprasEmpty');
+
+  if (!items.length) {
+    tbody.innerHTML = '';
+    empty.classList.remove('hidden');
+    document.getElementById('comprasPagination').innerHTML = '';
+    return;
+  }
+  empty.classList.add('hidden');
+
+  tbody.innerHTML = items.map(s => {
+    const checked = comprasCheckMap[s.id] ? 'checked' : '';
+    const rowClass = comprasCheckMap[s.id] ? 'compra-row-checked' : '';
+    const itemLabel = s.item_nome || s.titulo || '—';
+    const estab = s.estabelecimento_tipo || '—';
+    return `
+      <tr id="compra-row-${s.id}" class="row-hover transition-colors ${rowClass}">
+        <td class="px-5 py-3.5"><p class="font-semibold text-sm">${estab}</p></td>
+        <td class="px-5 py-3.5">
+          <p class="font-medium text-sm">${itemLabel}</p>
+          <p class="text-xs text-slate-400">${s.quantidade} ${s.unidade || ''} · ${s.solicitante || ''}</p>
+        </td>
+        <td class="px-5 py-3.5 text-sm">${s.categoria || '—'}</td>
+        <td class="px-5 py-3.5">${priorityIcon(s.prioridade, s.emergencia)}</td>
+        <td class="px-5 py-3.5 text-center" onclick="event.stopPropagation()">
+          <input type="checkbox" class="compra-check" ${checked}
+            onchange="toggleCompraCheck(${s.id}, this.checked)" />
+        </td>
+        <td class="px-5 py-3.5 text-center" onclick="event.stopPropagation()">
+          <button class="btn-eliminar" title="Eliminar item"
+            onclick="eliminarItemCompra(${s.id}, '${(itemLabel).replace(/'/g,"&#39;")}', '${(s.solicitante||'').replace(/'/g,"&#39;")}')">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M4 7h16m-4 0V5a1 1 0 00-1-1h-4a1 1 0 00-1 1v2"/>
+            </svg>
+          </button>
+        </td>
+      </tr>`;
+  }).join('');
+
+  // Paginação reutilizando helper existente adaptado
+  renderComprasPagination(data.total, data.page, data.pages);
+}
+
+function toggleCompraCheck(id, checked) {
+  comprasCheckMap[id] = checked;
+  const row = document.getElementById(`compra-row-${id}`);
+  if (row) row.classList.toggle('compra-row-checked', checked);
+}
+
+function renderComprasPagination(total, page, pages) {
+  const el = document.getElementById('comprasPagination');
+  if (pages <= 1) { el.innerHTML = ''; return; }
+  let html = '<div class="flex items-center gap-1.5 flex-wrap justify-center">';
+  html += `<button class="pg-btn" onclick="goPageCompras(${page-1})" ${page<=1?'disabled':''}>← Anterior</button>`;
+  const range = 2;
+  let start = Math.max(1, page-range), end = Math.min(pages, page+range);
+  if (start > 1) { html += `<button class="pg-btn" onclick="goPageCompras(1)">1</button>`; if (start>2) html += `<span class="text-slate-400 text-sm px-1">…</span>`; }
+  for (let i = start; i <= end; i++) html += `<button class="pg-btn ${i===page?'active':''}" onclick="goPageCompras(${i})">${i}</button>`;
+  if (end < pages) { if (end<pages-1) html += `<span class="text-slate-400 text-sm px-1">…</span>`; html += `<button class="pg-btn" onclick="goPageCompras(${pages})">${pages}</button>`; }
+  html += `<button class="pg-btn" onclick="goPageCompras(${page+1})" ${page>=pages?'disabled':''}>Próxima →</button>`;
+  html += `</div><p class="text-center text-xs text-slate-400 mt-2">${total} item${total!==1?'s':''}</p>`;
+  el.innerHTML = html;
+}
+
+function goPageCompras(p) { comprasPage = p; loadCompras(); }
+
+// ── Eliminar item ─────────────────────────────────────────────────────────
+async function eliminarItemCompra(id, nome, solicitante) {
+  const ok = await showConfirm({
+    title: 'Eliminar item da compra?',
+    msg: `"${nome}" será cancelado e o solicitante ${solicitante ? `(${solicitante})` : ''} será notificado sobre a eliminação. Esta ação ficará registrada no log com seu nome e horário.`,
+    okLabel: 'Eliminar item',
+    danger: true,
+  });
+  if (!ok) return;
+
+  const res = await apiFetch('/api/compras/eliminar', {
+    method: 'POST',
+    body: JSON.stringify({ suprimento_id: id }),
+  });
+
+  if (res && res.ok) {
+    showToast('Item eliminado e registrado no log.', 'success');
+    // Remove do cache local e do mapa de checks
+    comprasItensCache = comprasItensCache.filter(i => i.id !== id);
+    delete comprasCheckMap[id];
+    const row = document.getElementById(`compra-row-${id}`);
+    if (row) row.remove();
+    // Se ficou vazio, mostra estado vazio
+    if (!document.getElementById('comprasBody').querySelectorAll('tr').length) {
+      document.getElementById('comprasEmpty').classList.remove('hidden');
+    }
+  } else {
+    showToast('Erro ao eliminar item.', 'error');
+  }
+}
+
+// ── Finalizar Compra ──────────────────────────────────────────────────────
+function finalizarCompra() {
+  if (!comprasItensCache.length) {
+    showToast('Nenhum item carregado para finalizar.', 'error');
+    return;
+  }
+
+  const naoMarcados = comprasItensCache.filter(i => !comprasCheckMap[i.id]);
+
+  if (naoMarcados.length > 0) {
+    // Mostra modal com itens não marcados
+    document.getElementById('finalizarPendentesList').innerHTML = naoMarcados.map(i =>
+      `<div class="flex items-center gap-2 text-sm text-slate-700 py-0.5">
+        <svg class="w-3.5 h-3.5 text-amber-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10"/></svg>
+        <span class="font-medium">${i.item_nome || i.titulo}</span>
+        <span class="text-slate-400 text-xs">· ${i.solicitante || ''}</span>
+      </div>`
+    ).join('');
+    document.getElementById('modalFinalizarCompra').classList.add('open');
+  } else {
+    // Todos marcados — finaliza direto
+    confirmarFinalizarCompra();
+  }
+}
+
+function fecharModalFinalizar() {
+  document.getElementById('modalFinalizarCompra').classList.remove('open');
+}
+
+async function confirmarFinalizarCompra() {
+  fecharModalFinalizar();
+
+  const comprados   = comprasItensCache.filter(i =>  comprasCheckMap[i.id]);
+  const naoComprados = comprasItensCache.filter(i => !comprasCheckMap[i.id]).map(i => i.id);
+
+  if (!comprados.length) {
+    showToast('Marque ao menos um item como comprado para finalizar.', 'error');
+    return;
+  }
+
+  const payload = {
+    comprados: comprados.map(i => ({
+      id: i.id,
+      titulo: i.titulo,
+      item_nome: i.item_nome,
+      categoria: i.categoria,
+      quantidade: i.quantidade,
+      unidade: i.unidade,
+      valor_estimado: i.valor_estimado,
+      estabelecimento_tipo: i.estabelecimento_tipo,
+      solicitante: i.solicitante,
+      prioridade: i.prioridade,
+    })),
+    nao_comprados: naoComprados,
+  };
+
+  const res = await apiFetch('/api/compras/finalizar', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+
+  if (res && res.ok) {
+    const data = await res.json();
+    showToast(`Compra finalizada! ${data.total_comprados} item(ns) concluído(s). Log #${data.log_id} registrado.`, 'success');
+    // Limpa state e recarrega
+    comprasCheckMap = {};
+    comprasItensCache = [];
+    comprasPage = 1;
+    await loadCompras();
+    // Recarrega filtro de ordens (IDs podem ter mudado)
+    initComprasFilters();
+  } else {
+    showToast('Erro ao finalizar compra.', 'error');
+  }
+}
+
+document.getElementById('modalFinalizarCompra').addEventListener('click', e => {
+  if (e.target === document.getElementById('modalFinalizarCompra')) fecharModalFinalizar();
+});
 
 // ── Toast ─────────────────────────────────────────────────────────────────
 function showToast(msg, type = 'success') {
