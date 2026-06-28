@@ -89,6 +89,9 @@
     .ss-option { padding:8px 12px; font-size:.875rem; cursor:pointer; transition:background .15s; }
     .ss-option:hover, .ss-option.active { background:#FEF3DC; }
     .ss-option.hidden { display:none; }
+    .matrix-ss .ss-trigger { min-height:32px; padding:6px 8px; font-size:.75rem; border-radius:6px; }
+    .matrix-ss .ss-dropdown { min-width:210px; z-index:60; }
+    .matrix-ss .ss-option { padding:7px 10px; font-size:.75rem; }
     .matrix-input { transition:border-color .15s; }
     .matrix-input:focus { outline:none; border-color:#C8780A; box-shadow:0 0 0 2px rgba(200,120,10,0.15); }
     .ms-option { display:flex; align-items:center; gap:8px; padding:8px 12px; cursor:pointer; transition:background .15s; }
@@ -101,7 +104,8 @@
     .ms-tags { display:flex; flex-wrap:wrap; gap:4px; flex:1; }
     .ms-tag { background:#FEF0D0; color:#7A4A08; font-size:.7rem; padding:2px 8px; border-radius:99px; font-weight:600; }
     .filter-ms { position:relative; }
-    .filter-ms-menu { position:absolute; z-index:30; top:calc(100% + 5px); left:0; right:0; min-width:210px; background:#fff; border:1px solid #CBD5E1; border-radius:10px; box-shadow:0 10px 28px rgba(0,0,0,.14); padding:8px; }
+    .filter-ms-menu { position:absolute; z-index:30; top:calc(100% + 5px); left:0; right:0; min-width:210px; max-height:300px; overflow:hidden; background:#fff; border:1px solid #CBD5E1; border-radius:10px; box-shadow:0 10px 28px rgba(0,0,0,.14); padding:8px; }
+    .filter-ms-menu > div[id$="Options"] { max-height:220px; overflow-y:auto; overscroll-behavior:contain; }
     .filter-ms-option { display:flex; align-items:center; gap:8px; padding:7px 6px; border-radius:7px; cursor:pointer; font-size:.8rem; color:#475569; }
     .filter-ms-option:hover { background:#F8FAFC; }
     .filter-ms-option input { accent-color:#C8780A; }
@@ -967,7 +971,7 @@
             <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none" onclick="setComprasSort('estabelecimento')">Estab. <span data-compras-sort="estabelecimento"></span></th>
             <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none" onclick="setComprasSort('item')">Item <span data-compras-sort="item"></span></th>
             <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none" onclick="setComprasSort('segmento')">Segmento <span data-compras-sort="segmento"></span></th>
-            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none" onclick="setComprasSort('prioridade')">Prioridade <span data-compras-sort="prioridade"></span></th>
+            <th class="text-center px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none" onclick="setComprasSort('prioridade')">Prioridade <span data-compras-sort="prioridade"></span></th>
             <th class="text-center px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none" onclick="setComprasSort('comprado')">Comprado <span data-compras-sort="comprado"></span></th>
             <th class="text-center px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide w-20">Eliminar</th>
           </tr>
@@ -2282,17 +2286,24 @@ function renderMultiItemMatrix() {
 function matrixSearchableHtml(idx, field, options, selectedValue, placeholder) {
   const selected = options.find(([value]) => String(value) === String(selectedValue));
   const label = selected ? selected[1] : '';
-  const listId = `matrix-${field}-${idx}`;
-  const optionsHtml = options.map(([value, optionLabel]) =>
-    `<option value="${String(optionLabel).replace(/"/g, '&quot;')}">${String(value).replace(/</g, '&lt;')}</option>`
-  ).join('');
+  const controlId = `matrix-${field}-${idx}`;
   return `
-    <input type="text" list="${listId}" value="${String(label).replace(/"/g, '&quot;')}"
-      placeholder="${placeholder}" autocomplete="off"
-      class="w-full border border-slate-200 rounded px-2 py-1.5 text-xs"
-      onchange="applyMatrixSearchValue(this,${idx},'${field}')" />
-    <datalist id="${listId}">${optionsHtml}</datalist>
-    <input type="hidden" class="matrix-input" data-item="${idx}" data-field="${field}" value="${String(selectedValue).replace(/"/g, '&quot;')}" />`;
+    <div class="relative matrix-ss" id="${controlId}-wrapper">
+      <div class="ss-trigger" id="${controlId}-trigger" onclick="toggleMatrixSearchable(event,${idx},'${field}')">
+        <span id="${controlId}-display" class="${label ? 'text-slate-700' : 'text-slate-400'} truncate">${label || placeholder}</span>
+        <svg class="w-3.5 h-3.5 text-slate-400 flex-shrink-0 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </div>
+      <div class="ss-dropdown" id="${controlId}-dropdown">
+        <div class="ms-search-wrap">
+          <input class="ms-search" placeholder="${placeholder}" autocomplete="off"
+            oninput="renderMatrixSearchOptions(${idx},'${field}',this.value)" />
+        </div>
+        <div id="${controlId}-options">${matrixSearchOptionsHtml(idx, field, options)}</div>
+      </div>
+      <input type="hidden" class="matrix-input" data-item="${idx}" data-field="${field}" value="${String(selectedValue).replace(/"/g, '&quot;')}" />
+    </div>`;
 }
 
 function getMatrixSearchOptions(idx, field) {
@@ -2308,26 +2319,68 @@ function getMatrixSearchOptions(idx, field) {
   return [['baixa','Baixa'],['media','Média'],['alta','Alta'],['urgente','Urgente']];
 }
 
-function applyMatrixSearchValue(input, idx, field) {
-  const typed = normalizeMatchText(input.value);
-  const options = getMatrixSearchOptions(idx, field);
-  const match = options.find(([value, label]) =>
-    normalizeMatchText(label) === typed || normalizeMatchText(value) === typed
-  );
-  const hidden = input.parentElement.querySelector(`.matrix-input[data-field="${field}"]`);
-  if (!match) {
-    input.value = '';
-    if (hidden) hidden.value = '';
-    updateMatrixField(idx, field, '');
-    return;
+function matrixSearchOptionsHtml(idx, field, options = getMatrixSearchOptions(idx, field), term = '') {
+  const query = normalizeMatchText(term);
+  return options.map(([value, label], optionIdx) => ({ value, label, optionIdx }))
+    .filter(option =>
+      !query
+      || normalizeMatchText(option.label).includes(query)
+      || normalizeMatchText(option.value).includes(query)
+    )
+    .map(option => `
+      <div class="ss-option" onclick="selectMatrixSearchOption(${idx},'${field}',${option.optionIdx})">
+        ${option.label}
+      </div>`)
+    .join('') || '<p class="text-xs text-slate-400 p-3">Nenhuma opção encontrada</p>';
+}
+
+function renderMatrixSearchOptions(idx, field, term = '') {
+  const container = document.getElementById(`matrix-${field}-${idx}-options`);
+  if (container) container.innerHTML = matrixSearchOptionsHtml(idx, field, getMatrixSearchOptions(idx, field), term);
+}
+
+function closeMatrixSearchables(exceptId = '') {
+  document.querySelectorAll('#multiItemMatrix .matrix-ss .ss-dropdown.open').forEach(dropdown => {
+    if (dropdown.id !== exceptId) {
+      dropdown.classList.remove('open');
+      dropdown.closest('.matrix-ss')?.querySelector('.ss-trigger')?.classList.remove('open');
+    }
+  });
+}
+
+function toggleMatrixSearchable(event, idx, field) {
+  event.stopPropagation();
+  const dropdownId = `matrix-${field}-${idx}-dropdown`;
+  const dropdown = document.getElementById(dropdownId);
+  const wasOpen = dropdown.classList.contains('open');
+  closeMatrixSearchables(dropdownId);
+  dropdown.classList.toggle('open', !wasOpen);
+  document.getElementById(`matrix-${field}-${idx}-trigger`)?.classList.toggle('open', !wasOpen);
+  if (!wasOpen) {
+    renderMatrixSearchOptions(idx, field);
+    setTimeout(() => dropdown.querySelector('.ms-search')?.focus(), 20);
   }
-  const [value, label] = match;
-  input.value = label;
+}
+
+function selectMatrixSearchOption(idx, field, optionIdx) {
+  const options = getMatrixSearchOptions(idx, field);
+  const selected = options[optionIdx];
+  if (!selected) return;
+  const [value, label] = selected;
+  const wrapper = document.getElementById(`matrix-${field}-${idx}-wrapper`);
+  const hidden = wrapper?.querySelector(`.matrix-input[data-field="${field}"]`);
+  const display = document.getElementById(`matrix-${field}-${idx}-display`);
   if (hidden) hidden.value = value;
+  if (display) {
+    display.textContent = label;
+    display.classList.remove('text-slate-400');
+    display.classList.add('text-slate-700');
+  }
   if (field === 'prioridade') {
     onMatrixPrioChange({ value }, idx);
   } else {
     updateMatrixField(idx, field, value);
+    closeMatrixSearchables();
   }
 }
 
@@ -2343,6 +2396,7 @@ function getMatrixRow(idx) {
 }
 
 document.addEventListener('click', e => {
+  if (!e.target.closest('#multiItemMatrix .matrix-ss')) closeMatrixSearchables();
   if (!e.target.closest('#itemSelectorWrapper')) {
     document.getElementById('itemSelectorDropdown')?.classList.add('hidden');
     document.getElementById('itemSelectorChevron').style.transform = '';
@@ -4698,35 +4752,26 @@ let comprasItensCache = [];
 
 // ── Inicialização dos filtros da tela de Compras ──────────────────────────
 async function initComprasFilters() {
-  // Ordem de compra: carrega IDs de suprimentos em aberto
-  const res = await apiFetch('/api/compras/ordens');
-  if (res && res.ok) {
-    const ordens = await res.json();
-    const container = document.getElementById('filterCOrdemOptions');
-    if (container) {
-      container.innerHTML = ordens.map(o =>
-        `<label class="filter-ms-option" data-search="${o.label.toLowerCase()}">
-          <input type="checkbox" value="${o.ordem_compra}" ${comprasFilterState.cOrdem.has(String(o.ordem_compra)) ? 'checked' : ''}
-            onchange="updateComprasFilter('cOrdem',this)">
-          <span>${o.label}</span>
-        </label>`
-      ).join('') || '<p class="text-xs text-slate-400 p-2">Nenhuma solicitação em aberto</p>';
-    }
-  }
+  const res = await apiFetch('/api/compras/filtros');
+  if (!res || !res.ok) return;
+  const filtros = await res.json();
 
-  // Segmentos
-  const segmentos = segmentosCache.map(c => [c.nome, c.nome]);
-  renderComprasFilterOptions('cSegmento', segmentos);
-
-  // Prioridades
-  renderComprasFilterOptions('cPrioridade', [
-    ['baixa','Baixa'],['media','Média'],['alta','Alta'],['urgente','Urgente']
-  ]);
-
-  // Estabelecimentos
-  await loadEstabelecimentos();
-  const ests = estabelecimentosCache.filter(e => e.ativo).map(e => [String(e.id), e.tipo]);
-  renderComprasFilterOptions('cEstabelecimento', ests);
+  renderComprasFilterOptions(
+    'cOrdem',
+    (filtros.ordens || []).map(item => [item.value, item.label]),
+  );
+  renderComprasFilterOptions(
+    'cSegmento',
+    (filtros.segmentos || []).map(value => [value, value]),
+  );
+  renderComprasFilterOptions(
+    'cPrioridade',
+    (filtros.prioridades || []).map(item => [item.value, item.label]),
+  );
+  renderComprasFilterOptions(
+    'cEstabelecimento',
+    (filtros.estabelecimentos || []).map(item => [item.value, item.label]),
+  );
 }
 
 function renderComprasFilterOptions(type, options) {
@@ -4869,7 +4914,7 @@ async function loadCompras() {
           <p class="text-xs text-slate-400">${s.quantidade} ${s.unidade || ''} · ${s.solicitante || ''}</p>
         </td>
         <td class="px-5 py-3.5 text-sm">${s.categoria || '—'}</td>
-        <td class="px-5 py-3.5">${priorityIcon(s.prioridade, s.emergencia)}</td>
+        <td class="px-5 py-3.5 text-center">${priorityIcon(s.prioridade, s.emergencia)}</td>
         <td class="px-5 py-3.5 text-center" onclick="event.stopPropagation()">
           <input type="checkbox" class="compra-check" ${checked}
             onchange="toggleCompraCheck(${s.id}, this.checked)" />

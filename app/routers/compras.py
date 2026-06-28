@@ -28,7 +28,7 @@ def listar_ordens(
     """Retorna IDs e títulos de suprimentos em aberto para o multiselect de Ordem de Compra."""
     items = (
         db.query(Suprimento)
-        .filter(Suprimento.status.in_(STATUSES_ABERTOS))
+        .filter(Suprimento.status == "pendente")
         .order_by(Suprimento.id.desc())
         .limit(2000)
         .all()
@@ -46,6 +46,70 @@ def listar_ordens(
             f"({group['total']} {'item' if group['total'] == 1 else 'itens'})"
         ),
     } for ordem, group in grouped.items()]
+
+
+@router.get("/filtros")
+def listar_filtros(
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    """Opções dos filtros de compra derivadas somente de solicitações pendentes."""
+    items = (
+        db.query(Suprimento)
+        .filter(Suprimento.status == "pendente")
+        .order_by(Suprimento.id.desc())
+        .limit(5000)
+        .all()
+    )
+
+    grouped_orders = {}
+    for item in items:
+        ordem = item.ordem_compra or f"SOL{item.id:04d}"
+        if ordem not in grouped_orders:
+            grouped_orders[ordem] = {"titulo": item.titulo or "", "total": 0}
+        grouped_orders[ordem]["total"] += 1
+
+    est_ids = {item.estabelecimento_id for item in items if item.estabelecimento_id}
+    est_map = {}
+    if est_ids:
+        estabelecimentos = (
+            db.query(Estabelecimento)
+            .filter(Estabelecimento.id.in_(est_ids))
+            .all()
+        )
+        est_map = {item.id: item.tipo for item in estabelecimentos}
+
+    priority_labels = {
+        "baixa": "Baixa",
+        "media": "Média",
+        "alta": "Alta",
+        "urgente": "Urgente",
+    }
+    present_priorities = {item.prioridade for item in items if item.prioridade}
+
+    return {
+        "ordens": [
+            {
+                "value": ordem,
+                "label": (
+                    f"{ordem} — {group['titulo'][:50]} "
+                    f"({group['total']} {'item' if group['total'] == 1 else 'itens'})"
+                ),
+            }
+            for ordem, group in grouped_orders.items()
+        ],
+        "segmentos": sorted({item.categoria for item in items if item.categoria}),
+        "prioridades": [
+            {"value": value, "label": label}
+            for value, label in priority_labels.items()
+            if value in present_priorities
+        ],
+        "estabelecimentos": [
+            {"value": str(est_id), "label": est_map[est_id]}
+            for est_id in sorted(est_ids, key=lambda value: est_map.get(value, "").lower())
+            if est_id in est_map
+        ],
+    }
 
 
 @router.get("/itens")
