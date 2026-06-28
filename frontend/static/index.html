@@ -17,11 +17,12 @@
     .gradient-card  { background: linear-gradient(135deg, #E0B030 0%, #B08020 100%); }
     .sidebar-item:hover { background: rgba(255,255,255,0.12); }
     .sidebar-item.active { background: rgba(255,255,255,0.18); }
-    .badge-pendente    { background:#FEF3C7; color:#92400E; }
-    .badge-aprovado    { background:#D1FAE5; color:#065F46; }
-    .badge-em_andamento{ background:#DBEAFE; color:#1E40AF; }
-    .badge-concluido   { background:#E0E7FF; color:#3730A3; }
-    .badge-cancelado   { background:#FEE2E2; color:#991B1B; }
+    .badge-pendente    { background:#E2E8F0; color:#475569; }
+    .badge-aprovado    { background:#DBEAFE; color:#1D4ED8; }
+    .badge-em_andamento{ background:#FEF9C3; color:#854D0E; }
+    .badge-concluido   { background:#DCFCE7; color:#166534; }
+    .badge-entregue    { background:#DCFCE7; color:#166534; }
+    .badge-cancelado   { background:#FCE7F3; color:#831843; }
     .prio-baixa   { background:#F0FDF4; color:#000; border:1px solid #BBF7D0; }
     .prio-media   { background:#FFFBEB; color:#000; border:1px solid #FDE68A; }
     .prio-alta    { background:#FFF7ED; color:#000; border:1px solid #FDBA74; }
@@ -301,6 +302,16 @@
       border-color: rgba(212,165,32,0.3) !important;
       color: #fff !important;
     }
+    :is(#page-suprimentos,#page-aprovacoes,#page-compras,#page-entregas,#page-segmentos,#page-fornecedores,#page-usuarios,#page-areas,#page-unidades,#page-estabelecimentos,#page-itens) .filter-bar input,
+    :is(#page-suprimentos,#page-aprovacoes,#page-compras,#page-entregas,#page-segmentos,#page-fornecedores,#page-usuarios,#page-areas,#page-unidades,#page-estabelecimentos,#page-itens) .filter-bar select,
+    :is(#page-suprimentos,#page-aprovacoes,#page-compras,#page-entregas,#page-segmentos,#page-fornecedores,#page-usuarios,#page-areas,#page-unidades,#page-estabelecimentos,#page-itens) .filter-bar .ms-trigger {
+      font-size:.75rem !important;
+    }
+    :is(#page-suprimentos,#page-aprovacoes,#page-compras,#page-entregas,#page-segmentos,#page-fornecedores,#page-usuarios,#page-areas,#page-unidades,#page-estabelecimentos,#page-itens) .filter-ms-option,
+    :is(#page-suprimentos,#page-aprovacoes,#page-compras,#page-entregas,#page-segmentos,#page-fornecedores,#page-usuarios,#page-areas,#page-unidades,#page-estabelecimentos,#page-itens) .ms-option,
+    :is(#page-suprimentos,#page-aprovacoes,#page-compras,#page-entregas,#page-segmentos,#page-fornecedores,#page-usuarios,#page-areas,#page-unidades,#page-estabelecimentos,#page-itens) .ss-option {
+      font-size:.72rem !important;
+    }
 
     /* ── Ícone lixo amarelo em dark mode nas telas de gestão simples ── */
     .dark #page-segmentos .text-red-400,
@@ -333,7 +344,17 @@
     .dark .btn-eliminar:hover { background: rgba(255,255,255,0.1); color: #fff; }
     .compra-valor-header { background:linear-gradient(135deg,#F59E0B,#D97706); color:#fff !important; min-width:150px; }
     .compra-valor-input { min-width:110px; text-align:right; font-variant-numeric:tabular-nums; }
+    .compra-valor-input.over-limit { border-color:#DC2626 !important; box-shadow:0 0 0 2px rgba(220,38,38,.12); background:#FEF2F2 !important; }
+    .compra-limit-message { color:#DC2626; font-size:10px; line-height:1.2; margin-top:4px; font-weight:600; }
     .dark .compra-valor-input { background:#0d0d0d; border-color:rgba(212,165,32,0.3); color:#fff; }
+    .dark .compra-valor-input.over-limit { background:rgba(127,29,29,.22) !important; border-color:#F87171 !important; }
+    .dark .compra-limit-message { color:#FCA5A5; }
+    .floating-info-tooltip {
+      position:fixed; z-index:9999; width:min(290px,calc(100vw - 24px));
+      padding:9px 12px; border-radius:8px; background:#1E293B; color:#fff;
+      font-size:11px; line-height:1.45; font-weight:400; text-align:left;
+      box-shadow:0 12px 28px rgba(15,23,42,.28); pointer-events:none;
+    }
     /* ── info-tip tooltip ── */
     .info-tip {
       display: inline-flex; align-items: center; justify-content: center;
@@ -927,7 +948,7 @@
 
   <!-- ── Dashboard ── -->
   <section id="page-dashboard" class="p-8">
-    <div id="kpiCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8"></div>
+    <div id="kpiCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-5 mb-8"></div>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div class="card-glass lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
         <div class="flex items-center justify-between mb-4">
@@ -1022,11 +1043,10 @@
             <div class="flex flex-col items-center gap-0.5">
               <span class="flex items-center gap-1">
                 Teto de Gasto
-                <span class="relative group cursor-help">
+                <span class="relative cursor-help"
+                  onmouseenter="showFloatingInfo(this, 'Os valores estão 20% acima do valor inserido pelo usuário, mas você pode editá-los para estabelecer outro teto de gasto')"
+                  onmouseleave="hideFloatingInfo()">
                   <svg class="w-3.5 h-3.5 text-slate-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 16v-4m0-4h.01"/></svg>
-                  <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 bg-slate-800 text-white text-xs rounded-lg px-3 py-2 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-left leading-relaxed">
-                    Valor estimado pelo solicitante acrescido de 20% de margem. Pode ser editado antes da aprovação.
-                  </span>
                 </span>
               </span>
               <span id="aprovacoesTotalHeader" class="block text-sm mt-1 normal-case font-semibold text-slate-600">R$ 0,00</span>
@@ -1071,6 +1091,7 @@
             <th class="text-center px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none" onclick="setComprasSort('prioridade')"><div class="flex flex-col items-center gap-0.5"><span>Prioridade</span><span class="text-amber-400 text-[10px] font-normal normal-case" data-compras-sort="prioridade">↕</span></div></th>
             <th class="text-center px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none" onclick="setComprasSort('comprado')"><div class="flex flex-col items-center gap-0.5"><span>Comprado</span><span class="text-amber-400 text-[10px] font-normal normal-case" data-compras-sort="comprado">↕</span></div></th>
             <th class="text-center px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide w-20">Eliminar</th>
+            <th class="text-center px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide min-w-36">Teto de Gasto</th>
             <th class="compra-valor-header text-center px-5 py-3 font-semibold text-xs uppercase tracking-wide">
               <span class="block">Valor da Compra</span>
               <span id="comprasTotalHeader" class="block text-sm mt-1 normal-case">R$ 0,00</span>
@@ -2075,6 +2096,30 @@ function showNotice({ title, msg, okLabel = 'Entendi' }) {
   const promise = showConfirm({ title, msg, okLabel, danger: false });
   document.getElementById('confirmCancelBtn').classList.add('hidden');
   return promise;
+}
+
+function showFloatingInfo(anchor, text) {
+  hideFloatingInfo();
+  const tooltip = document.createElement('div');
+  tooltip.id = 'floatingInfoTooltip';
+  tooltip.className = 'floating-info-tooltip';
+  tooltip.textContent = text;
+  document.body.appendChild(tooltip);
+  const anchorRect = anchor.getBoundingClientRect();
+  const tooltipRect = tooltip.getBoundingClientRect();
+  const left = Math.min(
+    window.innerWidth - tooltipRect.width - 12,
+    Math.max(12, anchorRect.left + anchorRect.width / 2 - tooltipRect.width / 2),
+  );
+  const top = anchorRect.top - tooltipRect.height - 9 >= 8
+    ? anchorRect.top - tooltipRect.height - 9
+    : anchorRect.bottom + 9;
+  tooltip.style.left = `${left}px`;
+  tooltip.style.top = `${top}px`;
+}
+
+function hideFloatingInfo() {
+  document.getElementById('floatingInfoTooltip')?.remove();
 }
 
 function resolveConfirm(result) {
@@ -3318,19 +3363,20 @@ async function loadDashboard() {
   const data = await res.json();
   const [referenceYear, referenceMonth] = (data.mes_referencia || '').split('-').map(Number);
   const referenceLabel = referenceYear && referenceMonth
-    ? new Date(referenceYear, referenceMonth - 1, 1).toLocaleDateString('pt-BR', {
-        month: 'long',
-        year: 'numeric',
-      })
+    ? `${new Date(referenceYear, referenceMonth - 1, 1)
+        .toLocaleDateString('pt-BR', { month: 'short' })
+        .replace('.', '')
+        .toLowerCase()}/${String(referenceYear).slice(-2)}`
     : '';
-  document.getElementById('pageSubtitle').innerHTML =
-    `Visão geral do sistema ${referenceLabel ? `<span class="text-slate-400">(${referenceLabel})</span>` : ''}`;
+  document.getElementById('pageSubtitle').textContent =
+    `Visão geral do sistema${referenceLabel ? ` | ${referenceLabel}` : ''}`;
 
   const kpis = [
     { label:'Total de Solicitações', value: data.total, icon:'📋', color:'from-indigo-500 to-purple-600' },
     { label:'Pendentes',             value: data.por_status.pendente || 0, icon:'⏳', color:'from-amber-400 to-orange-500' },
-    { label:'Em Andamento',          value: data.por_status.em_andamento || 0, icon:'🔄', color:'from-blue-400 to-blue-600' },
-    { label:'Valor Total Est.',      value: 'R$ '+(data.valor_total_estimado||0).toLocaleString('pt-BR',{minimumFractionDigits:2}), icon:'💰', color:'from-emerald-400 to-green-600' },
+    { label:'Aprovados',             value: data.por_status.aprovado || 0, icon:'✓', color:'from-emerald-400 to-green-600' },
+    { label:'Em andamento',          value: data.por_status.em_andamento || 0, icon:'🔄', color:'from-blue-400 to-blue-600' },
+    { label:'Valor total estimado',  value: 'R$ '+(data.valor_total_estimado||0).toLocaleString('pt-BR',{minimumFractionDigits:2}), icon:'💰', color:'from-teal-400 to-emerald-600' },
   ];
   document.getElementById('kpiCards').innerHTML = kpis.map(k => `
     <div class="kpi-card bg-white rounded-2xl shadow-sm border border-slate-100 p-5 overflow-hidden relative">
@@ -3361,7 +3407,7 @@ async function loadDashboard() {
           <p class="text-slate-500"><span class="font-semibold">Estabelecimento:</span> ${item.estabelecimento}</p>
           <p class="text-slate-500"><span class="font-semibold">Solicitante:</span> ${item.solicitante}</p>
           <p class="text-slate-400"><span class="font-semibold">Solicitado em:</span> ${dashboardDate(item.data_solicitacao)}</p>
-          <p class="text-red-500"><span class="font-semibold">Conclusão necessária:</span> ${dashboardDate(item.data_conclusao_necessaria)}</p>
+          <p class="text-amber-700"><span class="font-semibold">Conclusão necessária:</span> ${dashboardDate(item.data_conclusao_necessaria)}</p>
         </div>
       </div>` : `
       <div class="recent-request-item p-4 rounded-xl cursor-pointer" onclick="showDetail(${item.id})">
@@ -3376,7 +3422,7 @@ async function loadDashboard() {
       </div>`).join('')
     : '<p class="text-slate-400 text-sm text-center py-8">Nenhuma solicitação encontrada no mês de referência</p>';
 
-  const statusColors = { pendente:'#F59E0B', aprovado:'#10B981', em_andamento:'#3B82F6', concluido:'#6366F1', cancelado:'#EF4444' };
+  const statusColors = { pendente:'#94A3B8', aprovado:'#3B82F6', em_andamento:'#EAB308', concluido:'#22C55E', entregue:'#22C55E', cancelado:'#9D174D' };
   const total = data.total || 1;
   document.getElementById('statusChart').innerHTML = Object.entries(STATUS_LABEL).map(([k,v]) => {
     const count = data.por_status[k] || 0;
@@ -5102,6 +5148,28 @@ function formatCompraValor(amount) {
   });
 }
 
+function tetoCompraItem(item) {
+  return Number(item?.teto_gasto ?? ((Number(item?.valor_estimado) || 0) * 1.2));
+}
+
+function updateCompraLimitState(id, input) {
+  const item = comprasItensCache.find(entry => entry.id === id);
+  if (!item || !input) return false;
+  const amount = parseCompraValor(input.value);
+  const teto = tetoCompraItem(item);
+  const excesso = amount > teto ? amount - teto : 0;
+  const message = document.getElementById(`compra-limit-${id}`);
+  input.classList.toggle('over-limit', excesso > 0);
+  input.setAttribute('aria-invalid', excesso > 0 ? 'true' : 'false');
+  if (message) {
+    message.textContent = excesso > 0
+      ? `Bloqueado: R$ ${formatCompraValor(excesso)} acima do teto`
+      : '';
+    message.classList.toggle('hidden', excesso <= 0);
+  }
+  return excesso > 0;
+}
+
 function updateComprasTotal() {
   const total = comprasItensCache.reduce(
     (sum, item) => sum + (comprasValorMap[item.id] || 0),
@@ -5124,6 +5192,7 @@ function onCompraValorInput(id, input) {
   const amount = parseCompraValor(input.value);
   if (amount > 0) comprasValorMap[id] = amount;
   else delete comprasValorMap[id];
+  updateCompraLimitState(id, input);
   updateComprasTotal();
 }
 
@@ -5136,6 +5205,7 @@ async function onCompraValorBlur(id, input) {
     delete comprasValorMap[id];
     input.value = '';
   }
+  updateCompraLimitState(id, input);
   updateComprasTotal();
   const response = await apiFetch(`/api/compras/${id}/valor`, {
     method: 'PUT',
@@ -5193,7 +5263,10 @@ async function loadCompras() {
   comprasItensCache = items;
 
   // Preserva checks existentes; inicializa novos como false
-  items.forEach(i => { if (!(i.id in comprasCheckMap)) comprasCheckMap[i.id] = false; });
+  items.forEach(i => {
+    if (!(i.id in comprasCheckMap)) comprasCheckMap[i.id] = false;
+    if (!(i.id in comprasValorMap) && i.valor_compra) comprasValorMap[i.id] = i.valor_compra;
+  });
 
   const tbody = document.getElementById('comprasBody');
   const empty = document.getElementById('comprasEmpty');
@@ -5232,6 +5305,9 @@ async function loadCompras() {
             </svg>
           </button>
         </td>
+        <td class="px-5 py-3.5 text-center whitespace-nowrap">
+          <span class="font-semibold text-slate-600">R$ ${formatCompraValor(tetoCompraItem(s))}</span>
+        </td>
         <td class="px-4 py-3.5 bg-amber-50/60" onclick="event.stopPropagation()">
           <input type="text" inputmode="decimal" placeholder="0,00"
             value="${comprasValorMap[s.id] ? formatCompraValor(comprasValorMap[s.id]) : ''}"
@@ -5239,10 +5315,15 @@ async function loadCompras() {
             onblur="onCompraValorBlur(${s.id},this)"
             class="compra-valor-input w-full border border-amber-200 rounded-lg px-3 py-2 text-sm"
             aria-label="Valor da compra de ${String(itemLabel).replace(/"/g, '&quot;')}" />
+          <p id="compra-limit-${s.id}" class="compra-limit-message hidden"></p>
         </td>
       </tr>`;
   }).join('');
 
+  items.forEach(item => {
+    const input = document.querySelector(`#compra-row-${item.id} .compra-valor-input`);
+    updateCompraLimitState(item.id, input);
+  });
   updateComprasTotal();
   // Paginação reutilizando helper existente adaptado
   renderComprasPagination(data.total, data.page, data.pages);
@@ -5321,11 +5402,46 @@ async function eliminarItemCompra(id, nome, solicitante) {
 }
 
 // ── Finalizar Compra ──────────────────────────────────────────────────────
-function finalizarCompra() {
+async function finalizarCompra() {
   if (!comprasItensCache.length) {
     showToast('Nenhum item carregado para finalizar.', 'error');
     return;
   }
+
+  const comprados = comprasItensCache.filter(i => comprasCheckMap[i.id]);
+  if (!comprados.length) {
+    showToast('Marque ao menos um item como comprado para finalizar.', 'error');
+    return;
+  }
+
+  const excessos = comprados
+    .map(item => {
+      const valor = comprasValorMap[item.id] || 0;
+      const teto = tetoCompraItem(item);
+      return { item, valor, teto, excesso: valor - teto };
+    })
+    .filter(entry => entry.excesso > 0);
+  if (excessos.length) {
+    const detalhes = excessos.map(entry =>
+      `${entry.item.item_nome || entry.item.titulo}: R$ ${formatCompraValor(entry.valor)} — R$ ${formatCompraValor(entry.excesso)} acima do teto`
+    ).join('; ');
+    await showNotice({
+      title: 'Valor acima do teto de gasto',
+      msg: `A compra não pode ser finalizada com esse valor. ${detalhes}. Revise os valores para continuar.`,
+      okLabel: 'Revisar valores',
+    });
+    return;
+  }
+
+  const totalCompra = comprados.reduce((sum, item) => sum + (comprasValorMap[item.id] || 0), 0);
+  const totalTeto = comprados.reduce((sum, item) => sum + tetoCompraItem(item), 0);
+  const confirmado = await showConfirm({
+    title: 'Compra alinhada com o teto',
+    msg: `O valor final da compra, R$ ${formatCompraValor(totalCompra)}, está alinhado com o teto total de R$ ${formatCompraValor(totalTeto)}. Deseja confirmar a compra?`,
+    okLabel: 'Confirmar compra',
+    danger: false,
+  });
+  if (!confirmado) return;
 
   const naoMarcados = comprasItensCache.filter(i => !comprasCheckMap[i.id]);
 
