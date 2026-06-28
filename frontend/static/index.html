@@ -148,7 +148,7 @@
     .dark .btn-primary:hover { opacity:.85; }
     .dark .drawer .gradient-brand { background:#000 !important; }
     .dark .drawer .gradient-brand p.text-purple-200 { color:#D4A520 !important; }
-    .dark .kpi-card { background:rgba(var(--kc),0.22) !important; backdrop-filter:blur(4px); border-color:rgba(var(--kc),0.5) !important; }
+    .dark .kpi-card { background:rgba(var(--kc),0.22) !important; backdrop-filter:blur(4px); border-color:rgba(var(--kc),0.3) !important; border-top:3px solid rgb(var(--kc)) !important; }
     .dark .kpi-card .kpi-deco { opacity:0.55 !important; }
     .dark .kpi-card p.text-slate-800 { color:#fff !important; }
     .dark .kpi-card .kpi-label { color:#fff !important; }
@@ -679,11 +679,11 @@
     #sidebar:not(.collapsed) .sidebar-item[data-tip]:hover::after,
     #sidebar:not(.collapsed) .sidebar-util[data-tip]:hover::after { content:attr(data-tip); position:absolute; left:calc(100% + 8px); top:50%; transform:translateY(-50%); background:rgba(30,20,0,0.88); color:#fff; font-size:.7rem; font-weight:600; padding:4px 9px; border-radius:7px; white-space:nowrap; pointer-events:none; opacity:1; z-index:50; }
 
-    /* Admin group alinhado no modo colapsado */
+    /* Admin/Info group alinhado no modo colapsado */
     #sidebar.collapsed #sidebarAdminGroup,
     #sidebar.collapsed #sidebarInfoGroup { display:flex !important; flex-direction:column; align-items:center; width:100%; }
     #sidebar.collapsed #sidebarAdminGroup .sidebar-item,
-    #sidebar.collapsed #sidebarInfoGroup .sidebar-item { width:56px; }
+    #sidebar.collapsed #sidebarInfoGroup .sidebar-item { width:56px !important; max-width:56px !important; }
 
     /* ══ SIDEBAR: labels visíveis quando mobile-open (mesmo com collapsed) ══ */
     #sidebar.mobile-open .sidebar-label {
