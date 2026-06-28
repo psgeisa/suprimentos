@@ -396,6 +396,19 @@
     .dark #page-compras input::placeholder { color:rgba(255,255,255,0.4) !important; }
     .dark #page-compras .ms-trigger { background:#0d0d0d !important; border-color:rgba(212,165,32,0.3) !important; color:#fff !important; }
 
+    /* ── Dark mode — Conclusão necessária ─── */
+    .dark .recent-request-item .text-red-500 { color: #C0607A !important; }
+
+    /* ── Dark mode — Entregas ─── */
+    .dark #page-entregas table { color: rgba(255,255,255,0.87); }
+    .dark #page-entregas input,
+    .dark #page-entregas select { color:#fff !important; background:rgba(0,0,0,0.45) !important; border-color:rgba(212,165,32,0.3) !important; }
+    .dark #page-entregas input::placeholder { color:rgba(255,255,255,0.4) !important; }
+    .dark #page-entregas .ms-trigger { background:#0d0d0d !important; border-color:rgba(212,165,32,0.3) !important; color:#fff !important; }
+    .dark #page-entregas .ms-dropdown { background:#17191D !important; border-color:#6B7280 !important; }
+    .dark #page-entregas .ms-option { color:#fff !important; }
+    .dark #page-entregas .ms-option:hover { background:#30343B !important; }
+
     /* ── Modal Finalizar Compra ── */
     #modalFinalizarCompra .itens-pendentes-list { max-height: 220px; overflow-y: auto; }
     .dark #modalFinalizarCompra > div { background: rgba(10,10,10,0.97) !important; border: 1px solid rgba(212,165,32,0.2); }
@@ -761,6 +774,14 @@
       </svg>
       <span class="sidebar-label">Compras</span>
     </a>
+    <a id="sidebarEntregasItem" onclick="showPage('entregas')" data-tip="Entregas"
+      class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-yellow-200 hover:text-white text-sm font-medium cursor-pointer transition-all" style="display:none">
+      <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M3 7h11v10H3V7zm11 3h3l4 4v3h-7v-7zM6 20a2 2 0 100-4 2 2 0 000 4zm11 0a2 2 0 100-4 2 2 0 000 4z"/>
+      </svg>
+      <span class="sidebar-label">Entregas</span>
+    </a>
     <a onclick="showPage('segmentos')" data-tip="Segmento"
       class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-yellow-200 hover:text-white text-sm font-medium cursor-pointer transition-all">
       <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -998,6 +1019,45 @@
         <p id="comprasEmptyHint" class="text-xs mt-1">Use um dos filtros acima para carregar os itens.</p>
       </div>
       <div id="comprasPagination" class="px-5 py-4 border-t border-slate-100"></div>
+    </div>
+  </section>
+
+  <!-- ── Entregas ── -->
+  <section id="page-entregas" class="p-8 hidden" style="min-height:calc(100vh - 73px)">
+    <div class="filter-bar">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+        <input id="eBusca" type="text" placeholder="Ordem, item, segmento, responsável..."
+          class="border border-slate-200 rounded-lg px-3 py-2 text-sm" oninput="entregasResetAndLoad()" />
+        <div class="filter-ms" data-filter="eOrdem"><button type="button" class="ms-trigger w-full" onclick="toggleEntregasFilter('eOrdem',event)"><span id="filterEOrdemLabel">Ordem de Entrega</span><span>▾</span></button><div id="filterEOrdemMenu" class="filter-ms-menu hidden"><input class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs mb-2" placeholder="Pesquisar ID..." oninput="searchEntregasFilter('eOrdem',this.value)"><div id="filterEOrdemOptions"></div></div></div>
+        <div class="filter-ms" data-filter="eSegmento"><button type="button" class="ms-trigger w-full" onclick="toggleEntregasFilter('eSegmento',event)"><span id="filterESegmentoLabel">Segmentos</span><span>▾</span></button><div id="filterESegmentoMenu" class="filter-ms-menu hidden"><input class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs mb-2" placeholder="Pesquisar..." oninput="searchEntregasFilter('eSegmento',this.value)"><div id="filterESegmentoOptions"></div></div></div>
+        <div class="filter-ms" data-filter="ePrioridade"><button type="button" class="ms-trigger w-full" onclick="toggleEntregasFilter('ePrioridade',event)"><span id="filterEPrioridadeLabel">Prioridades</span><span>▾</span></button><div id="filterEPrioridadeMenu" class="filter-ms-menu hidden"><input class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs mb-2" placeholder="Pesquisar..." oninput="searchEntregasFilter('ePrioridade',this.value)"><div id="filterEPrioridadeOptions"></div></div></div>
+        <div class="filter-ms" data-filter="eEstabelecimento"><button type="button" class="ms-trigger w-full" onclick="toggleEntregasFilter('eEstabelecimento',event)"><span id="filterEEstabelecimentoLabel">Estabelecimento</span><span>▾</span></button><div id="filterEEstabelecimentoMenu" class="filter-ms-menu hidden"><input class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs mb-2" placeholder="Pesquisar..." oninput="searchEntregasFilter('eEstabelecimento',this.value)"><div id="filterEEstabelecimentoOptions"></div></div></div>
+      </div>
+    </div>
+
+    <div class="card-glass bg-white rounded-2xl shadow-sm border border-slate-100" style="overflow-x:auto;">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-slate-50 border-b border-slate-100">
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Ordem</th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Estab.</th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Item</th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Segmento</th>
+            <th class="text-center px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Prioridade</th>
+            <th class="text-center px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Entregue</th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide min-w-56">Responsável</th>
+            <th class="text-center px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide min-w-48">Foto do Recebedor</th>
+            <th class="text-right px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Valor da Compra</th>
+          </tr>
+        </thead>
+        <tbody id="entregasBody" class="divide-y divide-slate-50"></tbody>
+      </table>
+      <div id="entregasEmpty" class="hidden flex flex-col items-center py-16 text-slate-400">
+        <svg class="w-12 h-12 mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 7h11v10H3V7zm11 3h3l4 4v3h-7v-7z"/></svg>
+        <p class="font-medium">Filtre uma ordem de entrega ou algum item</p>
+        <p class="text-xs mt-1">Somente itens com status Em andamento aparecem aqui.</p>
+      </div>
+      <div id="entregasPagination" class="px-5 py-4 border-t border-slate-100"></div>
     </div>
   </section>
 
@@ -2986,11 +3046,14 @@ function applyLogin() {
   }
   // Mostrar Compras para compras e admin
   const comprasItem = document.getElementById('sidebarComprasItem');
+  const entregasItem = document.getElementById('sidebarEntregasItem');
   if (comprasItem) {
     if (normalizedRole === 'compras' || normalizedRole === 'admin') {
       comprasItem.style.setProperty('display', 'flex', 'important');
+      entregasItem?.style.setProperty('display', 'flex', 'important');
     } else {
       comprasItem.style.setProperty('display', 'none', 'important');
+      entregasItem?.style.setProperty('display', 'none', 'important');
     }
   }
   loadSegmentosCache();
@@ -3131,6 +3194,7 @@ function showPage(page) {
     dashboard:    ['Dashboard',         'Visão geral do sistema'],
     suprimentos:  ['Solicitações',      'Gerenciar todas as solicitações'],
     compras:      ['Compras',           'Executar e registrar compras de suprimentos'],
+    entregas:     ['Entregas',          'Registrar responsáveis e concluir entregas'],
     usuarios:     ['Stakeholders',      'Gerenciar contas de acesso'],
     segmentos:    ['Segmento',          'Gerenciar segmentos de suprimentos'],
     areas:        ['Área Demandante',   'Gerenciar áreas que fazem solicitações'],
@@ -3147,6 +3211,10 @@ function showPage(page) {
     headerNovaBtn.textContent = '';
     headerNovaBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Finalizar Compra';
     headerNovaBtn.onclick = finalizarCompra;
+  } else if (page === 'entregas') {
+    headerNovaBtn.style.display = '';
+    headerNovaBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Finalizar Entrega';
+    headerNovaBtn.onclick = finalizarEntrega;
   } else {
     headerNovaBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg> Nova Solicitação';
     headerNovaBtn.onclick = () => openDrawer();
@@ -3156,6 +3224,7 @@ function showPage(page) {
   if (page === 'dashboard')    loadDashboard();
   if (page === 'suprimentos')  { supPage = 1; initializeSolicitacaoFilters(); loadSuprimentos(); }
   if (page === 'compras')      { comprasPage = 1; initComprasFilters(); loadCompras(); }
+  if (page === 'entregas')     { entregasPage = 1; initEntregasFilters(); loadEntregas(); }
   if (page === 'usuarios')     { userPage=1; loadUsuarios(); }
   if (page === 'segmentos')    { segPage=1; renderSegmentos(); }
   if (page === 'areas')        { areaPage=1; renderAreas(); }
@@ -4981,7 +5050,7 @@ function onCompraValorInput(id, input) {
   updateComprasTotal();
 }
 
-function onCompraValorBlur(id, input) {
+async function onCompraValorBlur(id, input) {
   const amount = parseCompraValor(input.value);
   if (amount > 0) {
     comprasValorMap[id] = amount;
@@ -4991,6 +5060,11 @@ function onCompraValorBlur(id, input) {
     input.value = '';
   }
   updateComprasTotal();
+  const response = await apiFetch(`/api/compras/${id}/valor`, {
+    method: 'PUT',
+    body: JSON.stringify({ valor_compra: comprasValorMap[id] || null }),
+  });
+  if (!response || !response.ok) showToast('Não foi possível salvar o valor da compra.', 'error');
 }
 
 function showComprasEmpty(title, hint = '') {
@@ -5097,10 +5171,26 @@ async function loadCompras() {
   renderComprasPagination(data.total, data.page, data.pages);
 }
 
-function toggleCompraCheck(id, checked) {
+async function toggleCompraCheck(id, checked) {
   comprasCheckMap[id] = checked;
   const row = document.getElementById(`compra-row-${id}`);
   if (row) row.classList.toggle('compra-row-checked', checked);
+  const response = await apiFetch(`/api/compras/${id}/marcar`, {
+    method: 'POST',
+    body: JSON.stringify({
+      comprado: checked,
+      valor_compra: comprasValorMap[id] || null,
+    }),
+  });
+  if (!response || !response.ok) {
+    comprasCheckMap[id] = !checked;
+    row?.classList.toggle('compra-row-checked', !checked);
+    const checkbox = row?.querySelector('.compra-check');
+    if (checkbox) checkbox.checked = !checked;
+    showToast('Não foi possível atualizar o status da compra.', 'error');
+    return;
+  }
+  showToast(checked ? 'Item movido para Em andamento.' : 'Item devolvido para Pendente.', 'success');
 }
 
 function renderComprasPagination(total, page, pages) {
@@ -5234,6 +5324,331 @@ async function confirmarFinalizarCompra() {
 document.getElementById('modalFinalizarCompra').addEventListener('click', e => {
   if (e.target === document.getElementById('modalFinalizarCompra')) fecharModalFinalizar();
 });
+
+// ── Entregas ─────────────────────────────────────────────────────────────
+let entregasPage = 1;
+const ENTREGAS_LIMIT = 50;
+let entregasSortBy = null;
+let entregasSortDir = 'asc';
+
+const entregasFilterState = {
+  eOrdem: new Set(),
+  eSegmento: new Set(),
+  ePrioridade: new Set(),
+  eEstabelecimento: new Set(),
+};
+
+let entregasCheckMap = {};
+let entregasItensCache = [];
+
+async function initEntregasFilters() {
+  const res = await apiFetch('/api/entregas/filtros');
+  if (!res || !res.ok) return;
+  const filtros = await res.json();
+  renderEntregasFilterOptions('eOrdem',         (filtros.ordens          || []).map(o => [o.value, o.label]));
+  renderEntregasFilterOptions('eSegmento',      (filtros.segmentos       || []).map(s => [s, s]));
+  renderEntregasFilterOptions('ePrioridade',    (filtros.prioridades     || []).map(p => [p.value, p.label]));
+  renderEntregasFilterOptions('eEstabelecimento',(filtros.estabelecimentos|| []).map(e => [e.value, e.label]));
+}
+
+function renderEntregasFilterOptions(type, options) {
+  const container = document.getElementById(`filter${type[0].toUpperCase()+type.slice(1)}Options`);
+  if (!container) return;
+  container.innerHTML = options.map(([value, label]) =>
+    `<label class="filter-ms-option" data-search="${String(label).toLowerCase()}">
+      <input type="checkbox" value="${value}" ${entregasFilterState[type].has(String(value)) ? 'checked' : ''}
+        onchange="updateEntregasFilter('${type}',this)">
+      <span>${label}</span>
+    </label>`
+  ).join('') || '<p class="text-xs text-slate-400 p-2">Nenhum registro</p>';
+}
+
+function toggleEntregasFilter(type, event) {
+  event.stopPropagation();
+  const target = document.getElementById(`filter${type[0].toUpperCase()+type.slice(1)}Menu`);
+  document.querySelectorAll('#page-entregas .filter-ms-menu').forEach(m => { if (m !== target) m.classList.add('hidden'); });
+  target.classList.toggle('hidden');
+}
+
+function searchEntregasFilter(type, term) {
+  const q = term.trim().toLowerCase();
+  const container = document.getElementById(`filter${type[0].toUpperCase()+type.slice(1)}Options`);
+  if (!container) return;
+  container.querySelectorAll('.filter-ms-option').forEach(opt =>
+    opt.classList.toggle('hidden', Boolean(q) && !opt.dataset.search.includes(q))
+  );
+}
+
+function updateEntregasFilter(type, checkbox) {
+  checkbox.checked
+    ? entregasFilterState[type].add(String(checkbox.value))
+    : entregasFilterState[type].delete(String(checkbox.value));
+  const defaults = { eOrdem:'Ordem de Entrega', eSegmento:'Segmentos', ePrioridade:'Prioridades', eEstabelecimento:'Estabelecimento' };
+  const labelEl = document.getElementById(`filterE${type[1].toUpperCase()+type.slice(2)}Label`);
+  if (labelEl) labelEl.textContent = entregasFilterState[type].size
+    ? `${defaults[type]} (${entregasFilterState[type].size})`
+    : defaults[type];
+  entregasResetAndLoad();
+}
+
+document.addEventListener('click', event => {
+  if (!event.target.closest('#page-entregas .filter-ms'))
+    document.querySelectorAll('#page-entregas .filter-ms-menu').forEach(m => m.classList.add('hidden'));
+});
+
+function entregasResetAndLoad() { entregasPage = 1; loadEntregas(); }
+
+function showEntregasEmpty(title = 'Filtre uma ordem de entrega ou algum item', hint = 'Somente itens com status Em andamento aparecem aqui.') {
+  document.getElementById('entregasBody').innerHTML = '';
+  const empty = document.getElementById('entregasEmpty');
+  empty.classList.remove('hidden');
+  const ps = empty.querySelectorAll('p');
+  if (ps[0]) ps[0].textContent = title;
+  if (ps[1]) ps[1].textContent = hint;
+  document.getElementById('entregasPagination').innerHTML = '';
+}
+
+async function loadEntregas() {
+  const params = new URLSearchParams();
+  const busca = document.getElementById('eBusca').value.trim();
+  const hasFilter = Boolean(busca) || Object.values(entregasFilterState).some(s => s.size);
+
+  if (!hasFilter) {
+    entregasItensCache = [];
+    showEntregasEmpty();
+    return;
+  }
+
+  if (busca) params.set('busca', busca);
+  if (entregasFilterState.eOrdem.size)          params.set('ordens',         [...entregasFilterState.eOrdem].join(','));
+  if (entregasFilterState.eSegmento.size)       params.set('segmento',       [...entregasFilterState.eSegmento].join(','));
+  if (entregasFilterState.ePrioridade.size)     params.set('prioridade',     [...entregasFilterState.ePrioridade].join(','));
+  if (entregasFilterState.eEstabelecimento.size)params.set('estabelecimento',[...entregasFilterState.eEstabelecimento].join(','));
+  params.set('page', entregasPage);
+  params.set('limit', ENTREGAS_LIMIT);
+
+  const res = await apiFetch('/api/entregas/itens?' + params);
+  if (!res) return;
+  const data = await res.json();
+  const items = data.items || [];
+
+  entregasItensCache = items;
+  items.forEach(i => { if (!(i.id in entregasCheckMap)) entregasCheckMap[i.id] = false; });
+
+  const tbody = document.getElementById('entregasBody');
+  const empty = document.getElementById('entregasEmpty');
+
+  if (!items.length) {
+    showEntregasEmpty('Nenhum item encontrado', 'Ajuste os filtros para tentar novamente.');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  await loadStakeholdersCache();
+
+  tbody.innerHTML = items.map(s => {
+    const checked = entregasCheckMap[s.id] ? 'checked' : '';
+    const rowClass = entregasCheckMap[s.id] ? 'compra-row-checked' : '';
+    const itemLabel = s.item_nome || s.titulo || '—';
+    const estab = s.estabelecimento_tipo || '—';
+    const responsavel = (s.responsavel_entrega || '').replace(/"/g, '&quot;');
+    const fotoThumb = s.foto_url
+      ? `<a href="${s.foto_url}" target="_blank"><img src="${s.foto_url}" alt="Foto" class="w-14 h-14 object-cover rounded-lg mx-auto cursor-pointer hover:opacity-80 transition-opacity" /></a>`
+      : '';
+    const valorFormatted = s.valor_compra != null
+      ? `R$ ${Number(s.valor_compra).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}`
+      : '—';
+    return `
+      <tr id="entrega-row-${s.id}" class="row-hover transition-colors ${rowClass}">
+        <td class="px-5 py-3.5"><span class="text-xs font-mono font-semibold text-amber-700">${s.ordem_compra || '—'}</span></td>
+        <td class="px-5 py-3.5"><p class="font-semibold text-sm">${estab}</p></td>
+        <td class="px-5 py-3.5">
+          <p class="font-medium text-sm">${itemLabel}</p>
+          <p class="text-xs text-slate-400">${s.quantidade} ${s.unidade || ''} · ${s.solicitante || ''}</p>
+        </td>
+        <td class="px-5 py-3.5 text-sm">${s.categoria || '—'}</td>
+        <td class="px-5 py-3.5 text-center">${priorityIcon(s.prioridade, s.emergencia)}</td>
+        <td class="px-5 py-3.5 text-center" onclick="event.stopPropagation()">
+          <input type="checkbox" class="compra-check" ${checked}
+            onchange="toggleEntregaCheck(${s.id}, this.checked)" />
+        </td>
+        <td class="px-5 py-3.5 min-w-56" onclick="event.stopPropagation()">
+          <div class="relative">
+            <input type="text" id="entrega-resp-input-${s.id}"
+              class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm"
+              placeholder="Pesquisar ou digitar..."
+              value="${responsavel}"
+              autocomplete="off"
+              oninput="onEntregaResponsavelInput(${s.id}, this)"
+              onblur="onEntregaResponsavelBlur(${s.id}, this)"
+              onfocus="onEntregaResponsavelFocus(${s.id}, this)" />
+            <div id="entrega-resp-dd-${s.id}" class="ms-dropdown hidden"></div>
+          </div>
+        </td>
+        <td class="px-5 py-3.5 text-center min-w-48" onclick="event.stopPropagation()">
+          <div class="flex flex-col items-center gap-2">
+            <div id="entrega-foto-${s.id}">${fotoThumb}</div>
+            <label class="cursor-pointer text-xs text-amber-700 font-medium hover:text-amber-900 flex items-center gap-1"
+              title="Tire uma foto de quem está recebendo o item">
+              <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+              <span id="entrega-foto-label-${s.id}">${s.foto_url ? 'Alterar foto' : 'Tirar foto'}</span>
+              <input type="file" accept="image/*" capture="environment" class="hidden"
+                onchange="uploadEntregaFoto(${s.id}, this)" />
+            </label>
+          </div>
+        </td>
+        <td class="px-5 py-3.5 text-right text-sm font-medium">${valorFormatted}</td>
+      </tr>`;
+  }).join('');
+
+  renderEntregasPagination(data.total, data.page, data.pages);
+}
+
+function toggleEntregaCheck(id, checked) {
+  entregasCheckMap[id] = checked;
+  const row = document.getElementById(`entrega-row-${id}`);
+  if (row) row.classList.toggle('compra-row-checked', checked);
+}
+
+function onEntregaResponsavelFocus(id, input) {
+  renderEntregaResponsavelDropdown(id, input.value);
+}
+
+function onEntregaResponsavelInput(id, input) {
+  renderEntregaResponsavelDropdown(id, input.value);
+}
+
+function renderEntregaResponsavelDropdown(id, term) {
+  const dd = document.getElementById(`entrega-resp-dd-${id}`);
+  if (!dd) return;
+  const q = term.trim().toLowerCase();
+  const filtered = q
+    ? stakeholdersCache.filter(u => u.nome.toLowerCase().includes(q) || (u.time||'').toLowerCase().includes(q))
+    : stakeholdersCache.slice(0, 10);
+  if (!filtered.length) { dd.classList.add('hidden'); return; }
+  dd.innerHTML = filtered.map(u =>
+    `<div class="ms-option" onmousedown="selectEntregaResponsavel(${id}, '${u.nome.replace(/'/g,"&#39;")}')">
+      <div>
+        <p class="text-sm font-medium">${u.nome}</p>
+        ${u.time ? `<p class="text-xs text-slate-400">${u.time}</p>` : ''}
+      </div>
+    </div>`
+  ).join('');
+  dd.classList.remove('hidden');
+}
+
+function selectEntregaResponsavel(id, nome) {
+  const input = document.getElementById(`entrega-resp-input-${id}`);
+  if (input) input.value = nome;
+  const dd = document.getElementById(`entrega-resp-dd-${id}`);
+  if (dd) dd.classList.add('hidden');
+  salvarEntregaResponsavel(id, nome);
+}
+
+async function onEntregaResponsavelBlur(id, input) {
+  setTimeout(() => {
+    const dd = document.getElementById(`entrega-resp-dd-${id}`);
+    if (dd) dd.classList.add('hidden');
+  }, 180);
+  await salvarEntregaResponsavel(id, input.value.trim());
+}
+
+async function salvarEntregaResponsavel(id, valor) {
+  const res = await apiFetch(`/api/entregas/${id}/responsavel`, {
+    method: 'PUT',
+    body: JSON.stringify({ responsavel: valor || null }),
+  });
+  if (res && res.ok) {
+    const item = entregasItensCache.find(i => i.id === id);
+    if (item) item.responsavel_entrega = valor || null;
+  }
+}
+
+async function uploadEntregaFoto(id, input) {
+  const file = input.files?.[0];
+  if (!file) return;
+  const form = new FormData();
+  form.append('file', file);
+  const token = localStorage.getItem('sup_token');
+  const res = await fetch(`/api/entregas/${id}/foto`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: form,
+  });
+  if (res && res.ok) {
+    const d = await res.json();
+    const cell = document.getElementById(`entrega-foto-${id}`);
+    if (cell && d.url_storage) {
+      cell.innerHTML = `<a href="${d.url_storage}" target="_blank"><img src="${d.url_storage}" alt="Foto" class="w-14 h-14 object-cover rounded-lg mx-auto cursor-pointer hover:opacity-80 transition-opacity" /></a>`;
+    }
+    const lbl = document.getElementById(`entrega-foto-label-${id}`);
+    if (lbl) lbl.textContent = 'Alterar foto';
+    showToast('Foto enviada com sucesso!', 'success');
+  } else {
+    showToast('Erro ao enviar foto.', 'error');
+  }
+}
+
+async function finalizarEntrega() {
+  if (!entregasItensCache.length) {
+    showToast('Nenhum item carregado para finalizar.', 'error');
+    return;
+  }
+  const entregues = entregasItensCache.filter(i => entregasCheckMap[i.id]);
+  if (!entregues.length) {
+    showToast('Marque pelo menos um item como entregue antes de finalizar.', 'error');
+    return;
+  }
+  const ok = await showConfirm({
+    title: 'Finalizar entregas?',
+    msg: `${entregues.length} item${entregues.length !== 1 ? 's' : ''} ser${entregues.length !== 1 ? 'ão' : 'á'} marcado${entregues.length !== 1 ? 's' : ''} como concluído${entregues.length !== 1 ? 's' : ''}. Esta ação não pode ser desfeita.`,
+    okLabel: 'Finalizar',
+    danger: false,
+  });
+  if (!ok) return;
+
+  const payload = entregues.map(i => ({
+    id: i.id,
+    responsavel: i.responsavel_entrega || null,
+  }));
+
+  const res = await apiFetch('/api/entregas/finalizar', {
+    method: 'POST',
+    body: JSON.stringify({ entregues: payload }),
+  });
+
+  if (res && res.ok) {
+    showToast('Entregas finalizadas com sucesso!', 'success');
+    entregasCheckMap = {};
+    entregasItensCache = [];
+    entregasPage = 1;
+    await loadEntregas();
+    initEntregasFilters();
+  } else {
+    showToast('Erro ao finalizar entregas.', 'error');
+  }
+}
+
+function renderEntregasPagination(total, page, pages) {
+  const el = document.getElementById('entregasPagination');
+  if (pages <= 1) { el.innerHTML = ''; return; }
+  let html = '<div class="flex items-center gap-1.5 flex-wrap justify-center">';
+  html += `<button class="pg-btn" onclick="goPageEntregas(${page-1})" ${page<=1?'disabled':''}>← Anterior</button>`;
+  const range = 2;
+  let start = Math.max(1, page-range), end = Math.min(pages, page+range);
+  if (start > 1) { html += `<button class="pg-btn" onclick="goPageEntregas(1)">1</button>`; if (start>2) html += `<span class="text-slate-400 text-sm px-1">…</span>`; }
+  for (let i = start; i <= end; i++) html += `<button class="pg-btn ${i===page?'active':''}" onclick="goPageEntregas(${i})">${i}</button>`;
+  if (end < pages) { if (end<pages-1) html += `<span class="text-slate-400 text-sm px-1">…</span>`; html += `<button class="pg-btn" onclick="goPageEntregas(${pages})">${pages}</button>`; }
+  html += `<button class="pg-btn" onclick="goPageEntregas(${page+1})" ${page>=pages?'disabled':''}>Próxima →</button>`;
+  html += `</div><p class="text-center text-xs text-slate-400 mt-2">${total} item${total!==1?'s':''}</p>`;
+  el.innerHTML = html;
+}
+
+function goPageEntregas(p) { entregasPage = p; loadEntregas(); }
 
 // ── Toast ─────────────────────────────────────────────────────────────────
 function showToast(msg, type = 'success') {

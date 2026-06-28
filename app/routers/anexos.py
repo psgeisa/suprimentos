@@ -92,11 +92,12 @@ def deletar_anexo(
 
     try:
         sb = _get_supabase()
-        marker = f"/object/public/{BUCKET}/"
+        storage_bucket = anexo.bucket or BUCKET
+        marker = f"/object/public/{storage_bucket}/"
         url = anexo.url_storage
         if marker in url:
             path = url.split(marker, 1)[1]
-            sb.storage.from_(BUCKET).remove([path])
+            sb.storage.from_(storage_bucket).remove([path])
     except Exception:
         pass  # Removemos do DB mesmo se o storage falhar
 

@@ -17,7 +17,7 @@ from app.models.suprimento import Suprimento
 
 router = APIRouter(prefix="/api/compras", tags=["compras"])
 
-STATUSES_ABERTOS = ["pendente", "aprovado", "em_andamento"]
+STATUSES_ABERTOS = ["pendente"]
 
 
 @router.get("/ordens")
@@ -222,6 +222,7 @@ def listar_itens_compra(
                 "quantidade": i.quantidade,
                 "unidade": i.unidade,
                 "valor_estimado": i.valor_estimado,
+                "valor_compra": i.valor_compra,
                 "prioridade": i.prioridade,
                 "emergencia": i.emergencia,
                 "status": i.status,
@@ -239,6 +240,55 @@ def listar_itens_compra(
 class EliminarRequest(BaseModel):
     suprimento_id: int
     motivo: Optional[str] = None
+
+
+class CompraMarcadaRequest(BaseModel):
+    comprado: bool
+    valor_compra: Optional[float] = Field(default=None, gt=0)
+
+
+@router.post("/{suprimento_id}/marcar")
+def marcar_comprado(
+    suprimento_id: int,
+    data: CompraMarcadaRequest,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    item = db.query(Suprimento).filter(Suprimento.id == suprimento_id).first()
+    if not item:
+        raise HTTPException(404, "Suprimento não encontrado")
+    if data.comprado and item.status != "pendente":
+        raise HTTPException(409, "Somente solicitações pendentes podem ser marcadas como compradas")
+    if not data.comprado and item.status != "em_andamento":
+        raise HTTPException(409, "Somente compras em andamento podem voltar para pendente")
+    item.status = "em_andamento" if data.comprado else "pendente"
+    if data.valor_compra is not None:
+        item.valor_compra = data.valor_compra
+    item.updated_at = datetime.utcnow()
+    db.commit()
+    return {"ok": True, "status": item.status}
+
+
+class CompraValorRequest(BaseModel):
+    valor_compra: Optional[float] = Field(default=None, gt=0)
+
+
+@router.put("/{suprimento_id}/valor")
+def salvar_valor_compra(
+    suprimento_id: int,
+    data: CompraValorRequest,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    item = db.query(Suprimento).filter(Suprimento.id == suprimento_id).first()
+    if not item:
+        raise HTTPException(404, "Suprimento não encontrado")
+    if item.status not in ("pendente", "em_andamento"):
+        raise HTTPException(409, "O valor desta compra não pode mais ser alterado")
+    item.valor_compra = data.valor_compra
+    item.updated_at = datetime.utcnow()
+    db.commit()
+    return {"ok": True, "valor_compra": item.valor_compra}
 
 
 @router.post("/eliminar")
@@ -300,10 +350,17 @@ def finalizar_compra(
     comprados_ids = [i.id for i in data.comprados]
 
     if comprados_ids:
-        db.query(Suprimento).filter(Suprimento.id.in_(comprados_ids)).update(
-            {"status": "concluido", "updated_at": datetime.utcnow()},
-            synchronize_session=False,
+        purchased_values = {item.id: item.valor_compra for item in data.comprados}
+        purchased_rows = (
+            db.query(Suprimento)
+            .filter(Suprimento.id.in_(comprados_ids))
+            .all()
         )
+        for row in purchased_rows:
+            row.status = "em_andamento"
+            if purchased_values.get(row.id) is not None:
+                row.valor_compra = purchased_values[row.id]
+            row.updated_at = datetime.utcnow()
 
     total_estimado = sum(
         i.valor_compra if i.valor_compra is not None else (i.valor_estimado or 0)
