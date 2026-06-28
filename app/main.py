@@ -164,7 +164,7 @@ def migrate_schema():
             connection.execute(text("ALTER TABLE suprimentos ADD COLUMN responsavel_entrega VARCHAR(200)"))
     if "entregue_em" not in sup_columns3:
         with engine.begin() as connection:
-            connection.execute(text("ALTER TABLE suprimentos ADD COLUMN entregue_em DATETIME"))
+            connection.execute(text("ALTER TABLE suprimentos ADD COLUMN entregue_em TIMESTAMP"))
 
 
 def migrate_segmento_table():
