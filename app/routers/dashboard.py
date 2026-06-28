@@ -278,6 +278,7 @@ async def check_similar_segmento(data: SimilarSegmentoRequest):
 
     # Tentativa 1: Google Gemini
     gemini_key = os.getenv("GEMINI_API_KEY", "")
+    print(f"[IA] GEMINI_API_KEY presente: {bool(gemini_key)} | GROQ_API_KEY presente: {bool(os.getenv('GROQ_API_KEY'))}")
     if gemini_key:
         try:
             async with httpx.AsyncClient(timeout=15.0) as client:
@@ -286,6 +287,7 @@ async def check_similar_segmento(data: SimilarSegmentoRequest):
                     headers={"content-type": "application/json"},
                     json={"contents": [{"parts": [{"text": prompt}]}]},
                 )
+                print(f"[IA] Gemini status: {resp.status_code} | body: {resp.text[:300]}")
                 if resp.status_code == 200:
                     text = resp.json()["candidates"][0]["content"]["parts"][0]["text"]
                     ai_data = _parse_ai_json(text)
@@ -295,9 +297,9 @@ async def check_similar_segmento(data: SimilarSegmentoRequest):
                             "similar_to": ai_data.get("matched_term"),
                             "explanation": ai_data.get("explanation"),
                         }
-                    return {"conflict_type": None}  # Gemini respondeu: sem conflito
-        except Exception:
-            pass  # quota esgotada ou erro — tenta Groq
+                    return {"conflict_type": None}
+        except Exception as e:
+            print(f"[IA] Gemini erro: {e}")
 
     # Tentativa 2: Groq (fallback gratuito)
     groq_key = os.getenv("GROQ_API_KEY", "")
@@ -317,6 +319,7 @@ async def check_similar_segmento(data: SimilarSegmentoRequest):
                         "temperature": 0,
                     },
                 )
+                print(f"[IA] Groq status: {resp.status_code} | body: {resp.text[:300]}")
                 if resp.status_code == 200:
                     text = resp.json()["choices"][0]["message"]["content"]
                     ai_data = _parse_ai_json(text)
@@ -326,8 +329,8 @@ async def check_similar_segmento(data: SimilarSegmentoRequest):
                             "similar_to": ai_data.get("matched_term"),
                             "explanation": ai_data.get("explanation"),
                         }
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"[IA] Groq erro: {e}")
 
     return {"conflict_type": None}
 
