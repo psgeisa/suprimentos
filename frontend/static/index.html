@@ -2459,6 +2459,53 @@ function showNotice({ title, msg, okLabel = 'Entendi' }) {
   return promise;
 }
 
+// Validação genérica de termos similares (4 casos) — reutilizável em qualquer entidade
+// Retorna true se pode prosseguir, false se deve bloquear
+async function validarTermoSimilar({ nome, candidates, tipo }) {
+  if (!nome || !candidates.length) return true;
+  const checkRes = await apiFetch('/api/check-similar-segmento', {
+    method: 'POST',
+    body: JSON.stringify({ nome, candidates, stakeholder_id: currentUser?.id ?? null })
+  });
+  if (!checkRes || !checkRes.ok) return true;
+  const check = await checkRes.json();
+
+  if (check.conflict_type === 'exact') {
+    await showNotice({
+      title: 'Termo já cadastrado',
+      msg: `"${check.similar_to}" já existe na base. Não é possível cadastrar um termo idêntico.`,
+      okLabel: 'Entendi'
+    });
+    return false;
+  }
+  if (check.conflict_type === 'composed') {
+    const useExisting = await showSimilarSegmentoChoice({ similarTo: check.similar_to, newTerm: nome, modelName: null });
+    if (useExisting) { closeMgmtDrawer(); return false; }
+  }
+  if (check.conflict_type === 'variation') {
+    await showVariacaoSegmento({ similarTo: check.similar_to, variationType: check.variation_type || 'variação morfológica' });
+    return false;
+  }
+  if (check.conflict_type === 'ai') {
+    const useExisting = await showSimilarSegmentoChoice({
+      similarTo: check.similar_to, explanation: check.explanation, newTerm: nome, modelName: check.model_name
+    });
+    await apiFetch('/api/ia-sugestao-log', {
+      method: 'POST',
+      body: JSON.stringify({
+        tipo,
+        stakeholder_id: currentUser?.id ?? null,
+        termo_stakeholder: nome,
+        sugestao_ia: check.similar_to,
+        aprovacao_stakeholder: useExisting,
+        termo_final: useExisting ? check.similar_to : nome
+      })
+    });
+    if (useExisting) { closeMgmtDrawer(); return false; }
+  }
+  return true;
+}
+
 // Modal bloqueante para variação morfológica (plural, diminutivo, etc.)
 function showVariacaoSegmento({ similarTo, variationType }) {
   const modal = document.getElementById('modalVariacaoSegmento');
@@ -4952,6 +4999,11 @@ async function submitMgmtForm(e) {
   if (type === 'estabelecimento') {
     const tipoEstabelecimento = document.getElementById('mgmtEstabelecimentoTipo').value.trim();
     if (!tipoEstabelecimento) { showToast('Informe o tipo do estabelecimento.', 'error'); return; }
+    if (!editId) {
+      const candidates = estabelecimentosCache.filter(e => e.ativo !== false).map(e => e.tipo).filter(Boolean);
+      const ok = await validarTermoSimilar({ nome: tipoEstabelecimento, candidates, tipo: 'estabelecimento' });
+      if (!ok) return;
+    }
     const payload = { tipo: tipoEstabelecimento, segmentos: [...estabelecimentoSegmentosState].join(', ') || null };
     const res = await apiFetch(editId ? `/api/estabelecimentos/${editId}` : '/api/estabelecimentos', {
       method: editId ? 'PUT' : 'POST', body: JSON.stringify(payload)
@@ -5063,6 +5115,11 @@ async function submitMgmtForm(e) {
     const segmento = document.getElementById('mgmtItemSegmento')?.value.trim();
     if (!segmento) { showToast('Informe o segmento.', 'error'); return; }
     const editId2 = parseInt(document.getElementById('mgmtEditId').value) || null;
+    if (!editId2) {
+      const candidates = itensCache.filter(i => i.ativo !== false).map(i => i.nome).filter(Boolean);
+      const ok = await validarTermoSimilar({ nome, candidates, tipo: 'item' });
+      if (!ok) return;
+    }
     const url = editId2 ? `/api/itens/${editId2}` : '/api/itens';
     const method = editId2 ? 'PUT' : 'POST';
     const res = await apiFetch(url, { method, body: JSON.stringify({ nome, segmento }) });
@@ -5080,6 +5137,11 @@ async function submitMgmtForm(e) {
 
   if (type === 'unidade') {
     const sigla = document.getElementById('mgmtSigla')?.value.trim() || nome.substring(0,3).toLowerCase();
+    if (!editId) {
+      const candidates = unidadesCache.filter(u => u.ativo !== false).map(u => u.nome).filter(Boolean);
+      const ok = await validarTermoSimilar({ nome, candidates, tipo: 'unidade' });
+      if (!ok) return;
+    }
     const res = await apiFetch('/api/unidades', { method: 'POST', body: JSON.stringify({ sigla, nome }) });
     if (res && res.ok) {
       closeMgmtDrawer();
