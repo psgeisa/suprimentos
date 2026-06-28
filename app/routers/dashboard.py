@@ -358,6 +358,30 @@ async def check_similar_segmento(data: SimilarSegmentoRequest):
         except Exception as e:
             print(f"[IA] Cerebras erro: {e}")
 
+    # Tentativa 4: Mistral — mistral-small-latest (gratuito)
+    mistral_key = os.getenv("MISTRAL_API_KEY", "")
+    if mistral_key:
+        try:
+            async with httpx.AsyncClient(timeout=15.0) as client:
+                resp = await client.post(
+                    "https://api.mistral.ai/v1/chat/completions",
+                    headers={"Authorization": f"Bearer {mistral_key}", "content-type": "application/json"},
+                    json={
+                        "model": "mistral-small-latest",
+                        "messages": [{"role": "user", "content": prompt}],
+                        "max_tokens": 200,
+                        "temperature": 0,
+                    },
+                )
+                print(f"[IA] Mistral status: {resp.status_code} | body: {resp.text[:300]}")
+                if resp.status_code == 200:
+                    text = resp.json()["choices"][0]["message"]["content"]
+                    result = _ai_result(_parse_ai_json(text), "Mistral Small")
+                    if result:
+                        return result
+        except Exception as e:
+            print(f"[IA] Mistral erro: {e}")
+
     return {"conflict_type": None}
 
 
