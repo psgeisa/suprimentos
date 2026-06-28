@@ -1,7 +1,9 @@
+import traceback
 from datetime import datetime
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Query
+from fastapi.responses import JSONResponse
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
@@ -81,26 +83,15 @@ def filtros_custos_bi(
     }
 
 
-@router.get("/dados")
-def dados_custos_bi(
-    busca: Optional[str] = Query(None),
-    data_inicio: Optional[str] = Query(None),
-    data_fim: Optional[str] = Query(None),
-    segmento: Optional[str] = Query(None),
-    estabelecimento: Optional[str] = Query(None),
-    time_val: Optional[str] = Query(None, alias="time"),
-    db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
-):
+def _calcular_dados(busca, data_inicio, data_fim, segmento, estabelecimento, time_val, db):
     base_q = db.query(Suprimento).filter(Suprimento.status.in_(STATUSES_CUSTO))
     base_q = _apply_filters(base_q, busca, data_inicio, data_fim, segmento, estabelecimento, time_val, db)
     items = base_q.all()
 
-    # custo efetivo por item
     def custo_item(i):
         return (i.valor_compra or 0) if i.valor_compra is not None else (i.valor_estimado or 0)
 
-    # --- por_mes ---
+    # por_mes
     por_mes = {}
     for i in items:
         if not i.created_at:
@@ -109,7 +100,7 @@ def dados_custos_bi(
         por_mes[mes] = por_mes.get(mes, 0) + custo_item(i)
     por_mes_list = [{"mes": m, "custo": round(v, 2)} for m, v in sorted(por_mes.items())]
 
-    # --- por_dia_semana (0=domingo) ---
+    # por_dia_semana
     dia_soma = {}
     dia_count = {}
     for i in items:
@@ -123,7 +114,7 @@ def dados_custos_bi(
         for d in range(7)
     ]
 
-    # --- por_segmento_mes ---
+    # por_segmento_mes
     seg_mes = {}
     for i in items:
         if not i.created_at or not i.categoria:
@@ -135,7 +126,7 @@ def dados_custos_bi(
         for k, v in sorted(seg_mes.items())
     ]
 
-    # --- por_estabelecimento_mes ---
+    # por_estabelecimento_mes
     est_ids_found = {i.estabelecimento_id for i in items if i.estabelecimento_id}
     est_map = {}
     if est_ids_found:
@@ -145,7 +136,7 @@ def dados_custos_bi(
     for i in items:
         if not i.created_at or not i.estabelecimento_id:
             continue
-        label = est_map.get(i.estabelecimento_id, f"#{i.estabelecimento_id}")
+        label = est_map.get(i.estabelecimento_id, "#{0}".format(i.estabelecimento_id))
         key = (i.created_at.strftime("%Y-%m"), label)
         est_mes[key] = est_mes.get(key, 0) + custo_item(i)
     por_estabelecimento_mes = [
@@ -153,7 +144,7 @@ def dados_custos_bi(
         for k, v in sorted(est_mes.items())
     ]
 
-    # --- por_time ---
+    # por_time
     user_time_map = {
         u.nome: (u.time or "Sem time")
         for u in db.query(User).all()
@@ -164,31 +155,31 @@ def dados_custos_bi(
         time_tot[t] = time_tot.get(t, 0) + custo_item(i)
     por_time = [{"time": k, "custo": round(v, 2)} for k, v in sorted(time_tot.items())]
 
-    # --- por_responsavel ---
+    # por_responsavel
     resp_tot = {}
     for i in items:
         r = (i.solicitante_responsavel or "Não informado").strip() or "Não informado"
         resp_tot[r] = resp_tot.get(r, 0) + custo_item(i)
     por_responsavel = [{"responsavel": k, "custo": round(v, 2)} for k, v in sorted(resp_tot.items())]
 
-    # --- por_solicitante ---
+    # por_solicitante
     sol_tot = {}
     for i in items:
         s = (i.solicitante or "Não informado").strip() or "Não informado"
         sol_tot[s] = sol_tot.get(s, 0) + custo_item(i)
     por_solicitante = [{"solicitante": k, "custo": round(v, 2)} for k, v in sorted(sol_tot.items())]
 
-    # --- comparativo_mes (estimado x teto x real) ---
+    # comparativo_mes
     comp_mes = {}
     for i in items:
         if not i.created_at:
             continue
         mes = i.created_at.strftime("%Y-%m")
-        e = comp_mes.setdefault(mes, {"estimado": 0, "teto": 0, "real": 0})
-        e["estimado"] += i.valor_estimado or 0
+        entry = comp_mes.setdefault(mes, {"estimado": 0, "teto": 0, "real": 0})
+        entry["estimado"] += i.valor_estimado or 0
         teto = i.teto_gasto if i.teto_gasto is not None else (i.valor_estimado or 0) * 1.2
-        e["teto"] += teto
-        e["real"] += i.valor_compra or 0
+        entry["teto"] += teto
+        entry["real"] += i.valor_compra or 0
     comparativo = [
         {
             "mes": m,
@@ -199,24 +190,22 @@ def dados_custos_bi(
         for m, v in sorted(comp_mes.items())
     ]
 
-    # --- projecao_futuro (pendente + aprovado, por estabelecimento) ---
+    # projecao_futuro
     proj_q = db.query(Suprimento).filter(Suprimento.status.in_(STATUSES_PROJECAO))
     proj_q = _apply_filters(proj_q, busca, data_inicio, data_fim, segmento, estabelecimento, time_val, db)
     proj_items = proj_q.all()
     proj_est_ids = {i.estabelecimento_id for i in proj_items if i.estabelecimento_id}
-    if proj_est_ids - est_ids_found:
-        extra = db.query(Estabelecimento).filter(
-            Estabelecimento.id.in_(proj_est_ids - est_ids_found)
-        ).all()
+    extra_ids = proj_est_ids - est_ids_found
+    if extra_ids:
+        extra = db.query(Estabelecimento).filter(Estabelecimento.id.in_(extra_ids)).all()
         est_map.update({e.id: e.tipo for e in extra})
-
-    proj_acc: dict[str, dict] = {}
+    proj_acc = {}
     for i in proj_items:
         label = est_map.get(i.estabelecimento_id or 0, "Não definido")
-        e = proj_acc.setdefault(label, {"estimado": 0, "teto": 0})
-        e["estimado"] += i.valor_estimado or 0
+        entry = proj_acc.setdefault(label, {"estimado": 0, "teto": 0})
+        entry["estimado"] += i.valor_estimado or 0
         teto = i.teto_gasto if i.teto_gasto is not None else (i.valor_estimado or 0) * 1.2
-        e["teto"] += teto
+        entry["teto"] += teto
     projecao = [
         {
             "estabelecimento": k,
@@ -237,3 +226,20 @@ def dados_custos_bi(
         "comparativo": comparativo,
         "projecao": projecao,
     }
+
+
+@router.get("/dados")
+def dados_custos_bi(
+    busca: Optional[str] = Query(None),
+    data_inicio: Optional[str] = Query(None),
+    data_fim: Optional[str] = Query(None),
+    segmento: Optional[str] = Query(None),
+    estabelecimento: Optional[str] = Query(None),
+    time_val: Optional[str] = Query(None, alias="time"),
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    try:
+        return _calcular_dados(busca, data_inicio, data_fim, segmento, estabelecimento, time_val, db)
+    except Exception:
+        return JSONResponse(status_code=500, content={"detail": traceback.format_exc()})
