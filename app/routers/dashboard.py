@@ -256,23 +256,29 @@ async def check_similar_segmento(data: SimilarSegmentoRequest):
     if best_ratio >= 0.72:
         return {"conflict_type": "variation", "similar_to": best_cand, "score": round(best_ratio, 3)}
 
-    # Caso 4 — verificação semântica via IA (Google Gemini — gratuito)
+    # Caso 4 — verificação semântica via IA (Gemini → Groq como fallback)
+    cand_list = [c for c, _ in pairs]
+    prompt = (
+        "Você é especialista em categorização de produtos para um sistema de gestão de suprimentos brasileiro.\n"
+        "Dado uma lista de termos já cadastrados e um novo termo digitado pelo usuário, determine se o novo termo "
+        "representa o mesmo conceito que algum termo existente.\n\n"
+        "Considere: erros ortográficos/digitação, gírias e dialetos de qualquer região do Brasil, termos em outros "
+        "idiomas (inglês, espanhol etc.) com mesmo significado, variações de plural/diminutivo/aumentativo, siglas.\n\n"
+        f"Termos existentes: {_json.dumps(cand_list, ensure_ascii=False)}\n"
+        f'Novo termo: "{nome}"\n\n'
+        'Se o novo termo É coberto por algum existente, responda com JSON: '
+        '{"match": true, "matched_term": "...", "explanation": "explicação curta em português (max 120 chars)"}\n'
+        'Se NÃO for coberto, responda com JSON: {"match": false}\n'
+        "Responda SOMENTE com JSON, sem texto adicional."
+    )
+
+    def _parse_ai_json(text: str):
+        text = re.sub(r"^```[a-z]*\n?", "", text.strip()).rstrip("` \n")
+        return _json.loads(text)
+
+    # Tentativa 1: Google Gemini
     gemini_key = os.getenv("GEMINI_API_KEY", "")
     if gemini_key:
-        cand_list = [c for c, _ in pairs]
-        prompt = (
-            "Você é especialista em categorização de produtos para um sistema de gestão de suprimentos brasileiro.\n"
-            "Dado uma lista de termos já cadastrados e um novo termo digitado pelo usuário, determine se o novo termo "
-            "representa o mesmo conceito que algum termo existente.\n\n"
-            "Considere: erros ortográficos/digitação, gírias e dialetos de qualquer região do Brasil, termos em outros "
-            "idiomas (inglês, espanhol etc.) com mesmo significado, variações de plural/diminutivo/aumentativo, siglas.\n\n"
-            f"Termos existentes: {_json.dumps(cand_list, ensure_ascii=False)}\n"
-            f'Novo termo: "{nome}"\n\n'
-            'Se o novo termo É coberto por algum existente, responda com JSON: '
-            '{"match": true, "matched_term": "...", "explanation": "explicação curta em português (max 120 chars)"}\n'
-            'Se NÃO for coberto, responda com JSON: {"match": false}\n'
-            "Responda SOMENTE com JSON, sem texto adicional."
-        )
         try:
             async with httpx.AsyncClient(timeout=15.0) as client:
                 resp = await client.post(
@@ -281,10 +287,39 @@ async def check_similar_segmento(data: SimilarSegmentoRequest):
                     json={"contents": [{"parts": [{"text": prompt}]}]},
                 )
                 if resp.status_code == 200:
-                    text = resp.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
-                    # remove blocos de markdown se o modelo os incluir
-                    text = re.sub(r"^```[a-z]*\n?", "", text).rstrip("` \n")
-                    ai_data = _json.loads(text)
+                    text = resp.json()["candidates"][0]["content"]["parts"][0]["text"]
+                    ai_data = _parse_ai_json(text)
+                    if ai_data.get("match"):
+                        return {
+                            "conflict_type": "ai",
+                            "similar_to": ai_data.get("matched_term"),
+                            "explanation": ai_data.get("explanation"),
+                        }
+                    return {"conflict_type": None}  # Gemini respondeu: sem conflito
+        except Exception:
+            pass  # quota esgotada ou erro — tenta Groq
+
+    # Tentativa 2: Groq (fallback gratuito)
+    groq_key = os.getenv("GROQ_API_KEY", "")
+    if groq_key:
+        try:
+            async with httpx.AsyncClient(timeout=15.0) as client:
+                resp = await client.post(
+                    "https://api.groq.com/openai/v1/chat/completions",
+                    headers={
+                        "Authorization": f"Bearer {groq_key}",
+                        "content-type": "application/json",
+                    },
+                    json={
+                        "model": "llama3-8b-8192",
+                        "messages": [{"role": "user", "content": prompt}],
+                        "max_tokens": 200,
+                        "temperature": 0,
+                    },
+                )
+                if resp.status_code == 200:
+                    text = resp.json()["choices"][0]["message"]["content"]
+                    ai_data = _parse_ai_json(text)
                     if ai_data.get("match"):
                         return {
                             "conflict_type": "ai",
