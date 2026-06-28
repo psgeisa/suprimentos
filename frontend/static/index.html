@@ -1310,22 +1310,6 @@
       </div>
 
       <div>
-        <label class="block text-xs font-semibold text-slate-600 mb-1">Equipe demandante *</label>
-        <div class="relative" id="equipeWrapper">
-          <div class="ms-trigger" id="equipeTrigger" onclick="toggleMs('equipe')">
-            <div class="ms-tags" id="equipeTags"><span class="text-slate-400 text-sm">Selecionar equipes...</span></div>
-            <svg class="w-4 h-4 text-slate-400 flex-shrink-0 ml-2 transition-transform" id="equipeChevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-            </svg>
-          </div>
-          <div class="ms-dropdown hidden" id="equipeDropdown">
-            <div class="ms-search-wrap"><input class="ms-search" placeholder="Pesquisar equipe..." oninput="searchMsOptions('equipe',this.value)" autocomplete="off" /></div>
-            <div id="equipeOptions"></div>
-          </div>
-        </div>
-      </div>
-
-      <div>
         <label class="block text-xs font-semibold text-slate-600 mb-1">Data do Pedido</label>
         <input id="fDataNec" type="date" class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" />
       </div>
@@ -1336,7 +1320,8 @@
           <div class="col-span-2">
             <label class="block text-xs font-semibold text-slate-600 mb-1">Quantidade *</label>
             <input id="fQtd" type="number" step="0.01" min="0.01" placeholder="Ex: 5"
-              class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" />
+              class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm"
+              oninput="if(parseFloat(this.value)<=0&&this.value!=='')this.value=''" />
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1">Unidade</label>
@@ -2513,9 +2498,9 @@ function buildUnidadeOptions(segmento = null) {
     const label = `${u.sigla} (${u.nome})`;
     return `<div class="ss-option${u.sigla===cur?' active':''}" data-value="${u.sigla}" data-search="${label.toLowerCase()}" onclick="selectSsOption('unidade','${u.sigla}','${label.replace(/'/g,"&#39;")}')">${label}</div>`;
   }).join('');
-  // Keep current value if it exists in filtered list, else pick first
-  const inList = units.find(u => u.sigla === cur);
-  const active = inList || units[0];
+  // Quando segmento é informado, usa sempre a 1ª unidade recomendada para o item
+  // Sem segmento, preserva o valor atual
+  const active = segmento ? units[0] : (units.find(u => u.sigla === cur) || units[0]);
   if (active) {
     const label = `${active.sigla} (${active.nome})`;
     if (hidden) hidden.value = active.sigla;
@@ -3184,9 +3169,13 @@ function renderMgmtPagination(containerId, total, page, pages, goFnName) {
 async function openDrawer(item = null) {
   const sbW = window.innerWidth < 1024 ? 0 : (sidebarPinned ? 256 : 72);
   document.documentElement.style.setProperty('--drawer-offset', sbW + 'px');
+  // Garante que todos os caches estejam carregados antes de abrir o drawer
+  if (!itensCache.length) await loadItensCache();
+  await loadStakeholdersCache();
   buildAreaOptions();
   buildUnidadeOptions();
   buildItemSelectorOptions();
+  buildFornecedorSsOptions();
   await loadEstabelecimentosOptions(item?.estabelecimento_id || '');
 
   document.getElementById('editId').value = item ? item.id : '';
@@ -3210,14 +3199,14 @@ async function openDrawer(item = null) {
     document.getElementById('fDescricao').value   = item.descricao || '';
     document.getElementById('fObs').value         = item.observacoes || '';
     setItemSelectorSingle(item);
-    setMsValues('equipe', (item.departamento||'').split(',').map(s=>s.trim()).filter(Boolean));
     toggleEmergencia(!!item.emergencia);
     if (item.prazo_emergencia) document.getElementById('fPrazoEmerg').value = item.prazo_emergencia;
     // Solicitante Responsável
-    await loadStakeholdersCache();
     if (item.solicitante_responsavel) {
       const u = stakeholdersCache.find(s => s.nome === item.solicitante_responsavel);
       selectResp(u ? u.id : 0, item.solicitante_responsavel, u ? (u.time || '') : '');
+    } else if (currentUser) {
+      selectResp(currentUser.id, currentUser.nome, currentUser.time || '');
     } else {
       clearResp();
     }
@@ -3234,15 +3223,18 @@ async function openDrawer(item = null) {
     document.getElementById('fSolicitante').value = nome;
     document.getElementById('fSolicitanteDisplay').textContent = nome;
     resetItemSelector();
-    setMsValues('equipe', []);
     toggleEmergencia(false);
     document.getElementById('fPrazoEmerg').value = '';
     emergenciaOn = false;
     document.getElementById('emergToggle').classList.remove('on');
     document.getElementById('prazoEmergRow').classList.add('hidden');
     document.getElementById('anexosSection').classList.add('hidden');
-    clearResp();
-    await loadStakeholdersCache();
+    // Default: Solicitante Responsável = usuário logado
+    if (currentUser) {
+      selectResp(currentUser.id, currentUser.nome, currentUser.time || '');
+    } else {
+      clearResp();
+    }
   }
 
   document.getElementById('drawer').classList.add('open');
@@ -3256,16 +3248,30 @@ function closeDrawer() {
 
 async function submitForm(e) {
   e.preventDefault();
-  const id     = document.getElementById('editId').value;
-  const equipe = [...msState.equipe].join(', ');
+  const id = document.getElementById('editId').value;
+
+  // Departamento vem do Time do Responsável ou do time do usuário logado
+  const equipe = document.getElementById('fRespTime').value
+    || (currentUser?.time || '').split(',')[0].trim()
+    || '';
 
   if (!selectedItems.length) { showToast('Selecione ao menos um item.', 'error'); return; }
-  if (!equipe)               { showToast('Selecione ao menos uma equipe demandante.', 'error'); return; }
 
   const titulo          = document.getElementById('fTitulo').value;
   const prioridade      = document.getElementById('fPrioridade2').value;
   const emergencia      = emergenciaOn ? 1 : 0;
-  const prazo_emergencia= emergenciaOn ? document.getElementById('fPrazoEmerg').value : null;
+  let   prazo_emergencia= emergenciaOn ? document.getElementById('fPrazoEmerg').value : null;
+
+  // Valida prazo mínimo de emergência (60 minutos)
+  if (emergenciaOn && prazo_emergencia) {
+    const prazoDate  = new Date(prazo_emergencia);
+    const minAllowed = new Date(Date.now() + 60 * 60 * 1000);
+    if (prazoDate < minAllowed) {
+      prazo_emergencia = toDatetimeLocal(minAllowed);
+      document.getElementById('fPrazoEmerg').value = prazo_emergencia;
+      showToast('Prazo ajustado para mínimo de 60 min — tempo necessário para o comprador agir.', 'error');
+    }
+  }
   const data_necessidade= document.getElementById('fDataNec').value || null;
   const descricao       = document.getElementById('fDescricao').value || null;
   const observacoes     = document.getElementById('fObs').value || null;
@@ -3319,7 +3325,7 @@ async function submitForm(e) {
       valor_estimado    = row.valor ? parseFloat(row.valor) : null;
       fornecedor_sugerido = row.fornecedor || null;
       estabelecimento_id  = row.estabelecimento ? Number(row.estabelecimento) : null;
-      if (!quantidade || isNaN(quantidade)) { showToast(`Informe a quantidade para "${si.nome}".`, 'error'); errors++; continue; }
+      if (!quantidade || isNaN(quantidade) || quantidade <= 0) { showToast(`Informe uma quantidade válida (> 0) para "${si.nome}".`, 'error'); errors++; continue; }
       // prioridade e prazo por item
       itemPrioridade = si.prioridade || 'baixa';
       itemEmergencia = itemPrioridade === 'urgente' ? 1 : 0;
@@ -3330,7 +3336,7 @@ async function submitForm(e) {
       valor_estimado    = document.getElementById('fValor').value ? parseFloat(document.getElementById('fValor').value) : null;
       fornecedor_sugerido = document.getElementById('fFornecedor').value || null;
       estabelecimento_id  = document.getElementById('fEstabelecimento').value ? Number(document.getElementById('fEstabelecimento').value) : null;
-      if (!quantidade || isNaN(quantidade)) { showToast('Informe a quantidade.', 'error'); return; }
+      if (!quantidade || isNaN(quantidade) || quantidade <= 0) { showToast('Informe uma quantidade válida (> 0).', 'error'); return; }
     }
 
     const body = {
