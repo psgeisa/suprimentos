@@ -327,6 +327,32 @@
     .btn-eliminar:hover { background: #FEE2E2; color: #DC2626; }
     .dark .btn-eliminar { border-color: rgba(255,255,255,0.2); color: #fff; }
     .dark .btn-eliminar:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    /* ── info-tip tooltip ── */
+    .info-tip {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 14px; height: 14px; background: #CBD5E1; color: #475569;
+      border-radius: 50%; font-size: 8px; font-weight: 700; cursor: help;
+      position: relative; margin-left: 4px; vertical-align: middle; flex-shrink: 0;
+    }
+    .info-tip::after {
+      content: attr(data-tip); position: absolute; bottom: calc(100% + 6px); left: 50%;
+      transform: translateX(-50%); background: rgba(15,23,42,0.9); color: #fff;
+      font-size: 11px; font-weight: 400; padding: 5px 10px; border-radius: 6px;
+      pointer-events: none; opacity: 0; transition: opacity .15s; z-index: 200;
+      white-space: nowrap; max-width: 220px; text-align: center;
+    }
+    .info-tip:hover::after { opacity: 1; }
+    .dark .info-tip { background: #334155; color: #CBD5E1; }
+    /* ── remoção de item na matriz ── */
+    .btn-remove-item {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 26px; height: 26px; border-radius: 6px; background: transparent;
+      border: 1px solid rgba(203,213,225,0.6); color: #94A3B8; cursor: pointer;
+      transition: background .15s, color .15s;
+    }
+    .btn-remove-item:hover { background: #FEE2E2; color: #DC2626; border-color: #FCA5A5; }
+    .dark .btn-remove-item { border-color: rgba(255,255,255,0.15); color: rgba(255,255,255,0.4); }
+    .dark .btn-remove-item:hover { background: rgba(239,68,68,0.2); color: #FCA5A5; border-color: rgba(239,68,68,0.4); }
     .dark #page-compras table { color: rgba(255,255,255,0.87); }
     .dark #page-compras input,
     .dark #page-compras select { color:#fff !important; background:rgba(0,0,0,0.45) !important; border-color:rgba(212,165,32,0.3) !important; }
@@ -1273,10 +1299,10 @@
 
       <!-- ── Layout único (1 item ou edição) ── -->
       <div id="singleItemFields">
-        <div class="grid grid-cols-2 gap-4 mb-4">
-          <div>
+        <div class="grid grid-cols-3 gap-4 mb-4">
+          <div class="col-span-2">
             <label class="block text-xs font-semibold text-slate-600 mb-1">Quantidade *</label>
-            <input id="fQtd" type="number" step="0.01" min="0.01" placeholder="0"
+            <input id="fQtd" type="number" step="0.01" min="0.01" placeholder="Ex: 5"
               class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" />
           </div>
           <div>
@@ -1306,8 +1332,31 @@
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1">Fornecedor Sugerido</label>
-            <input id="fFornecedor" type="text" placeholder="Opcional"
-              class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" />
+            <input type="hidden" id="fFornecedor" />
+            <div class="relative" id="fornecedorSsWrapper">
+              <div class="ss-trigger" id="fornecedorSsTrigger" onclick="toggleFornecedorSs()">
+                <span id="fornecedorSsDisplay" class="text-sm text-slate-400">Selecionar fornecedor...</span>
+                <svg class="w-4 h-4 text-slate-400 flex-shrink-0 ml-2 transition-transform" id="fornecedorSsChevron"
+                  fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </div>
+              <div class="ss-dropdown" id="fornecedorSsDropdown">
+                <div class="ms-search-wrap">
+                  <input class="ms-search" placeholder="Buscar fornecedor..." oninput="searchFornecedorSs(this.value)" autocomplete="off" />
+                </div>
+                <div id="fornecedorSsOptions"></div>
+                <div class="border-t border-slate-100 p-1.5">
+                  <button type="button" onclick="abrirCadastroFornecedor()"
+                    class="w-full text-left text-xs text-amber-700 font-semibold px-3 py-2 rounded hover:bg-amber-50 flex items-center gap-2">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    Cadastrar novo fornecedor
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <div>
@@ -1336,12 +1385,13 @@
           <table class="w-full text-xs">
             <thead>
               <tr class="bg-slate-50 border-b border-slate-100">
-                <th class="text-left px-3 py-2 font-semibold text-slate-500 min-w-32">Item</th>
-                <th class="text-left px-3 py-2 font-semibold text-slate-500 w-20">Qtd *</th>
-                <th class="text-left px-3 py-2 font-semibold text-slate-500 w-24">Unidade</th>
-                <th class="text-left px-3 py-2 font-semibold text-slate-500 w-24">Valor Est.</th>
-                <th class="text-left px-3 py-2 font-semibold text-slate-500 min-w-28">Fornecedor</th>
-                <th class="text-left px-3 py-2 font-semibold text-slate-500 min-w-28">Estabelecimento</th>
+                <th class="text-left px-3 py-2 font-semibold text-slate-500 min-w-36">Item</th>
+                <th class="text-left px-3 py-2 font-semibold text-slate-500 w-28">Qtd *<span class="info-tip" data-tip="Quantidade do item. Deve ser maior que 0.">i</span></th>
+                <th class="text-left px-3 py-2 font-semibold text-slate-500 w-32">Unidade<span class="info-tip" data-tip="Unidade de medida filtrada pelo segmento do item.">i</span></th>
+                <th class="text-left px-3 py-2 font-semibold text-slate-500 w-28">Valor Est.<span class="info-tip" data-tip="Valor estimado unitário em R$.">i</span></th>
+                <th class="text-left px-3 py-2 font-semibold text-slate-500 min-w-32">Fornecedor<span class="info-tip" data-tip="Fornecedor sugerido para este item. Opcional.">i</span></th>
+                <th class="text-left px-3 py-2 font-semibold text-slate-500 min-w-32">Estabelecimento<span class="info-tip" data-tip="Local/unidade que receberá o item.">i</span></th>
+                <th class="text-left px-3 py-2 font-semibold text-slate-500 w-10"></th>
               </tr>
             </thead>
             <tbody id="multiItemBody"></tbody>
@@ -2031,6 +2081,12 @@ function onItemSelectorChange(cb) {
   }
   renderItemSelectorTags();
   updateFormLayout();
+  // In single-item mode, filter unidade by segmento of the selected item
+  if (selectedItems.length === 1) {
+    buildUnidadeOptions(selectedItems[0].segmento);
+  } else if (selectedItems.length === 0) {
+    buildUnidadeOptions();
+  }
 }
 
 function renderItemSelectorTags() {
@@ -2038,10 +2094,25 @@ function renderItemSelectorTags() {
   if (!selectedItems.length) {
     container.innerHTML = '<span class="text-slate-400 text-sm">Selecionar itens...</span>';
   } else {
-    container.innerHTML = selectedItems.map(i =>
-      `<span class="ms-tag">${i.nome}</span>`
+    container.innerHTML = selectedItems.map((i, idx) =>
+      `<span class="ms-tag flex items-center gap-1">${i.nome}
+        <button type="button" onclick="event.stopPropagation();removeSelectedItem(${idx})"
+          class="ml-0.5 leading-none font-bold text-amber-900 hover:text-red-600 text-sm" title="Remover">×</button>
+      </span>`
     ).join('');
   }
+}
+
+function removeSelectedItem(idx) {
+  const removed = selectedItems[idx];
+  selectedItems.splice(idx, 1);
+  renderItemSelectorTags();
+  // Uncheck the option in the dropdown
+  if (removed) {
+    const cb = document.querySelector(`#itemSelectorOptions input[value="${removed.id}"]`);
+    if (cb) cb.checked = false;
+  }
+  updateFormLayout();
 }
 
 function updateFormLayout() {
@@ -2062,22 +2133,45 @@ function updateFormLayout() {
 
 function renderMultiItemMatrix() {
   const tbody = document.getElementById('multiItemBody');
-  const unidadeOpts = unidadesCache.map(u =>
-    `<option value="${u.sigla}">${u.sigla}</option>`
-  ).join('');
   const estabOpts = '<option value="">—</option>' + estabelecimentosCache.filter(e => e.ativo).map(e =>
     `<option value="${e.id}">${e.tipo}</option>`
   ).join('');
-  tbody.innerHTML = selectedItems.map((item, idx) => `
+  const fornOpts = '<option value="">— Opcional —</option>'
+    + getMgmtData('fornecedor').map(f => `<option value="${f.nome}">${f.nome}</option>`).join('')
+    + '<option value="__novo__">+ Cadastrar novo fornecedor...</option>';
+  tbody.innerHTML = selectedItems.map((item, idx) => {
+    const units = getUnidadesBySegmento(item.segmento);
+    const unidadeOpts = units.map(u => `<option value="${u.sigla}">${u.sigla} (${u.nome})</option>`).join('');
+    return `
     <tr class="border-b border-slate-100 last:border-0">
-      <td class="px-3 py-2 font-medium text-slate-700 text-xs">${item.nome}<br><span class="text-slate-400 font-normal">${item.segmento}</span></td>
-      <td class="px-3 py-2"><input type="number" step="0.01" min="0.01" required placeholder="0" data-item="${idx}" data-field="qtd" class="matrix-input w-full border border-slate-200 rounded px-2 py-1.5 text-xs" /></td>
+      <td class="px-3 py-2 font-medium text-slate-700 text-xs">${item.nome}</td>
+      <td class="px-3 py-2"><input type="number" step="0.01" min="0.01" required placeholder="Ex: 5"
+        data-item="${idx}" data-field="qtd"
+        class="matrix-input w-full border border-slate-200 rounded px-2 py-1.5 text-xs"
+        oninvalid="this.setCustomValidity('Informe uma quantidade maior que 0')"
+        oninput="this.setCustomValidity('')" /></td>
       <td class="px-3 py-2"><select data-item="${idx}" data-field="unidade" class="matrix-input w-full border border-slate-200 rounded px-2 py-1.5 text-xs">${unidadeOpts}</select></td>
       <td class="px-3 py-2"><input type="number" step="0.01" min="0" placeholder="0,00" data-item="${idx}" data-field="valor" class="matrix-input w-full border border-slate-200 rounded px-2 py-1.5 text-xs" /></td>
-      <td class="px-3 py-2"><input type="text" placeholder="Opcional" data-item="${idx}" data-field="fornecedor" class="matrix-input w-full border border-slate-200 rounded px-2 py-1.5 text-xs" /></td>
+      <td class="px-3 py-2"><select data-item="${idx}" data-field="fornecedor" class="matrix-input w-full border border-slate-200 rounded px-2 py-1.5 text-xs"
+        onchange="onMatrixFornecedorChange(this)">${fornOpts}</select></td>
       <td class="px-3 py-2"><select data-item="${idx}" data-field="estabelecimento" class="matrix-input w-full border border-slate-200 rounded px-2 py-1.5 text-xs">${estabOpts}</select></td>
-    </tr>`
-  ).join('');
+      <td class="px-2 py-2 text-center">
+        <button type="button" onclick="removeSelectedItem(${idx})" class="btn-remove-item" title="Remover item">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function onMatrixFornecedorChange(el) {
+  if (el.value === '__novo__') {
+    el.value = '';
+    window._fornecedorCallback = true;
+    openMgmtDrawer('fornecedor');
+  }
 }
 
 function getMatrixRow(idx) {
@@ -2140,6 +2234,7 @@ function closeSsAll() {
   });
   closeRespSelector();
   closeRespTimeSelector();
+  closeFornecedorSs();
 }
 
 function selectSsOption(id, value, label) {
@@ -2183,7 +2278,8 @@ function setSsValue(id, value) {
 
 document.addEventListener('click', e => {
   if (!e.target.closest('#unidadeWrapper') && !e.target.closest('#estabelecimentoWrapper')
-      && !e.target.closest('#respWrapper') && !e.target.closest('#respTimeWrapper')) closeSsAll();
+      && !e.target.closest('#respWrapper') && !e.target.closest('#respTimeWrapper')
+      && !e.target.closest('#fornecedorSsWrapper')) closeSsAll();
 });
 
 // ── Solicitante Responsável ───────────────────────────────────────────────
@@ -2320,22 +2416,134 @@ function resetRespTimeDisplay() {
   }
 }
 
-function buildUnidadeOptions() {
+function buildUnidadeOptions(segmento = null) {
   const hidden = document.getElementById('fUnidade');
   const cur = hidden ? hidden.value || 'un' : 'un';
   const container = document.getElementById('unidadeOptions');
   if (!container) return;
-  container.innerHTML = unidadesCache.map(u => {
+  const units = segmento ? getUnidadesBySegmento(segmento) : unidadesCache;
+  container.innerHTML = units.map(u => {
     const label = `${u.sigla} (${u.nome})`;
     return `<div class="ss-option${u.sigla===cur?' active':''}" data-value="${u.sigla}" data-search="${label.toLowerCase()}" onclick="selectSsOption('unidade','${u.sigla}','${label.replace(/'/g,"&#39;")}')">${label}</div>`;
   }).join('');
-  const active = unidadesCache.find(u => u.sigla === cur) || unidadesCache[0];
+  // Keep current value if it exists in filtered list, else pick first
+  const inList = units.find(u => u.sigla === cur);
+  const active = inList || units[0];
   if (active) {
     const label = `${active.sigla} (${active.nome})`;
     if (hidden) hidden.value = active.sigla;
     const display = document.getElementById('unidadeDisplay');
     if (display) { display.textContent = label; display.classList.remove('text-slate-400'); display.classList.add('text-slate-700'); }
   }
+}
+
+// ── Mapeamento Segmento → Unidades recomendadas ───────────────────────────
+const SEGMENTO_UNIDADES = {
+  'Alimentação':            ['kg','l','un','cx','pct','fd','sc','gl','fr','rl'],
+  'Copa':                   ['un','cx','pct','fd','kg','l','fr','gl'],
+  'Limpeza':                ['l','un','fr','gl','pct','cx','rl'],
+  'Higiene':                ['un','fr','cx','pct','bl'],
+  'Material de Escritório': ['un','cx','pct','rl','env','bl','kit'],
+  'Informática':            ['un','eqp','kit','cj','disp'],
+  'Software':               ['lic','ass','mês','vb'],
+  'Tecnologia':             ['un','eqp','GB','TB','MB'],
+  'Telecomunicações':       ['un','eqp','mês'],
+  'Mobiliário':             ['un','cj','pc'],
+  'Elétrico':               ['un','m','kit','cj'],
+  'Hidráulico':             ['un','m','kit','tb'],
+  'Ferramentas':            ['un','cj','kit','pc'],
+  'EPI':                    ['un','cx','pct','kit'],
+  'Uniformes':              ['un','cj','kit'],
+  'Gráfica':                ['un','cx','pct','vb'],
+  'Sinalização':            ['un','pct'],
+  'Jardinagem':             ['un','kg','l','sc'],
+  'Climatização':           ['un','eqp'],
+  'Segurança':              ['un','eqp','kit'],
+  'Transporte':             ['un','l','sv','mês','vb'],
+  'Embalagens':             ['un','cx','pct','rl','kg','m'],
+  'Saúde Ocupacional':      ['sv','un','kit','mês','vb'],
+  'Jurídico':               ['sv','hr','vb','mês','projeto'],
+  'Auditoria':              ['sv','hr','vb','projeto'],
+  'Contabilidade':          ['sv','hr','vb','mês'],
+  'Cloud Computing':        ['srv','GB','TB','mês','vb','ass'],
+  'IoT':                    ['un','eqp','node'],
+  'Data Center':            ['un','eqp','rack'],
+};
+
+function getUnidadesBySegmento(segmento) {
+  const siglas = SEGMENTO_UNIDADES[segmento];
+  if (!siglas || !siglas.length) return unidadesCache;
+  const ordered = siglas.map(s => unidadesCache.find(u => u.sigla === s)).filter(Boolean);
+  if (!ordered.length) return unidadesCache;
+  const used = new Set(ordered.map(u => u.sigla));
+  const rest = unidadesCache.filter(u => !used.has(u.sigla));
+  return [...ordered, ...rest];
+}
+
+// ── Fornecedor selector (campo único) ─────────────────────────────────────
+function buildFornecedorSsOptions(term = '') {
+  const fns = getMgmtData('fornecedor');
+  const container = document.getElementById('fornecedorSsOptions');
+  if (!container) return;
+  const q = term.toLowerCase();
+  const filtered = q ? fns.filter(f => (f.nome || '').toLowerCase().includes(q)) : fns;
+  const clearOpt = `<div class="ss-option" onclick="selectFornecedorSs('','')">— Nenhum fornecedor —</div>`;
+  container.innerHTML = clearOpt + (filtered.length
+    ? filtered.map(f => {
+        const nome = (f.nome || '').replace(/'/g, '&#39;');
+        return `<div class="ss-option" data-value="${nome}" data-search="${(f.nome||'').toLowerCase()}"
+          onclick="selectFornecedorSs('${nome}','${nome}')">
+          <span class="font-medium">${f.nome}</span>
+          ${f.contato ? `<span class="text-slate-400 text-xs ml-1">· ${f.contato}</span>` : ''}
+        </div>`;
+      }).join('')
+    : '<p class="text-xs text-slate-400 px-3 py-2">Nenhum fornecedor cadastrado</p>'
+  );
+}
+
+function toggleFornecedorSs() {
+  const dd = document.getElementById('fornecedorSsDropdown');
+  if (!dd) return;
+  const isOpen = dd.classList.contains('open');
+  closeSsAll();
+  if (!isOpen) {
+    buildFornecedorSsOptions();
+    dd.classList.add('open');
+    const ch = document.getElementById('fornecedorSsChevron');
+    if (ch) ch.style.transform = 'rotate(180deg)';
+    document.getElementById('fornecedorSsTrigger')?.classList.add('open');
+    setTimeout(() => dd.querySelector('.ms-search')?.focus(), 50);
+  }
+}
+
+function closeFornecedorSs() {
+  document.getElementById('fornecedorSsDropdown')?.classList.remove('open');
+  const ch = document.getElementById('fornecedorSsChevron');
+  if (ch) ch.style.transform = '';
+  document.getElementById('fornecedorSsTrigger')?.classList.remove('open');
+}
+
+function searchFornecedorSs(q) { buildFornecedorSsOptions(q); }
+
+function selectFornecedorSs(value, label) {
+  document.getElementById('fFornecedor').value = value;
+  const display = document.getElementById('fornecedorSsDisplay');
+  if (!display) return;
+  display.textContent = value ? label : 'Selecionar fornecedor...';
+  display.classList.toggle('text-slate-400', !value);
+  display.classList.toggle('text-slate-700', !!value);
+  document.getElementById('fornecedorSsOptions')?.querySelectorAll('.ss-option').forEach(o =>
+    o.classList.toggle('active', o.dataset.value === value)
+  );
+  closeFornecedorSs();
+}
+
+function resetFornecedorSs() { selectFornecedorSs('', ''); }
+
+function abrirCadastroFornecedor() {
+  closeFornecedorSs();
+  window._fornecedorCallback = true;
+  openMgmtDrawer('fornecedor');
 }
 
 // ── Inicialização ──────────────────────────────────────────────────────────
@@ -2827,7 +3035,7 @@ async function openDrawer(item = null) {
     document.getElementById('fQtd').value         = item.quantidade || '';
     setSsValue('unidade', item.unidade || 'un');
     document.getElementById('fValor').value       = item.valor_estimado || '';
-    document.getElementById('fFornecedor').value  = item.fornecedor_sugerido || '';
+    selectFornecedorSs(item.fornecedor_sugerido || '', item.fornecedor_sugerido || '');
     setSsValue('estabelecimento', item.estabelecimento_id ? String(item.estabelecimento_id) : '');
     document.getElementById('fPrioridade2').value = item.prioridade || 'media';
     document.getElementById('fStatus2').value     = item.status || 'pendente';
@@ -2853,6 +3061,7 @@ async function openDrawer(item = null) {
     document.getElementById('fPrioridade2').value = 'media';
     setSsValue('unidade', 'un');
     setSsValue('estabelecimento', '');
+    resetFornecedorSs();
     document.getElementById('fDataNec').value     = todayStr();
     document.getElementById('fSolicitante').value = nome;
     document.getElementById('fSolicitanteDisplay').textContent = nome;
@@ -3514,6 +3723,12 @@ function openMgmtDrawer(type, item = null) {
 function closeMgmtDrawer() {
   document.getElementById('mgmtDrawer').classList.remove('open');
   document.getElementById('mgmtDrawerOverlay').classList.remove('open');
+  if (window._fornecedorCallback) {
+    window._fornecedorCallback = false;
+    buildFornecedorSsOptions();
+    // Rebuild matrix if open
+    if (selectedItems.length > 1) renderMultiItemMatrix();
+  }
 }
 
 async function submitMgmtForm(e) {
