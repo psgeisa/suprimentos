@@ -2328,9 +2328,10 @@
       </div>
       <div class="flex-1">
         <h3 id="simSegTitle" class="font-bold text-slate-800 text-base mb-1"></h3>
-        <p id="simSegMsg" class="text-slate-500 text-sm leading-relaxed"></p>
+        <p id="simSegMsg" class="text-slate-500 text-sm leading-relaxed mb-2"></p>
+        <p class="text-slate-400 text-xs leading-relaxed">Usar o termo existente ajuda a evitar duplicidades e mantém os cadastros padronizados.</p>
         <div id="simSegExplanationWrap" class="hidden mt-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-          <p class="text-xs text-amber-700 font-medium mb-0.5">Motivo identificado pela IA:</p>
+          <p class="text-xs text-amber-700 font-medium mb-0.5">Identificado pela IA:</p>
           <p id="simSegExplanation" class="text-sm text-amber-800 leading-snug"></p>
         </div>
       </div>
@@ -2448,20 +2449,10 @@ function showNotice({ title, msg, okLabel = 'Entendi' }) {
 // Retorna Promise<boolean>: true = usar existente, false = cadastrar mesmo assim
 function showSimilarSegmentoChoice({ conflictType, similarTo, explanation, newTerm }) {
   const modal = document.getElementById('modalSimilarSegmento');
-  const titles = {
-    composed:  'Termo composto identificado',
-    variation: 'Variação do termo identificada',
-    ai:        'IA identificou compatibilidade',
-  };
-  const msgs = {
-    composed:  `O termo que você digitou contém "${similarTo}", que já está cadastrado. Recomendamos usar o existente para manter a padronização.`,
-    variation: `"${newTerm}" parece ser uma variação de "${similarTo}", que já está cadastrado. Recomendamos usar o existente.`,
-    ai:        `A IA identificou que "${newTerm}" corresponde ao termo "${similarTo}" já cadastrado. Recomendamos usar o existente.`,
-  };
-  document.getElementById('simSegTitle').textContent        = titles[conflictType] || 'Termo similar encontrado';
-  document.getElementById('simSegMsg').textContent          = msgs[conflictType]   || '';
+  document.getElementById('simSegTitle').textContent = `Você quis dizer "${similarTo}"?`;
+  document.getElementById('simSegMsg').textContent   = 'Já existe um termo muito parecido cadastrado.';
   document.getElementById('simSegUseExistingLabel').textContent = `Usar "${similarTo}"`;
-  document.getElementById('simSegForceNewLabel').textContent    = `Cadastrar "${newTerm}" mesmo assim`;
+  document.getElementById('simSegForceNewLabel').textContent    = `Continuar com "${newTerm}"`;
   const expWrap = document.getElementById('simSegExplanationWrap');
   if (conflictType === 'ai' && explanation) {
     document.getElementById('simSegExplanation').textContent = explanation;
