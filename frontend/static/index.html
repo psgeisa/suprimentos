@@ -2083,8 +2083,10 @@ function buildCatOptions() {
 }
 
 function buildAreaOptions() {
+  const el = document.getElementById('equipeOptions');
+  if (!el) return;
   const areas = getMgmtData('area');
-  document.getElementById('equipeOptions').innerHTML = areas.map(a =>
+  el.innerHTML = areas.map(a =>
     `<label class="ms-option" data-search="${a.nome.toLowerCase()}"><input type="checkbox" value="${a.nome}" onchange="updateMsTags('equipe')"><span class="text-sm text-slate-700">${a.nome}</span></label>`
   ).join('');
 }
