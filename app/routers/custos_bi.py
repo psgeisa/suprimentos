@@ -7,7 +7,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from app.auth import get_current_user
+from app.auth import get_viewer
 from app.database import get_db
 from app.models.estabelecimento import Estabelecimento
 from app.models.suprimento import Suprimento
@@ -58,7 +58,7 @@ def _apply_filters(q, busca, data_inicio, data_fim, segmento, estabelecimento, t
 @router.get("/filtros")
 def filtros_custos_bi(
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    _=Depends(get_viewer),
 ):
     items = (
         db.query(Suprimento)
@@ -237,7 +237,7 @@ def dados_custos_bi(
     estabelecimento: Optional[str] = Query(None),
     time_val: Optional[str] = Query(None, alias="time"),
     db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
+    _=Depends(get_viewer),
 ):
     try:
         return _calcular_dados(busca, data_inicio, data_fim, segmento, estabelecimento, time_val, db)
