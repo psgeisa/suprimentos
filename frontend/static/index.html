@@ -361,8 +361,10 @@
     }
     .group-by-chip:hover { border-color: #D97706; color: #B45309; background: rgba(217,119,6,0.06); }
     .group-by-chip.active { background: #FEF3C7; color: #92400E; border-color: #FCD34D; }
-    .dark .group-by-chip { border-color: rgba(255,255,255,0.15); color: rgba(255,255,255,0.55); }
-    .dark .group-by-chip.active { background: rgba(212,165,32,0.15); color: #F5E6BE; border-color: rgba(212,165,32,0.5); }
+    .dark #page-suprimentos .solicitacao-group-by,
+    .dark #page-suprimentos .group-by-chip { color: #94A3B8 !important; }
+    .dark #page-suprimentos .group-by-chip { border-color: rgba(148,163,184,0.35); }
+    .dark #page-suprimentos .group-by-chip.active { background: rgba(148,163,184,0.12); color: #94A3B8 !important; border-color: rgba(148,163,184,0.45); }
     /* ── group header row ── */
     .group-header-row td { background: rgba(254,243,199,0.6); font-size: 11px; font-weight: 700; color: #92400E; letter-spacing: 0.04em; }
     .dark .group-header-row td { background: rgba(212,165,32,0.1) !important; color: #F5E6BE !important; }
@@ -910,8 +912,8 @@
     </div>
 
     <!-- ── Controle de agrupamento ── -->
-    <div class="flex items-center gap-2 mt-3 mb-0 px-1">
-      <span class="text-xs text-slate-500 font-medium">Agrupar por:</span>
+    <div class="flex items-center gap-2 mt-3 mb-0 px-1 solicitacao-group-by">
+      <span class="text-xs text-slate-500 font-medium solicitacao-group-by">Agrupar por:</span>
       <button id="groupByNone" onclick="setGroupBy(null)" class="group-by-chip active">Nenhum</button>
       <button id="groupByData" onclick="setGroupBy('data')" class="group-by-chip">Data</button>
       <button id="groupByOrdem" onclick="setGroupBy('ordem_compra')" class="group-by-chip">Ordem de Compra</button>
@@ -1526,7 +1528,7 @@
 </div>
 
 <!-- ── Overlay Gerenciamento ──────────────────────────────────────────────── -->
-<div id="mgmtDrawerOverlay" class="drawer-overlay" onclick="closeMgmtDrawer()"></div>
+<div id="mgmtDrawerOverlay" class="drawer-overlay" onclick="cancelMgmtDrawer()"></div>
 
 <!-- ── Drawer Gerenciamento ──────────────────────────────────────────────── -->
 <div id="mgmtDrawer" class="drawer">
@@ -1535,7 +1537,7 @@
       <h2 id="mgmtDrawerTitle" class="text-white font-bold text-base">Novo Segmento</h2>
       <p class="text-yellow-200 text-xs mt-0.5">Preencha os dados abaixo</p>
     </div>
-    <button onclick="closeMgmtDrawer()" class="text-white/70 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/10">
+    <button onclick="cancelMgmtDrawer()" class="text-white/70 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/10">
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
       </svg>
@@ -1575,7 +1577,7 @@
           <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1">Telefone</label>
             <input id="mgmtTelefone" type="tel" placeholder="00 0 0000-0000"
-              maxlength="14" oninput="maskTelefone(this)"
+              maxlength="15" oninput="sanitizeTelefone(this)" onblur="maskTelefone(this)"
               class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" />
           </div>
           <div>
@@ -1613,19 +1615,43 @@
               <div class="ms-tags" id="fornecedorSegmentosTags"><span class="text-slate-400 text-sm">Selecionar segmentos...</span></div>
               <svg class="w-4 h-4 text-slate-400 flex-shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </div>
-            <div class="ms-dropdown hidden" id="fornecedorSegmentosDropdown"></div>
+            <div class="ms-dropdown hidden" id="fornecedorSegmentosDropdown">
+              <div class="ms-search-wrap">
+                <input id="fornecedorSegmentosSearch" class="ms-search" placeholder="Pesquisar segmento..."
+                  oninput="renderFornecedorSegmentoOptions(this.value)" autocomplete="off" />
+              </div>
+              <div id="fornecedorSegmentosOptions"></div>
+              <div class="border-t border-slate-100 p-1.5">
+                <button type="button" onclick="openFornecedorChildForm('segmento')"
+                  class="w-full text-left text-xs text-amber-700 font-semibold px-3 py-2 rounded hover:bg-amber-50">
+                  + Criar Segmento
+                </button>
+              </div>
+            </div>
           </div>
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1">Estabelecimento</label>
-          <select id="mgmtFornecedorEstabelecimento" class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm">
-            <option value="">Selecionar...</option>
-            <option value="restaurante">Restaurante</option>
-            <option value="farmacia">Farmácia</option>
-            <option value="mercado">Mercado</option>
-            <option value="papelaria">Papelaria</option>
-            <option value="padaria">Padaria</option>
-          </select>
+          <input type="hidden" id="mgmtFornecedorEstabelecimento" />
+          <div class="relative" id="fornecedorEstabelecimentoWrapper">
+            <div class="ss-trigger" id="fornecedorEstabelecimentoTrigger" onclick="toggleFornecedorEstabelecimento(event)">
+              <span id="fornecedorEstabelecimentoDisplay" class="text-sm text-slate-400">Selecionar estabelecimento...</span>
+              <svg class="w-4 h-4 text-slate-400 flex-shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+            </div>
+            <div class="ss-dropdown" id="fornecedorEstabelecimentoDropdown">
+              <div class="ms-search-wrap">
+                <input id="fornecedorEstabelecimentoSearch" class="ms-search" placeholder="Pesquisar estabelecimento..."
+                  oninput="renderFornecedorEstabelecimentoOptions(this.value)" autocomplete="off" />
+              </div>
+              <div id="fornecedorEstabelecimentoOptions"></div>
+              <div class="border-t border-slate-100 p-1.5">
+                <button type="button" onclick="openFornecedorChildForm('estabelecimento')"
+                  class="w-full text-left text-xs text-amber-700 font-semibold px-3 py-2 rounded hover:bg-amber-50">
+                  + Criar Estabelecimento
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1646,7 +1672,7 @@
     </div>
 
     <div class="px-6 pb-6 pt-2 border-t border-slate-100 bg-white flex gap-3 flex-shrink-0 sticky bottom-0">
-      <button type="button" onclick="closeMgmtDrawer()"
+      <button type="button" onclick="cancelMgmtDrawer()"
         class="flex-1 border border-slate-200 text-slate-600 rounded-lg py-2.5 text-sm font-semibold hover:bg-slate-50 transition-colors">
         Cancelar
       </button>
@@ -3875,13 +3901,31 @@ document.addEventListener('click', e => {
   }
 });
 
-// ── Máscara telefone: 00 0 0000-0000 ─────────────────────────────────────
+// ── Máscara telefone ──────────────────────────────────────────────────────
+function sanitizeTelefone(el) {
+  const digits = el.value.replace(/\D/g, '').substring(0, 12);
+  if (digits.length === 10) {
+    el.value = digits.replace(/^(\d{2})(\d{4})(\d{4})$/, '$1 $2-$3');
+  } else if (digits.length === 12) {
+    el.value = digits.substring(1).replace(/^(\d{2})(\d)(\d{4})(\d{4})$/, '$1 $2 $3-$4');
+  } else {
+    el.value = digits;
+  }
+}
+
 function maskTelefone(el) {
-  let v = el.value.replace(/\D/g, '').substring(0, 12);
-  if (v.length > 7)      v = v.replace(/^(\d{2})(\d{1})(\d{4})(\d{0,4})/, '$1 $2 $3-$4');
-  else if (v.length > 3) v = v.replace(/^(\d{2})(\d{1})(\d{0,4})/,        '$1 $2 $3');
-  else if (v.length > 2) v = v.replace(/^(\d{2})(\d{0,1})/,                '$1 $2');
-  el.value = v;
+  let digits = el.value.replace(/\D/g, '').substring(0, 12);
+  if (digits.length === 12) {
+    digits = digits.substring(1);
+    el.value = digits.replace(/^(\d{2})(\d)(\d{4})(\d{4})$/, '$1 $2 $3-$4');
+  } else if (digits.length === 11) {
+    digits = digits.substring(1);
+    el.value = digits.replace(/^(\d{2})(\d{4})(\d{4})$/, '$1 $2-$3');
+  } else if (digits.length === 10) {
+    el.value = digits.replace(/^(\d{2})(\d{4})(\d{4})$/, '$1 $2-$3');
+  } else {
+    el.value = digits;
+  }
 }
 
 // ── Drawer Gerenciamento ──────────────────────────────────────────────────
@@ -3889,12 +3933,20 @@ let fornecedorSegmentosState = new Set();
 
 function setFornecedorSegmentos(values = []) {
   fornecedorSegmentosState = new Set(values);
-  document.getElementById('fornecedorSegmentosDropdown').innerHTML = segmentosCache.map(categoria => `
-    <label class="ms-option">
-      <input type="checkbox" value="${categoria.nome}" ${fornecedorSegmentosState.has(categoria.nome) ? 'checked' : ''} onchange="updateFornecedorSegmentos(this)">
-      <span class="text-sm text-slate-700">${categoria.nome}</span>
-    </label>`).join('');
+  renderFornecedorSegmentoOptions();
   renderFornecedorSegmentos();
+}
+
+function renderFornecedorSegmentoOptions(term = '') {
+  const query = normalizeMatchText(term);
+  const options = segmentosCache.filter(segmento =>
+    !query || normalizeMatchText(segmento.nome).includes(query)
+  );
+  document.getElementById('fornecedorSegmentosOptions').innerHTML = options.map(segmento => `
+    <label class="ms-option">
+      <input type="checkbox" value="${segmento.nome}" ${fornecedorSegmentosState.has(segmento.nome) ? 'checked' : ''} onchange="updateFornecedorSegmentos(this)">
+      <span class="text-sm text-slate-700">${segmento.nome}</span>
+    </label>`).join('') || '<p class="text-xs text-slate-400 p-3">Nenhum segmento encontrado</p>';
 }
 
 function updateFornecedorSegmentos(checkbox) {
@@ -3912,11 +3964,60 @@ function renderFornecedorSegmentos() {
 function toggleFornecedorSegmentos(event) {
   event.stopPropagation();
   document.getElementById('fornecedorSegmentosDropdown').classList.toggle('hidden');
+  setTimeout(() => document.getElementById('fornecedorSegmentosSearch')?.focus(), 20);
 }
 
 document.addEventListener('click', event => {
   if (!event.target.closest('#fornecedorSegmentosWrapper')) document.getElementById('fornecedorSegmentosDropdown')?.classList.add('hidden');
+  if (!event.target.closest('#fornecedorEstabelecimentoWrapper')) closeFornecedorEstabelecimento();
 });
+
+function renderFornecedorEstabelecimentoOptions(term = '') {
+  const query = normalizeMatchText(term);
+  const selected = document.getElementById('mgmtFornecedorEstabelecimento').value;
+  const options = estabelecimentosCache.filter(estabelecimento =>
+    estabelecimento.ativo && (
+      !query
+      || normalizeMatchText(estabelecimento.tipo).includes(query)
+      || normalizeMatchText(estabelecimento.segmentos).includes(query)
+    )
+  );
+  document.getElementById('fornecedorEstabelecimentoOptions').innerHTML = options.map(estabelecimento => `
+    <div class="ss-option${String(estabelecimento.tipo) === selected ? ' active' : ''}"
+      data-value="${estabelecimento.tipo}"
+      onclick="selectFornecedorEstabelecimento('${String(estabelecimento.tipo).replace(/'/g, '&#39;')}')">
+      ${estabelecimento.tipo}
+      ${estabelecimento.segmentos ? `<span class="text-xs text-slate-400 ml-1">· ${estabelecimento.segmentos}</span>` : ''}
+    </div>`).join('') || '<p class="text-xs text-slate-400 p-3">Nenhum estabelecimento encontrado</p>';
+}
+
+function toggleFornecedorEstabelecimento(event) {
+  event.stopPropagation();
+  const dropdown = document.getElementById('fornecedorEstabelecimentoDropdown');
+  const isOpen = dropdown.classList.contains('open');
+  closeFornecedorEstabelecimento();
+  if (!isOpen) {
+    renderFornecedorEstabelecimentoOptions();
+    dropdown.classList.add('open');
+    document.getElementById('fornecedorEstabelecimentoTrigger').classList.add('open');
+    setTimeout(() => document.getElementById('fornecedorEstabelecimentoSearch')?.focus(), 20);
+  }
+}
+
+function closeFornecedorEstabelecimento() {
+  document.getElementById('fornecedorEstabelecimentoDropdown')?.classList.remove('open');
+  document.getElementById('fornecedorEstabelecimentoTrigger')?.classList.remove('open');
+}
+
+function selectFornecedorEstabelecimento(value) {
+  document.getElementById('mgmtFornecedorEstabelecimento').value = value;
+  const display = document.getElementById('fornecedorEstabelecimentoDisplay');
+  display.textContent = value || 'Selecionar estabelecimento...';
+  display.classList.toggle('text-slate-400', !value);
+  display.classList.toggle('text-slate-700', Boolean(value));
+  renderFornecedorEstabelecimentoOptions();
+  closeFornecedorEstabelecimento();
+}
 
 let estabelecimentoSegmentosState = new Set();
 
@@ -3968,9 +4069,61 @@ const MGMT_PLACEHOLDERS = {
   item:       'Ex: Papel Sulfite A4',
 };
 
-function openMgmtDrawer(type, item = null) {
+let fornecedorChildContext = null;
+
+function captureFornecedorDraft() {
+  return {
+    editId: document.getElementById('mgmtEditId').value,
+    nome: document.getElementById('mgmtNome').value,
+    contato: document.getElementById('mgmtContato').value,
+    telefone: document.getElementById('mgmtTelefone').value,
+    email: document.getElementById('mgmtEmail').value,
+    local: document.getElementById('mgmtLocal').value,
+    referencia: document.getElementById('mgmtReferencia').value,
+    segmentos: [...fornecedorSegmentosState],
+    estabelecimento: document.getElementById('mgmtFornecedorEstabelecimento').value,
+  };
+}
+
+async function openFornecedorChildForm(type) {
+  fornecedorChildContext = { type, draft: captureFornecedorDraft() };
+  document.getElementById('fornecedorSegmentosDropdown')?.classList.add('hidden');
+  closeFornecedorEstabelecimento();
+  await openMgmtDrawer(type);
+}
+
+async function restoreFornecedorDraft(draft, created = {}) {
+  await openMgmtDrawer('fornecedor');
+  document.getElementById('mgmtEditId').value = draft.editId || '';
+  document.getElementById('mgmtDrawerTitle').textContent = draft.editId
+    ? MGMT_TITLES.fornecedor[1]
+    : MGMT_TITLES.fornecedor[0];
+  document.getElementById('mgmtNome').value = draft.nome || '';
+  document.getElementById('mgmtContato').value = draft.contato || '';
+  document.getElementById('mgmtTelefone').value = draft.telefone || '';
+  document.getElementById('mgmtEmail').value = draft.email || '';
+  document.getElementById('mgmtLocal').value = draft.local || '';
+  document.getElementById('mgmtReferencia').value = draft.referencia || '';
+  const segmentos = [...(draft.segmentos || [])];
+  if (created.segmento && !segmentos.includes(created.segmento)) segmentos.push(created.segmento);
+  setFornecedorSegmentos(segmentos);
+  selectFornecedorEstabelecimento(created.estabelecimento || draft.estabelecimento || '');
+}
+
+async function cancelMgmtDrawer() {
+  if (fornecedorChildContext) {
+    const context = fornecedorChildContext;
+    fornecedorChildContext = null;
+    await restoreFornecedorDraft(context.draft);
+    return;
+  }
+  closeMgmtDrawer();
+}
+
+async function openMgmtDrawer(type, item = null) {
   const sbW = window.innerWidth < 1024 ? 0 : (sidebarPinned ? 256 : 72);
   document.documentElement.style.setProperty('--drawer-offset', sbW + 'px');
+  if (type === 'fornecedor') await loadEstabelecimentos();
 
   document.getElementById('mgmtType').value    = type;
   document.getElementById('mgmtEditId').value  = item ? item.id : '';
@@ -3984,7 +4137,10 @@ function openMgmtDrawer(type, item = null) {
   document.getElementById('mgmtFornecedorExtra').classList.toggle('hidden', type !== 'fornecedor');
   document.getElementById('mgmtEstabelecimentoExtra').classList.toggle('hidden', type !== 'estabelecimento');
   document.getElementById('mgmtNome').placeholder = MGMT_PLACEHOLDERS[type];
-  if (type === 'fornecedor') setFornecedorSegmentos((item?.segmento || '').split(',').map(value => value.trim()).filter(Boolean));
+  if (type === 'fornecedor') {
+    setFornecedorSegmentos((item?.segmento || '').split(',').map(value => value.trim()).filter(Boolean));
+    selectFornecedorEstabelecimento(item?.estabelecimento || '');
+  }
   if (type === 'estabelecimento') setEstabelecimentoSegmentos((item?.segmentos || '').split(',').map(value => value.trim()).filter(Boolean));
 
   if (item) {
@@ -3997,7 +4153,6 @@ function openMgmtDrawer(type, item = null) {
       document.getElementById('mgmtEmail').value     = item.email     || '';
       document.getElementById('mgmtLocal').value     = item.local     || '';
       document.getElementById('mgmtReferencia').value= item.referencia|| '';
-      document.getElementById('mgmtFornecedorEstabelecimento').value = item.estabelecimento || '';
     }
     if (type === 'estabelecimento') document.getElementById('mgmtEstabelecimentoTipo').value = item.tipo || 'mercado';
   }
@@ -4035,10 +4190,18 @@ async function submitMgmtForm(e) {
       method: editId ? 'PUT' : 'POST', body: JSON.stringify(payload)
     });
     if (res && res.ok) {
-      closeMgmtDrawer();
-      showToast(editId ? 'Estabelecimento atualizado!' : 'Estabelecimento cadastrado!', 'success');
+      const saved = await res.json();
       await loadEstabelecimentos();
       renderEstabelecimentos();
+      if (!editId && fornecedorChildContext?.type === 'estabelecimento') {
+        const context = fornecedorChildContext;
+        fornecedorChildContext = null;
+        await restoreFornecedorDraft(context.draft, { estabelecimento: saved.tipo });
+        showToast('Estabelecimento cadastrado e selecionado!', 'success');
+        return;
+      }
+      closeMgmtDrawer();
+      showToast(editId ? 'Estabelecimento atualizado!' : 'Estabelecimento cadastrado!', 'success');
       return;
     }
     const err = res ? await res.json().catch(() => ({})) : {};
@@ -4049,10 +4212,18 @@ async function submitMgmtForm(e) {
   if (type === 'segmento') {
     const res = await apiFetch('/api/segmentos', { method: 'POST', body: JSON.stringify({ nome }) });
     if (res && res.ok) {
-      closeMgmtDrawer();
-      showToast('Segmento cadastrado!', 'success');
+      const saved = await res.json();
       await loadSegmentosCache();
       segPage = 1; renderSegmentos();
+      if (fornecedorChildContext?.type === 'segmento') {
+        const context = fornecedorChildContext;
+        fornecedorChildContext = null;
+        await restoreFornecedorDraft(context.draft, { segmento: saved.nome });
+        showToast('Segmento cadastrado e selecionado!', 'success');
+        return;
+      }
+      closeMgmtDrawer();
+      showToast('Segmento cadastrado!', 'success');
     } else {
       const err = res ? await res.json().catch(() => ({})) : {};
       showToast(err.detail || 'Erro ao salvar segmento.', 'error');
@@ -4231,6 +4402,7 @@ function openActionMenu(button, event, type, id, ativo = true) {
     <button type="button" class="action-item danger" onclick="runActionMenuItem('delete-estabelecimento',${id},event)">Remover</button>
   ` : type === 'fornecedor' ? `
     <button type="button" class="action-item" onclick="runActionMenuItem('view-supplier',${id},event)">Visualizar</button>
+    <button type="button" class="action-item" onclick="runActionMenuItem('edit-supplier',${id},event)">Editar</button>
     <button type="button" class="action-item danger" onclick="runActionMenuItem('discard-supplier',${id},event)">Descartar</button>
   ` : type === 'solicitacao' ? `
     <button type="button" class="action-item" onclick="runActionMenuItem('view-request',${id},event)">Visualizar</button>
