@@ -186,17 +186,6 @@
     .dark .drawer .gradient-brand { background:#000 !important; }
     .dark .drawer .gradient-brand p.text-purple-200 { color:#D4A520 !important; }
     .dark .kpi-card { background:rgba(var(--kc),0.22) !important; backdrop-filter:blur(4px); border-color:rgba(var(--kc),0.3) !important; border-top:3px solid rgb(var(--kc)) !important; }
-    .dark .kpi-card::before {
-      content:'';
-      position:absolute;
-      z-index:3;
-      top:0;
-      right:0;
-      left:0;
-      height:3px;
-      background:rgb(var(--kc));
-      pointer-events:none;
-    }
     .dark .kpi-card .kpi-deco { opacity:0.55 !important; }
     .dark .kpi-card p.text-slate-800 { color:#fff !important; }
     .dark .kpi-card .kpi-label { color:#fff !important; }
@@ -2798,7 +2787,7 @@ async function loadItensCache() {
   if (res && res.ok) itensCache = await res.json();
 }
 
-const STATUS_LABEL = { pendente:'Pendente', aprovado:'Aprovado', em_andamento:'Em Andamento', concluido:'Concluído', entregue:'Entregue', cancelado:'Cancelado' };
+const STATUS_LABEL = { pendente:'Pendente', aprovado:'Aprovado', em_andamento:'Em Andamento', concluido:'Concluído', cancelado:'Cancelado' };
 const PRIO_LABEL   = { baixa:'Baixa', media:'Média', alta:'Alta', urgente:'Urgente' };
 const ROLE_LABEL   = { admin:'Administrador', compras:'Compras', solicitante:'Solicitante' };
 
@@ -4032,7 +4021,7 @@ async function loadDashboard() {
     { label:'Pendentes',             value: data.por_status.pendente     || 0,    icon:'⏳', hex:'#94A3B8' },
     { label:'Aprovados',             value: data.por_status.aprovado     || 0,    icon:'✓',  hex:'#3B82F6' },
     { label:'Em andamento',          value: data.por_status.em_andamento || 0,    icon:'🔄', hex:'#EAB308' },
-    { label:'Entregues',             value: data.por_status.entregue     || 0,    icon:'✅', hex:'#22C55E' },
+    { label:'Entregues',             value: data.por_status.concluido    || 0,    icon:'✅', hex:'#22C55E' },
   ];
   document.getElementById('kpiCards').innerHTML = kpis.map(k => `
     <div class="kpi-card bg-white rounded-2xl shadow-sm border border-slate-100 p-5 overflow-hidden relative" style="border-top:3px solid ${k.hex};--kc:${_h2r(k.hex)}">
@@ -4388,7 +4377,7 @@ async function submitForm(e) {
     if (prazoDate < minAllowed) {
       prazo_emergencia = toDatetimeLocal(minAllowed);
       document.getElementById('fPrazoEmerg').value = prazo_emergencia;
-      showToast('Prazo ajustado para mínimo de 60 min — tempo necessário para o comprador agir.', 'error');
+      showToast('⚠️ Pedidos emergentes precisam ter no mínimo o prazo de 1 hora de SLA. Prazo ajustado automaticamente.', 'error');
     }
   }
   const data_necessidade= document.getElementById('fDataNec').value || null;
