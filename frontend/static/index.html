@@ -3564,18 +3564,18 @@ async function loadDashboard() {
     `Visão geral do sistema${referenceLabel ? ` | ${referenceLabel}` : ''}`;
 
   const kpis = [
-    { label:'Total de Solicitações', value: data.total, icon:'📋', color:'from-indigo-500 to-purple-600' },
-    { label:'Pendentes',             value: data.por_status.pendente || 0, icon:'⏳', color:'from-amber-400 to-orange-500' },
-    { label:'Aprovados',             value: data.por_status.aprovado || 0, icon:'✓', color:'from-emerald-400 to-green-600' },
-    { label:'Em andamento',          value: data.por_status.em_andamento || 0, icon:'🔄', color:'from-blue-400 to-blue-600' },
-    { label:'Entregues',             value: data.por_status.entregue || 0, icon:'✅', color:'from-teal-400 to-emerald-600' },
+    { label:'Total de Solicitações', value: data.total,                           icon:'📋', hex:'#6366F1' },
+    { label:'Pendentes',             value: data.por_status.pendente     || 0,    icon:'⏳', hex:'#94A3B8' },
+    { label:'Aprovados',             value: data.por_status.aprovado     || 0,    icon:'✓',  hex:'#3B82F6' },
+    { label:'Em andamento',          value: data.por_status.em_andamento || 0,    icon:'🔄', hex:'#EAB308' },
+    { label:'Entregues',             value: data.por_status.entregue     || 0,    icon:'✅', hex:'#22C55E' },
   ];
   document.getElementById('kpiCards').innerHTML = kpis.map(k => `
-    <div class="kpi-card bg-white rounded-2xl shadow-sm border border-slate-100 p-5 overflow-hidden relative">
-      <div class="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br ${k.color} opacity-10 rounded-full translate-x-6 -translate-y-6"></div>
+    <div class="kpi-card bg-white rounded-2xl shadow-sm border border-slate-100 p-5 overflow-hidden relative" style="border-top:3px solid ${k.hex}">
+      <div class="absolute top-0 right-0 w-24 h-24 rounded-full translate-x-8 -translate-y-8" style="background:${k.hex};opacity:.12"></div>
       <p class="absolute top-2 right-3 text-2xl">${k.icon}</p>
       <p class="text-2xl font-bold text-slate-800 mt-8">${k.value}</p>
-      <p class="text-xs text-slate-500 mt-1">${k.label}</p>
+      <p class="text-xs font-semibold mt-1" style="color:${k.hex}">${k.label}</p>
     </div>`).join('');
 
   const dashboardDate = value => {
