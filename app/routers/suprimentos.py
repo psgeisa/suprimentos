@@ -86,6 +86,7 @@ def listar(
             | Suprimento.status.ilike(f"%{busca}%")
             | Suprimento.prioridade.ilike(f"%{busca}%")
             | Suprimento.observacoes.ilike(f"%{busca}%")
+            | Suprimento.ordem_compra.ilike(f"%{busca}%")
         )
     total = q.count()
     pages = max(1, math.ceil(total / limit))

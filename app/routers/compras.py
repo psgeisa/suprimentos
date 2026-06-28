@@ -5,6 +5,7 @@ from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
+from sqlalchemy import case, func
 from sqlalchemy.orm import Session
 
 from app.auth import get_current_user
@@ -29,19 +30,34 @@ def listar_ordens(
         db.query(Suprimento)
         .filter(Suprimento.status.in_(STATUSES_ABERTOS))
         .order_by(Suprimento.id.desc())
-        .limit(500)
+        .limit(2000)
         .all()
     )
-    return [{"id": i.id, "ordem_compra": i.ordem_compra or f"SOL{i.id:04d}", "label": f"{i.ordem_compra or f'SOL{i.id:04d}'} — {(i.titulo or '')[:50]}"} for i in items]
+    grouped = {}
+    for item in items:
+        ordem = item.ordem_compra or f"SOL{item.id:04d}"
+        if ordem not in grouped:
+            grouped[ordem] = {"titulo": item.titulo or "", "total": 0}
+        grouped[ordem]["total"] += 1
+    return [{
+        "ordem_compra": ordem,
+        "label": (
+            f"{ordem} — {group['titulo'][:50]} "
+            f"({group['total']} {'item' if group['total'] == 1 else 'itens'})"
+        ),
+    } for ordem, group in grouped.items()]
 
 
 @router.get("/itens")
 def listar_itens_compra(
     ids: Optional[str] = Query(None),
+    ordens: Optional[str] = Query(None),
     busca: Optional[str] = Query(None),
     segmento: Optional[str] = Query(None),
     prioridade: Optional[str] = Query(None),
     estabelecimento: Optional[str] = Query(None),
+    sort_by: Optional[str] = Query(None),
+    sort_dir: str = Query("asc", pattern="^(asc|desc)$"),
     page: int = Query(1, ge=1),
     limit: int = Query(50, ge=1, le=200),
     db: Session = Depends(get_db),
@@ -54,6 +70,18 @@ def listar_itens_compra(
         if id_list:
             q = q.filter(Suprimento.id.in_(id_list))
 
+    if ordens:
+        ordem_list = [value.strip() for value in ordens.split(",") if value.strip()]
+        if ordem_list:
+            sol_orders = [value for value in ordem_list if value.startswith("SOL")]
+            q = q.filter(
+                Suprimento.ordem_compra.in_(ordem_list)
+                | Suprimento.id.in_([
+                    int(value[3:]) for value in sol_orders
+                    if value[3:].isdigit()
+                ])
+            )
+
     if busca:
         b = f"%{busca}%"
         q = q.filter(
@@ -61,6 +89,7 @@ def listar_itens_compra(
             | Suprimento.item_nome.ilike(b)
             | Suprimento.categoria.ilike(b)
             | Suprimento.solicitante.ilike(b)
+            | Suprimento.ordem_compra.ilike(b)
         )
 
     if segmento:
@@ -74,10 +103,38 @@ def listar_itens_compra(
         if est_ids:
             q = q.filter(Suprimento.estabelecimento_id.in_(est_ids))
 
+    _prio_compras = case(
+        (Suprimento.prioridade == 'urgente', 0),
+        (Suprimento.prioridade == 'alta', 1),
+        (Suprimento.prioridade == 'media', 2),
+        else_=3,
+    )
+    q = q.outerjoin(
+        Estabelecimento,
+        Suprimento.estabelecimento_id == Estabelecimento.id,
+    )
     total = q.count()
     pages = max(1, math.ceil(total / limit))
+    sortable = {
+        "ordem": Suprimento.ordem_compra,
+        "estabelecimento": func.lower(func.coalesce(Estabelecimento.tipo, "")),
+        "item": func.lower(func.coalesce(Suprimento.item_nome, Suprimento.titulo, "")),
+        "segmento": func.lower(func.coalesce(Suprimento.categoria, "")),
+        "prioridade": _prio_compras,
+    }
+    if sort_by in sortable:
+        sort_column = sortable[sort_by]
+        ordering = sort_column.desc() if sort_dir == "desc" else sort_column.asc()
+        order_by = [ordering, Suprimento.id.asc()]
+    else:
+        order_by = [
+            Suprimento.emergencia.desc(),
+            func.lower(func.coalesce(Estabelecimento.tipo, "")).asc(),
+            _prio_compras,
+            Suprimento.created_at.asc(),
+        ]
     items = (
-        q.order_by(Suprimento.prioridade.desc(), Suprimento.created_at.asc())
+        q.order_by(*order_by)
         .offset((page - 1) * limit)
         .limit(limit)
         .all()
@@ -94,6 +151,7 @@ def listar_itens_compra(
         result.append(
             {
                 "id": i.id,
+                "ordem_compra": i.ordem_compra or f"SOL{i.id:04d}",
                 "titulo": i.titulo,
                 "item_nome": i.item_nome,
                 "categoria": i.categoria,

@@ -158,11 +158,25 @@ def migrate_schema():
             connection.execute(text("ALTER TABLE suprimentos ADD COLUMN ordem_compra VARCHAR(20)"))
 
 
+def migrate_segmento_table():
+    """Preserva os registros ao substituir a antiga tabela categorias."""
+    existing_tables = set(inspect(engine).get_table_names())
+    if "segmento" in existing_tables:
+        return
+    legacy_table = "categorias" if "categorias" in existing_tables else (
+        "segmentos" if "segmentos" in existing_tables else None
+    )
+    if legacy_table:
+        with engine.begin() as connection:
+            connection.execute(text(f"ALTER TABLE {legacy_table} RENAME TO segmento"))
+
+
 def create_app() -> FastAPI:
     app = FastAPI(title="Gestão de Suprimentos", version="2.0.0")
 
     @app.on_event("startup")
     def startup():
+        migrate_segmento_table()
         Base.metadata.create_all(bind=engine)
         migrate_schema()
         seed_admin()

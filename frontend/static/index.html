@@ -203,7 +203,7 @@
     .dark #fornecedoresEmpty { color:#fff !important; }
 
     /* ── Dark mode — inputs/selects/multiselects nas telas de gestão ── */
-    .dark #page-categorias input, .dark #page-categorias select, .dark #page-categorias textarea,
+    .dark #page-segmentos input, .dark #page-segmentos select, .dark #page-segmentos textarea,
     .dark #page-fornecedores input, .dark #page-fornecedores select, .dark #page-fornecedores textarea,
     .dark #page-usuarios input, .dark #page-usuarios select, .dark #page-usuarios textarea,
     .dark #page-areas input, .dark #page-areas select, .dark #page-areas textarea,
@@ -214,7 +214,7 @@
       background: rgba(0,0,0,0.45) !important;
       border-color: rgba(212,165,32,0.3) !important;
     }
-    .dark #page-categorias input::placeholder, .dark #page-categorias textarea::placeholder,
+    .dark #page-segmentos input::placeholder, .dark #page-segmentos textarea::placeholder,
     .dark #page-fornecedores input::placeholder, .dark #page-fornecedores textarea::placeholder,
     .dark #page-usuarios input::placeholder, .dark #page-usuarios textarea::placeholder,
     .dark #page-areas input::placeholder, .dark #page-areas textarea::placeholder,
@@ -224,14 +224,14 @@
       color: rgba(255,255,255,0.4) !important;
     }
     /* multiselect trigger text (placeholder do ms) */
-    .dark #page-categorias .ms-trigger .text-slate-400,
+    .dark #page-segmentos .ms-trigger .text-slate-400,
     .dark #page-fornecedores .ms-trigger .text-slate-400,
     .dark #page-usuarios .ms-trigger .text-slate-400,
     .dark #page-areas .ms-trigger .text-slate-400,
     .dark #page-unidades .ms-trigger .text-slate-400,
     .dark #page-estabelecimentos .ms-trigger .text-slate-400,
     .dark #page-itens .ms-trigger .text-slate-400 { color: rgba(255,255,255,0.4) !important; }
-    .dark #page-categorias .ms-trigger,
+    .dark #page-segmentos .ms-trigger,
     .dark #page-fornecedores .ms-trigger,
     .dark #page-usuarios .ms-trigger,
     .dark #page-areas .ms-trigger,
@@ -242,7 +242,7 @@
       border-color: rgba(212,165,32,0.3) !important;
       color: #fff !important;
     }
-    .dark #page-categorias .ms-tag,
+    .dark #page-segmentos .ms-tag,
     .dark #page-fornecedores .ms-tag,
     .dark #page-usuarios .ms-tag,
     .dark #page-areas .ms-tag,
@@ -299,10 +299,10 @@
     }
 
     /* ── Ícone lixo amarelo em dark mode nas telas de gestão simples ── */
-    .dark #page-categorias .text-red-400,
+    .dark #page-segmentos .text-red-400,
     .dark #page-areas .text-red-400,
     .dark #page-unidades .text-red-400 { color: #fff !important; }
-    .dark #page-categorias .hover\:text-red-600:hover,
+    .dark #page-segmentos .hover\:text-red-600:hover,
     .dark #page-areas .hover\:text-red-600:hover,
     .dark #page-unidades .hover\:text-red-600:hover { color: rgba(255,255,255,0.7) !important; }
 
@@ -389,13 +389,13 @@
 
     /* ── Cor de texto das tabelas — automática por tema ── */
     #page-suprimentos table,
-    #page-categorias table,
+    #page-segmentos table,
     #page-areas table,
     #page-unidades table,
     #page-fornecedores table,
     #page-estabelecimentos table { color: #334155; }
     .dark #page-suprimentos table,
-    .dark #page-categorias table,
+    .dark #page-segmentos table,
     .dark #page-areas table,
     .dark #page-unidades table,
     .dark #page-fornecedores table,
@@ -642,7 +642,7 @@
 
     /* Botões de ação nas páginas de gestão: quebrar linha e ocupar largura total em mobile */
     @media (max-width:640px) {
-      #page-categorias .flex.items-center.gap-4,
+      #page-segmentos .flex.items-center.gap-4,
       #page-areas .flex.items-center.gap-4,
       #page-unidades .flex.items-center.gap-4,
       #page-fornecedores .flex.items-center.gap-4,
@@ -652,7 +652,7 @@
         flex-wrap:wrap !important;
         gap:0.625rem !important;
       }
-      #page-categorias .btn-primary,
+      #page-segmentos .btn-primary,
       #page-areas .btn-primary,
       #page-unidades .btn-primary,
       #page-fornecedores .btn-primary,
@@ -748,7 +748,7 @@
       </svg>
       <span class="sidebar-label">Compras</span>
     </a>
-    <a onclick="showPage('categorias')" data-tip="Segmento"
+    <a onclick="showPage('segmentos')" data-tip="Segmento"
       class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-yellow-200 hover:text-white text-sm font-medium cursor-pointer transition-all">
       <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -900,7 +900,7 @@
   <section id="page-suprimentos" class="p-8 hidden" style="min-height:calc(100vh - 73px)">
     <div class="filter-bar">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-        <input id="fBusca" type="text" placeholder="Título, solicitante ou equipe..."
+        <input id="fBusca" type="text" placeholder="Ordem, título, solicitante ou equipe..."
           class="border border-slate-200 rounded-lg px-3 py-2 text-sm" oninput="resetAndLoad()" />
         <div class="filter-ms" data-filter="status"><button type="button" class="ms-trigger w-full" onclick="toggleFilterDropdown('status',event)"><span id="filterStatusLabel">Status</span><span>▾</span></button><div id="filterStatusMenu" class="filter-ms-menu hidden"><input class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs mb-2" placeholder="Pesquisar..." oninput="searchFilterOptions('status',this.value)"><div id="filterStatusOptions"></div></div></div>
         <div class="filter-ms" data-filter="prioridade"><button type="button" class="ms-trigger w-full" onclick="toggleFilterDropdown('prioridade',event)"><span id="filterPrioridadeLabel">Prioridades</span><span>▾</span></button><div id="filterPrioridadeMenu" class="filter-ms-menu hidden"><input class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs mb-2" placeholder="Pesquisar..." oninput="searchFilterOptions('prioridade',this.value)"><div id="filterPrioridadeOptions"></div></div></div>
@@ -948,7 +948,7 @@
   <section id="page-compras" class="p-8 hidden" style="min-height:calc(100vh - 73px)">
     <div class="filter-bar">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-        <input id="cBusca" type="text" placeholder="Item, segmento, estabelecimento..."
+        <input id="cBusca" type="text" placeholder="Ordem, item, segmento, estabelecimento..."
           class="border border-slate-200 rounded-lg px-3 py-2 text-sm" oninput="comprasResetAndLoad()" />
         <div class="filter-ms" data-filter="cOrdem"><button type="button" class="ms-trigger w-full" onclick="toggleComprasFilter('cOrdem',event)"><span id="filterCOrdemLabel">Ordem de Compra</span><span>▾</span></button><div id="filterCOrdemMenu" class="filter-ms-menu hidden"><input class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs mb-2" placeholder="Pesquisar ID..." oninput="searchComprasFilter('cOrdem',this.value)"><div id="filterCOrdemOptions"></div></div></div>
         <div class="filter-ms" data-filter="cSegmento"><button type="button" class="ms-trigger w-full" onclick="toggleComprasFilter('cSegmento',event)"><span id="filterCSegmentoLabel">Segmentos</span><span>▾</span></button><div id="filterCSegmentoMenu" class="filter-ms-menu hidden"><input class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs mb-2" placeholder="Pesquisar..." oninput="searchComprasFilter('cSegmento',this.value)"><div id="filterCSegmentoOptions"></div></div></div>
@@ -961,11 +961,12 @@
       <table class="w-full text-sm">
         <thead>
           <tr class="bg-slate-50 border-b border-slate-100">
-            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Estab.</th>
-            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Item</th>
-            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Segmento</th>
-            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Prioridade</th>
-            <th class="text-center px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Comprado</th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none" onclick="setComprasSort('ordem')">Ordem <span data-compras-sort="ordem"></span></th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none" onclick="setComprasSort('estabelecimento')">Estab. <span data-compras-sort="estabelecimento"></span></th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none" onclick="setComprasSort('item')">Item <span data-compras-sort="item"></span></th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none" onclick="setComprasSort('segmento')">Segmento <span data-compras-sort="segmento"></span></th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none" onclick="setComprasSort('prioridade')">Prioridade <span data-compras-sort="prioridade"></span></th>
+            <th class="text-center px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none" onclick="setComprasSort('comprado')">Comprado <span data-compras-sort="comprado"></span></th>
             <th class="text-center px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide w-20">Eliminar</th>
           </tr>
         </thead>
@@ -976,8 +977,8 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
             d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/>
         </svg>
-        <p class="font-medium">Nenhum item em aberto para compra</p>
-        <p class="text-xs mt-1">Selecione uma Ordem de Compra ou aguarde novas solicitações</p>
+        <p id="comprasEmptyTitle" class="font-medium">Filtre uma ordem de serviço ou algum item para iniciar a compra</p>
+        <p id="comprasEmptyHint" class="text-xs mt-1">Use um dos filtros acima para carregar os itens.</p>
       </div>
       <div id="comprasPagination" class="px-5 py-4 border-t border-slate-100"></div>
     </div>
@@ -1026,13 +1027,13 @@
     </div>
   </section>
 
-  <!-- ── Categorias ── -->
-  <section id="page-categorias" class="p-8 hidden" style="min-height:calc(100vh - 73px)">
+  <!-- ── Segmentos ── -->
+  <section id="page-segmentos" class="p-8 hidden" style="min-height:calc(100vh - 73px)">
     <div class="filter-bar">
       <div class="flex items-center gap-4">
-        <input id="catSearch" type="text" placeholder="Buscar segmento..."
-          class="border border-slate-200 rounded-lg px-3 py-2 text-sm flex-1" oninput="catPage=1;renderCategorias()" />
-        <button onclick="openMgmtDrawer('categoria')" class="btn-primary flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold shadow-md">
+        <input id="segSearch" type="text" placeholder="Buscar segmento..."
+          class="border border-slate-200 rounded-lg px-3 py-2 text-sm flex-1" oninput="segPage=1;renderSegmentos()" />
+        <button onclick="openMgmtDrawer('segmento')" class="btn-primary flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold shadow-md">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
           Novo Segmento
         </button>
@@ -1046,14 +1047,14 @@
             <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide w-24">Excluir</th>
           </tr>
         </thead>
-        <tbody id="categoriasBody" class="divide-y divide-slate-50"></tbody>
+        <tbody id="segmentosBody" class="divide-y divide-slate-50"></tbody>
       </table>
-      <div id="categoriasEmpty" class="hidden flex flex-col items-center py-16 text-slate-400">
+      <div id="segmentosEmpty" class="hidden flex flex-col items-center py-16 text-slate-400">
         <svg class="w-10 h-10 mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/></svg>
         <p class="font-medium">Nenhum segmento cadastrado</p>
         <p class="text-xs mt-1">Clique em "Novo Segmento" para começar</p>
       </div>
-      <div id="catPagination" class="px-5 py-4 border-t border-slate-100"></div>
+      <div id="segmentosPagination" class="px-5 py-4 border-t border-slate-100"></div>
     </div>
   </section>
 
@@ -1422,12 +1423,26 @@
         <div class="flex items-center gap-3">
           <div class="flex-1">
             <label class="block text-xs font-semibold text-slate-600 mb-1">Prioridade</label>
-            <select id="fPrioridade2" class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm bg-white">
-              <option value="baixa">Baixa</option>
-              <option value="media" selected>Média</option>
-              <option value="alta">Alta</option>
-              <option value="urgente">Urgente</option>
-            </select>
+            <input type="hidden" id="fPrioridade2" value="media" />
+            <div class="relative" id="prioridadeWrapper">
+              <div class="ss-trigger" id="prioridadeTrigger" onclick="toggleSs('prioridade')">
+                <span id="prioridadeDisplay" class="text-sm text-slate-700">Média</span>
+                <svg class="w-4 h-4 text-slate-400 flex-shrink-0 ml-2 transition-transform" id="prioridadeChevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </div>
+              <div class="ss-dropdown" id="prioridadeDropdown">
+                <div class="ms-search-wrap">
+                  <input class="ms-search" placeholder="Pesquisar prioridade..." oninput="searchSs('prioridade',this.value)" autocomplete="off" />
+                </div>
+                <div id="prioridadeOptions">
+                  <div class="ss-option" data-value="baixa" data-search="baixa" onclick="selectSsOption('prioridade','baixa','Baixa')">Baixa</div>
+                  <div class="ss-option active" data-value="media" data-search="media média" onclick="selectSsOption('prioridade','media','Média')">Média</div>
+                  <div class="ss-option" data-value="alta" data-search="alta" onclick="selectSsOption('prioridade','alta','Alta')">Alta</div>
+                  <div class="ss-option" data-value="urgente" data-search="urgente" onclick="selectSsOption('prioridade','urgente','Urgente')">Urgente</div>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="flex flex-col items-center gap-1 pt-4">
             <div class="toggle-track" id="emergToggle" onclick="toggleEmergencia()">
@@ -1517,7 +1532,7 @@
 <div id="mgmtDrawer" class="drawer">
   <div class="gradient-brand px-6 flex items-center justify-between flex-shrink-0" style="padding-top:16px;padding-bottom:16px;">
     <div>
-      <h2 id="mgmtDrawerTitle" class="text-white font-bold text-base">Nova Categoria</h2>
+      <h2 id="mgmtDrawerTitle" class="text-white font-bold text-base">Novo Segmento</h2>
       <p class="text-yellow-200 text-xs mt-0.5">Preencha os dados abaixo</p>
     </div>
     <button onclick="closeMgmtDrawer()" class="text-white/70 hover:text-white transition-colors p-1 rounded-lg hover:bg-white/10">
@@ -1618,10 +1633,10 @@
         <label class="block text-xs font-semibold text-slate-600 mb-1">Tipo *</label>
         <input id="mgmtEstabelecimentoTipo" type="text" placeholder="Ex: Restaurante, Farmácia, Mercado..." class="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm" />
         <div class="mt-5">
-          <label class="block text-xs font-semibold text-slate-600 mb-1">Categorias</label>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Segmentos</label>
           <div class="relative" id="estabelecimentoSegmentosWrapper">
             <div class="ms-trigger" onclick="toggleEstabelecimentoSegmentos(event)">
-              <div class="ms-tags" id="estabelecimentoSegmentosTags"><span class="text-slate-400 text-sm">Selecionar categorias...</span></div>
+              <div class="ms-tags" id="estabelecimentoSegmentosTags"><span class="text-slate-400 text-sm">Selecionar segmentos...</span></div>
               <svg class="w-4 h-4 text-slate-400 flex-shrink-0 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
             </div>
             <div class="ms-dropdown hidden" id="estabelecimentoSegmentosDropdown"></div>
@@ -1900,12 +1915,12 @@ let currentUser = null;     // { id, nome, email, role }
 let emergenciaOn = false;
 let supPage = 1;
 const SUP_LIMIT = 20;
-let catPage = 1, areaPage = 1, unidadePage = 1, fornPage = 1, estPage = 1, userPage = 1, itemPage = 1;
+let segPage = 1, areaPage = 1, unidadePage = 1, fornPage = 1, estPage = 1, userPage = 1, itemPage = 1;
 const MGMT_PER_PAGE = 10;
-let categoriasCache = [];
-async function loadCategoriasCache() {
-  const res = await apiFetch('/api/categorias/list');
-  if (res && res.ok) categoriasCache = await res.json();
+let segmentosCache = [];
+async function loadSegmentosCache() {
+  const res = await apiFetch('/api/segmentos/list');
+  if (res && res.ok) segmentosCache = await res.json();
 }
 let unidadesCache = [];
 async function loadUnidadesCache() {
@@ -2026,9 +2041,9 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ── Dados gerenciáveis (localStorage) ────────────────────────────────────
-const MGMT_KEYS = { categoria:'sup_categorias', area:'sup_areas', unidade:'sup_unidades', fornecedor:'sup_fornecedores' };
+const MGMT_KEYS = { segmento:'sup_segmentos', area:'sup_areas', unidade:'sup_unidades', fornecedor:'sup_fornecedores' };
 const MGMT_DEFAULTS = {
-  categoria: [
+  segmento: [
     {id:1,nome:'Material de Escritório'},{id:2,nome:'Limpeza'},{id:3,nome:'Informática'},
     {id:4,nome:'Manutenção'},{id:5,nome:'Alimentação'},{id:6,nome:'Segurança'},
     {id:7,nome:'Transporte'},{id:8,nome:'Mobiliário'},{id:9,nome:'Elétrico'},{id:10,nome:'Hidráulico'}
@@ -2074,13 +2089,6 @@ function getMgmtData(type) {
 }
 function saveMgmtData(type, data) { localStorage.setItem(MGMT_KEYS[type], JSON.stringify(data)); }
 function nextId(items) { return items.length ? Math.max(...items.map(i=>i.id)) + 1 : 1; }
-
-// ── Categorias ────────────────────────────────────────────────────────────
-function buildCatOptions() {
-  document.getElementById('catOptions').innerHTML = categoriasCache.map(c =>
-    `<label class="ms-option" data-search="${c.nome.toLowerCase()}"><input type="checkbox" value="${c.nome}" onchange="updateMsTags('cat')"><span class="text-sm text-slate-700">${c.nome}</span></label>`
-  ).join('');
-}
 
 function buildAreaOptions() {
   const el = document.getElementById('equipeOptions');
@@ -2142,8 +2150,10 @@ function onItemSelectorChange(cb) {
   // In single-item mode, filter unidade by segmento of the selected item
   if (selectedItems.length === 1) {
     buildUnidadeOptions(selectedItems[0].segmento);
+    setDefaultEstabelecimentoForSegmento(selectedItems[0].segmento);
   } else if (selectedItems.length === 0) {
     buildUnidadeOptions();
+    setSsValue('estabelecimento', '');
   }
 }
 
@@ -2171,6 +2181,12 @@ function removeSelectedItem(idx) {
     if (cb) cb.checked = false;
   }
   updateFormLayout();
+  if (selectedItems.length === 1) {
+    buildUnidadeOptions(selectedItems[0].segmento);
+    setDefaultEstabelecimentoForSegmento(selectedItems[0].segmento);
+  } else if (!selectedItems.length) {
+    setSsValue('estabelecimento', '');
+  }
 }
 
 function updateFormLayout() {
@@ -2191,36 +2207,36 @@ function updateFormLayout() {
 
 function renderMultiItemMatrix() {
   const tbody = document.getElementById('multiItemBody');
-  const estabOpts = '<option value="">—</option>' + estabelecimentosCache.filter(e => e.ativo).map(e =>
-    `<option value="${e.id}">${e.tipo}</option>`
-  ).join('');
-  const fornOpts = '<option value="">— Opcional —</option>'
-    + getMgmtData('fornecedor').map(f => `<option value="${f.nome}">${f.nome}</option>`).join('')
-    + '<option value="__novo__">+ Cadastrar novo fornecedor...</option>';
   tbody.innerHTML = selectedItems.map((item, idx) => {
     const units = getUnidadesBySegmento(item.segmento);
-    const unidadeOpts = units.map(u => `<option value="${u.sigla}">${u.sigla} (${u.nome})</option>`).join('');
+    if (!item.unidade) item.unidade = units[0]?.sigla || 'un';
+    if (item.estabelecimento === undefined) {
+      item.estabelecimento = firstEstabelecimentoForSegmento(item.segmento)?.id || '';
+    }
+    const unidadeOptions = units.map(unit => [unit.sigla, `${unit.sigla} (${unit.nome})`]);
+    const fornecedorOptions = getMgmtData('fornecedor').map(fornecedor => [fornecedor.nome, fornecedor.nome]);
+    const estabelecimentoOptions = estabelecimentosCache
+      .filter(estabelecimento => estabelecimento.ativo)
+      .map(estabelecimento => [String(estabelecimento.id), estabelecimento.tipo]);
+    const prioridadeOptions = [
+      ['baixa', 'Baixa'], ['media', 'Média'], ['alta', 'Alta'], ['urgente', 'Urgente'],
+    ];
     return `
     <tr class="border-b border-slate-100 last:border-0">
       <td class="px-3 py-2 font-medium text-slate-700 text-xs">${item.nome}</td>
       <td class="px-3 py-2"><input type="number" step="0.01" min="0.01" required placeholder="Ex: 5"
-        data-item="${idx}" data-field="qtd"
+        data-item="${idx}" data-field="qtd" value="${item.qtd || ''}"
         class="matrix-input w-full border border-slate-200 rounded px-2 py-1.5 text-xs"
         oninvalid="this.setCustomValidity('Informe uma quantidade maior que 0')"
-        oninput="this.setCustomValidity('')" /></td>
-      <td class="px-3 py-2"><select data-item="${idx}" data-field="unidade" class="matrix-input w-full border border-slate-200 rounded px-2 py-1.5 text-xs">${unidadeOpts}</select></td>
-      <td class="px-3 py-2"><input type="number" step="0.01" min="0" placeholder="0,00" data-item="${idx}" data-field="valor" class="matrix-input w-full border border-slate-200 rounded px-2 py-1.5 text-xs" /></td>
-      <td class="px-3 py-2"><select data-item="${idx}" data-field="fornecedor" class="matrix-input w-full border border-slate-200 rounded px-2 py-1.5 text-xs"
-        onchange="onMatrixFornecedorChange(this)">${fornOpts}</select></td>
-      <td class="px-3 py-2"><select data-item="${idx}" data-field="estabelecimento" class="matrix-input w-full border border-slate-200 rounded px-2 py-1.5 text-xs">${estabOpts}</select></td>
+        oninput="this.setCustomValidity('');updateMatrixField(${idx},'qtd',this.value)" /></td>
+      <td class="px-3 py-2">${matrixSearchableHtml(idx, 'unidade', unidadeOptions, item.unidade, 'Pesquisar unidade...')}</td>
+      <td class="px-3 py-2"><input type="number" step="0.01" min="0" placeholder="0,00" data-item="${idx}" data-field="valor"
+        value="${item.valor || ''}" oninput="updateMatrixField(${idx},'valor',this.value)"
+        class="matrix-input w-full border border-slate-200 rounded px-2 py-1.5 text-xs" /></td>
+      <td class="px-3 py-2">${matrixSearchableHtml(idx, 'fornecedor', fornecedorOptions, item.fornecedor || '', 'Pesquisar fornecedor...')}</td>
+      <td class="px-3 py-2">${matrixSearchableHtml(idx, 'estabelecimento', estabelecimentoOptions, String(item.estabelecimento || ''), 'Pesquisar estabelecimento...')}</td>
       <td class="px-2 py-2">
-        <select class="matrix-input w-full border border-slate-200 rounded px-2 py-1.5 text-xs"
-          onchange="onMatrixPrioChange(this,${idx})">
-          <option value="baixa"   ${(item.prioridade||'baixa')==='baixa'   ?'selected':''}>Baixa</option>
-          <option value="media"   ${item.prioridade==='media'   ?'selected':''}>Média</option>
-          <option value="alta"    ${item.prioridade==='alta'    ?'selected':''}>Alta</option>
-          <option value="urgente" ${item.prioridade==='urgente' ?'selected':''}>Urgente</option>
-        </select>
+        ${matrixSearchableHtml(idx, 'prioridade', prioridadeOptions, item.prioridade || 'baixa', 'Pesquisar prioridade...')}
         ${item.prioridade === 'urgente' ? `
         <input type="datetime-local" value="${item.prazo_urgente || nextHour()}"
           onchange="setItemPrazo(${idx},this.value)"
@@ -2237,12 +2253,60 @@ function renderMultiItemMatrix() {
   }).join('');
 }
 
-function onMatrixFornecedorChange(el) {
-  if (el.value === '__novo__') {
-    el.value = '';
-    window._fornecedorCallback = true;
-    openMgmtDrawer('fornecedor');
+function matrixSearchableHtml(idx, field, options, selectedValue, placeholder) {
+  const selected = options.find(([value]) => String(value) === String(selectedValue));
+  const label = selected ? selected[1] : '';
+  const listId = `matrix-${field}-${idx}`;
+  const optionsHtml = options.map(([value, optionLabel]) =>
+    `<option value="${String(optionLabel).replace(/"/g, '&quot;')}">${String(value).replace(/</g, '&lt;')}</option>`
+  ).join('');
+  return `
+    <input type="text" list="${listId}" value="${String(label).replace(/"/g, '&quot;')}"
+      placeholder="${placeholder}" autocomplete="off"
+      class="w-full border border-slate-200 rounded px-2 py-1.5 text-xs"
+      onchange="applyMatrixSearchValue(this,${idx},'${field}')" />
+    <datalist id="${listId}">${optionsHtml}</datalist>
+    <input type="hidden" class="matrix-input" data-item="${idx}" data-field="${field}" value="${String(selectedValue).replace(/"/g, '&quot;')}" />`;
+}
+
+function getMatrixSearchOptions(idx, field) {
+  if (field === 'unidade') {
+    return getUnidadesBySegmento(selectedItems[idx]?.segmento).map(unit => [unit.sigla, `${unit.sigla} (${unit.nome})`]);
   }
+  if (field === 'fornecedor') {
+    return getMgmtData('fornecedor').map(fornecedor => [fornecedor.nome, fornecedor.nome]);
+  }
+  if (field === 'estabelecimento') {
+    return estabelecimentosCache.filter(item => item.ativo).map(item => [String(item.id), item.tipo]);
+  }
+  return [['baixa','Baixa'],['media','Média'],['alta','Alta'],['urgente','Urgente']];
+}
+
+function applyMatrixSearchValue(input, idx, field) {
+  const typed = normalizeMatchText(input.value);
+  const options = getMatrixSearchOptions(idx, field);
+  const match = options.find(([value, label]) =>
+    normalizeMatchText(label) === typed || normalizeMatchText(value) === typed
+  );
+  const hidden = input.parentElement.querySelector(`.matrix-input[data-field="${field}"]`);
+  if (!match) {
+    input.value = '';
+    if (hidden) hidden.value = '';
+    updateMatrixField(idx, field, '');
+    return;
+  }
+  const [value, label] = match;
+  input.value = label;
+  if (hidden) hidden.value = value;
+  if (field === 'prioridade') {
+    onMatrixPrioChange({ value }, idx);
+  } else {
+    updateMatrixField(idx, field, value);
+  }
+}
+
+function updateMatrixField(idx, field, value) {
+  if (selectedItems[idx]) selectedItems[idx][field] = value;
 }
 
 function getMatrixRow(idx) {
@@ -2298,7 +2362,7 @@ function toggleSs(id) {
 }
 
 function closeSsAll() {
-  ['unidade','estabelecimento'].forEach(id => {
+  ['unidade','estabelecimento','prioridade'].forEach(id => {
     document.getElementById(id+'Dropdown')?.classList.remove('open');
     if (document.getElementById(id+'Chevron')) document.getElementById(id+'Chevron').style.transform = '';
     document.getElementById(id+'Trigger')?.classList.remove('open');
@@ -2341,14 +2405,20 @@ function setSsValue(id, value) {
     display.classList.remove('text-slate-400');
     display.classList.add('text-slate-700');
   } else {
-    display.textContent = id === 'unidade' ? (value || '—') : 'Selecionar estabelecimento...';
-    display.classList.toggle('text-slate-400', !value || id !== 'unidade');
-    display.classList.toggle('text-slate-700', !(!value || id !== 'unidade'));
+    const placeholders = {
+      unidade: value || '—',
+      estabelecimento: 'Selecionar estabelecimento...',
+      prioridade: 'Selecionar prioridade...',
+    };
+    display.textContent = placeholders[id] || 'Selecionar...';
+    display.classList.toggle('text-slate-400', !value);
+    display.classList.toggle('text-slate-700', Boolean(value));
   }
 }
 
 document.addEventListener('click', e => {
   if (!e.target.closest('#unidadeWrapper') && !e.target.closest('#estabelecimentoWrapper')
+      && !e.target.closest('#prioridadeWrapper')
       && !e.target.closest('#respWrapper') && !e.target.closest('#respTimeWrapper')
       && !e.target.closest('#fornecedorSsWrapper')) closeSsAll();
 });
@@ -2506,6 +2576,30 @@ function buildUnidadeOptions(segmento = null) {
     const display = document.getElementById('unidadeDisplay');
     if (display) { display.textContent = label; display.classList.remove('text-slate-400'); display.classList.add('text-slate-700'); }
   }
+}
+
+function normalizeMatchText(value) {
+  return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().toLowerCase();
+}
+
+function estabelecimentoMatchesSegmento(estabelecimento, segmento) {
+  const target = normalizeMatchText(segmento);
+  return String(estabelecimento?.segmentos || '')
+    .split(',')
+    .map(normalizeMatchText)
+    .filter(Boolean)
+    .includes(target);
+}
+
+function firstEstabelecimentoForSegmento(segmento) {
+  return estabelecimentosCache.find(item =>
+    item.ativo && estabelecimentoMatchesSegmento(item, segmento)
+  ) || null;
+}
+
+function setDefaultEstabelecimentoForSegmento(segmento) {
+  const estabelecimento = firstEstabelecimentoForSegmento(segmento);
+  setSsValue('estabelecimento', estabelecimento ? String(estabelecimento.id) : '');
 }
 
 // ── Agrupamento da tabela de Solicitações ─────────────────────────────────
@@ -2693,9 +2787,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('loginSenha').addEventListener('keydown', e => { if (e.key==='Enter') doLogin(); });
 
   // Carrega caches e reconstrói dropdowns em paralelo com o carregamento dos dados
-  await loadCategoriasCache();
+  await loadSegmentosCache();
   await loadUnidadesCache();
-  buildCatOptions();
   buildAreaOptions();
   buildUnidadeOptions();
   // Pré-carrega itens na inicialização para que o drawer abra sem delay
@@ -2783,7 +2876,7 @@ function applyLogin() {
       comprasItem.style.setProperty('display', 'none', 'important');
     }
   }
-  loadCategoriasCache().then(() => { buildCatOptions(); });
+  loadSegmentosCache();
   loadUnidadesCache().then(() => { buildUnidadeOptions(); });
   loadDashboard();
 }
@@ -2855,7 +2948,7 @@ function updateMsTags(id) {
 function renderTags(id, values) {
   const container = document.getElementById(id+'Tags');
   if (!values.length) {
-    container.innerHTML = `<span class="text-slate-400 text-sm">${id==='cat'?'Selecionar categorias...':'Selecionar equipes...'}</span>`;
+    container.innerHTML = '<span class="text-slate-400 text-sm">Selecionar equipes...</span>';
   } else {
     container.innerHTML = values.map(v => `<span class="ms-tag">${v}</span>`).join('');
   }
@@ -2916,13 +3009,13 @@ function showPage(page) {
   document.getElementById('page-'+page).classList.remove('hidden');
 
   const headerNovaBtn = document.getElementById('headerNovaBtn');
-  const mgmtPages = ['categorias','areas','unidades','fornecedores','usuarios','estabelecimentos','itens'];
+  const mgmtPages = ['segmentos','areas','unidades','fornecedores','usuarios','estabelecimentos','itens'];
   const titles = {
     dashboard:    ['Dashboard',         'Visão geral do sistema'],
     suprimentos:  ['Solicitações',      'Gerenciar todas as solicitações'],
     compras:      ['Compras',           'Executar e registrar compras de suprimentos'],
     usuarios:     ['Stakeholders',      'Gerenciar contas de acesso'],
-    categorias:   ['Segmento',          'Gerenciar segmentos de suprimentos'],
+    segmentos:    ['Segmento',          'Gerenciar segmentos de suprimentos'],
     areas:        ['Área Demandante',   'Gerenciar áreas que fazem solicitações'],
     unidades:     ['Unidade',           'Gerenciar unidades de medida'],
     fornecedores: ['Fornecedores',      'Gerenciar fornecedores cadastrados'],
@@ -2947,7 +3040,7 @@ function showPage(page) {
   if (page === 'suprimentos')  { supPage = 1; initializeSolicitacaoFilters(); loadSuprimentos(); }
   if (page === 'compras')      { comprasPage = 1; initComprasFilters(); loadCompras(); }
   if (page === 'usuarios')     { userPage=1; loadUsuarios(); }
-  if (page === 'categorias')   { catPage=1; renderCategorias(); }
+  if (page === 'segmentos')    { segPage=1; renderSegmentos(); }
   if (page === 'areas')        { areaPage=1; renderAreas(); }
   if (page === 'unidades')     { unidadePage=1; renderUnidades(); }
   if (page === 'fornecedores') { fornPage=1; renderFornecedores(); }
@@ -3019,7 +3112,7 @@ const fixedFilterOptions = {
 };
 
 async function initializeSolicitacaoFilters() {
-  const segmentos = categoriasCache.map(c => [c.nome, c.nome]);
+  const segmentos = segmentosCache.map(c => [c.nome, c.nome]);
   const estabelecimentos = (await loadEstabelecimentosOptions()).map(item => [String(item.id),item.tipo]);
   renderFilterOptions('status', fixedFilterOptions.status);
   renderFilterOptions('prioridade', fixedFilterOptions.prioridade);
@@ -3199,7 +3292,7 @@ async function openDrawer(item = null) {
     document.getElementById('fValor').value       = item.valor_estimado || '';
     selectFornecedorSs(item.fornecedor_sugerido || '', item.fornecedor_sugerido || '');
     setSsValue('estabelecimento', item.estabelecimento_id ? String(item.estabelecimento_id) : '');
-    document.getElementById('fPrioridade2').value = item.prioridade || 'media';
+    setSsValue('prioridade', item.prioridade || 'media');
     document.getElementById('fStatus2').value     = item.status || 'pendente';
     document.getElementById('fDescricao').value   = item.descricao || '';
     document.getElementById('fObs').value         = item.observacoes || '';
@@ -3220,7 +3313,7 @@ async function openDrawer(item = null) {
     loadAnexos(item.id);
   } else {
     document.getElementById('supForm').reset();
-    document.getElementById('fPrioridade2').value = 'media';
+    setSsValue('prioridade', 'media');
     setSsValue('unidade', 'un');
     setSsValue('estabelecimento', '');
     resetFornecedorSs();
@@ -3796,7 +3889,7 @@ let fornecedorSegmentosState = new Set();
 
 function setFornecedorSegmentos(values = []) {
   fornecedorSegmentosState = new Set(values);
-  document.getElementById('fornecedorSegmentosDropdown').innerHTML = categoriasCache.map(categoria => `
+  document.getElementById('fornecedorSegmentosDropdown').innerHTML = segmentosCache.map(categoria => `
     <label class="ms-option">
       <input type="checkbox" value="${categoria.nome}" ${fornecedorSegmentosState.has(categoria.nome) ? 'checked' : ''} onchange="updateFornecedorSegmentos(this)">
       <span class="text-sm text-slate-700">${categoria.nome}</span>
@@ -3829,7 +3922,7 @@ let estabelecimentoSegmentosState = new Set();
 
 function setEstabelecimentoSegmentos(values = []) {
   estabelecimentoSegmentosState = new Set(values);
-  document.getElementById('estabelecimentoSegmentosDropdown').innerHTML = categoriasCache.map(categoria => `
+  document.getElementById('estabelecimentoSegmentosDropdown').innerHTML = segmentosCache.map(categoria => `
     <label class="ms-option">
       <input type="checkbox" value="${categoria.nome}" ${estabelecimentoSegmentosState.has(categoria.nome) ? 'checked' : ''} onchange="updateEstabelecimentoSegmentos(this)">
       <span class="text-sm text-slate-700">${categoria.nome}</span>
@@ -3846,7 +3939,7 @@ function renderEstabelecimentoSegmentos() {
   const values = [...estabelecimentoSegmentosState];
   document.getElementById('estabelecimentoSegmentosTags').innerHTML = values.length
     ? values.map(value => `<span class="ms-tag">${value}</span>`).join('')
-    : '<span class="text-slate-400 text-sm">Selecionar categorias...</span>';
+    : '<span class="text-slate-400 text-sm">Selecionar segmentos...</span>';
 }
 
 function toggleEstabelecimentoSegmentos(event) {
@@ -3859,7 +3952,7 @@ document.addEventListener('click', event => {
 });
 
 const MGMT_TITLES = {
-  categoria:  ['Nova Categoria',   'Editar Categoria'],
+  segmento:   ['Novo Segmento',    'Editar Segmento'],
   area:       ['Nova Área',        'Editar Área'],
   unidade:    ['Nova Unidade',     'Editar Unidade'],
   fornecedor: ['Novo Fornecedor',  'Editar Fornecedor'],
@@ -3867,7 +3960,7 @@ const MGMT_TITLES = {
   item:       ['Novo Item',        'Editar Item'],
 };
 const MGMT_PLACEHOLDERS = {
-  categoria:  'Ex: Material de Escritório',
+  segmento:   'Ex: Material de Escritório',
   area:       'Ex: Cozinha',
   unidade:    'Ex: Unidade',
   fornecedor: 'Ex: Fornecedor ABC Ltda',
@@ -3953,13 +4046,13 @@ async function submitMgmtForm(e) {
     return;
   }
 
-  if (type === 'categoria') {
-    const res = await apiFetch('/api/categorias', { method: 'POST', body: JSON.stringify({ nome }) });
+  if (type === 'segmento') {
+    const res = await apiFetch('/api/segmentos', { method: 'POST', body: JSON.stringify({ nome }) });
     if (res && res.ok) {
       closeMgmtDrawer();
       showToast('Segmento cadastrado!', 'success');
-      await loadCategoriasCache();
-      catPage = 1; renderCategorias(); buildCatOptions();
+      await loadSegmentosCache();
+      segPage = 1; renderSegmentos();
     } else {
       const err = res ? await res.json().catch(() => ({})) : {};
       showToast(err.detail || 'Erro ao salvar segmento.', 'error');
@@ -4037,21 +4130,20 @@ async function submitMgmtForm(e) {
   closeMgmtDrawer();
   showToast(editId ? 'Atualizado com sucesso!' : 'Cadastrado com sucesso!', 'success');
 
-  const renders = { categoria: renderCategorias, area: renderAreas, unidade: renderUnidades, fornecedor: renderFornecedores };
+  const renders = { segmento: renderSegmentos, area: renderAreas, unidade: renderUnidades, fornecedor: renderFornecedores };
   renders[type]();
-  buildCatOptions();
   buildAreaOptions();
   buildUnidadeOptions();
 }
 
 async function deleteMgmtItem(type, id) {
   if (!await showConfirm({ title: 'Confirmar exclusão', msg: 'Este registro será removido permanentemente.' })) return;
-  if (type === 'categoria') {
-    const res = await apiFetch(`/api/categorias/${id}`, { method: 'DELETE' });
+  if (type === 'segmento') {
+    const res = await apiFetch(`/api/segmentos/${id}`, { method: 'DELETE' });
     if (res && (res.ok || res.status === 204)) {
       showToast('Excluído com sucesso.', 'success');
-      await loadCategoriasCache();
-      catPage = 1; renderCategorias(); buildCatOptions();
+      await loadSegmentosCache();
+      segPage = 1; renderSegmentos();
     } else showToast('Erro ao excluir segmento.', 'error');
     return;
   }
@@ -4079,7 +4171,6 @@ async function deleteMgmtItem(type, id) {
   showToast('Excluído com sucesso.', 'success');
   const renders = { area: renderAreas, unidade: renderUnidades, fornecedor: renderFornecedores };
   renders[type]?.();
-  buildCatOptions();
   buildAreaOptions();
   buildUnidadeOptions();
 }
@@ -4217,26 +4308,26 @@ const SOLICITACAO_MENU = item => `
     </button>
   </div>`;
 
-function renderCategorias() {
-  const search = (document.getElementById('catSearch')?.value || '').toLowerCase();
-  const all    = categoriasCache.filter(i => !search || i.nome.toLowerCase().includes(search));
-  const tbody  = document.getElementById('categoriasBody');
-  const empty  = document.getElementById('categoriasEmpty');
-  if (!all.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); document.getElementById('catPagination').innerHTML=''; return; }
+function renderSegmentos() {
+  const search = (document.getElementById('segSearch')?.value || '').toLowerCase();
+  const all    = segmentosCache.filter(i => !search || i.nome.toLowerCase().includes(search));
+  const tbody  = document.getElementById('segmentosBody');
+  const empty  = document.getElementById('segmentosEmpty');
+  if (!all.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); document.getElementById('segmentosPagination').innerHTML=''; return; }
   empty.classList.add('hidden');
   const pages = Math.ceil(all.length / MGMT_PER_PAGE);
-  catPage = Math.min(catPage, pages);
-  const data = all.slice((catPage-1)*MGMT_PER_PAGE, catPage*MGMT_PER_PAGE);
+  segPage = Math.min(segPage, pages);
+  const data = all.slice((segPage-1)*MGMT_PER_PAGE, segPage*MGMT_PER_PAGE);
   tbody.innerHTML = data.map(item => `
     <tr class="row-hover transition-colors">
       <td class="px-5 py-3.5 text-sm">${item.nome}</td>
       <td class="px-5 py-3.5">
-        <div class="flex gap-1">${DEL_BTN('categoria', item.id)}</div>
+        <div class="flex gap-1">${DEL_BTN('segmento', item.id)}</div>
       </td>
     </tr>`).join('');
-  renderMgmtPagination('catPagination', all.length, catPage, pages, 'goPageCat');
+  renderMgmtPagination('segmentosPagination', all.length, segPage, pages, 'goPageSeg');
 }
-function goPageCat(p) { catPage=p; renderCategorias(); }
+function goPageSeg(p) { segPage=p; renderSegmentos(); }
 
 function renderAreas() {
   const search = (document.getElementById('areaSearch')?.value || '').toLowerCase();
@@ -4416,6 +4507,8 @@ async function loadEstabelecimentosOptions(selectedId = '') {
 
 let comprasPage = 1;
 const COMPRAS_LIMIT = 50;
+let comprasSortBy = null;
+let comprasSortDir = 'asc';
 
 // Estado dos filtros de compras
 const comprasFilterState = {
@@ -4441,7 +4534,7 @@ async function initComprasFilters() {
     if (container) {
       container.innerHTML = ordens.map(o =>
         `<label class="filter-ms-option" data-search="${o.label.toLowerCase()}">
-          <input type="checkbox" value="${o.id}" ${comprasFilterState.cOrdem.has(String(o.id)) ? 'checked' : ''}
+          <input type="checkbox" value="${o.ordem_compra}" ${comprasFilterState.cOrdem.has(String(o.ordem_compra)) ? 'checked' : ''}
             onchange="updateComprasFilter('cOrdem',this)">
           <span>${o.label}</span>
         </label>`
@@ -4450,7 +4543,7 @@ async function initComprasFilters() {
   }
 
   // Segmentos
-  const segmentos = categoriasCache.map(c => [c.nome, c.nome]);
+  const segmentos = segmentosCache.map(c => [c.nome, c.nome]);
   renderComprasFilterOptions('cSegmento', segmentos);
 
   // Prioridades
@@ -4512,22 +4605,69 @@ document.addEventListener('click', event => {
 
 function comprasResetAndLoad() { comprasPage = 1; loadCompras(); }
 
+function setComprasSort(field) {
+  if (comprasSortBy === field) {
+    comprasSortDir = comprasSortDir === 'asc' ? 'desc' : 'asc';
+  } else {
+    comprasSortBy = field;
+    comprasSortDir = 'asc';
+  }
+  comprasPage = 1;
+  loadCompras();
+}
+
+function updateComprasSortIndicators() {
+  document.querySelectorAll('[data-compras-sort]').forEach(element => {
+    element.textContent = element.dataset.comprasSort === comprasSortBy
+      ? (comprasSortDir === 'asc' ? '▲' : '▼')
+      : '↕';
+  });
+}
+
+function showComprasEmpty(title, hint = '') {
+  document.getElementById('comprasBody').innerHTML = '';
+  document.getElementById('comprasEmpty').classList.remove('hidden');
+  document.getElementById('comprasEmptyTitle').textContent = title;
+  document.getElementById('comprasEmptyHint').textContent = hint;
+  document.getElementById('comprasPagination').innerHTML = '';
+}
+
 // ── Carrega itens para a tela de Compras ─────────────────────────────────
 async function loadCompras() {
   const params = new URLSearchParams();
   const busca = document.getElementById('cBusca').value.trim();
+  const hasFilter = Boolean(busca) || Object.values(comprasFilterState).some(values => values.size);
+  updateComprasSortIndicators();
+  if (!hasFilter) {
+    comprasItensCache = [];
+    showComprasEmpty(
+      'Filtre uma ordem de serviço ou algum item para iniciar a compra',
+      'Use um dos filtros acima para carregar os itens.',
+    );
+    return;
+  }
   if (busca) params.set('busca', busca);
-  if (comprasFilterState.cOrdem.size)         params.set('ids',            [...comprasFilterState.cOrdem].join(','));
+  if (comprasFilterState.cOrdem.size)         params.set('ordens',         [...comprasFilterState.cOrdem].join(','));
   if (comprasFilterState.cSegmento.size)      params.set('segmento',       [...comprasFilterState.cSegmento].join(','));
   if (comprasFilterState.cPrioridade.size)    params.set('prioridade',     [...comprasFilterState.cPrioridade].join(','));
   if (comprasFilterState.cEstabelecimento.size) params.set('estabelecimento', [...comprasFilterState.cEstabelecimento].join(','));
+  if (comprasSortBy && comprasSortBy !== 'comprado') {
+    params.set('sort_by', comprasSortBy);
+    params.set('sort_dir', comprasSortDir);
+  }
   params.set('page', comprasPage);
   params.set('limit', COMPRAS_LIMIT);
 
   const res = await apiFetch('/api/compras/itens?' + params);
   if (!res) return;
   const data = await res.json();
-  const items = data.items || [];
+  let items = data.items || [];
+  if (comprasSortBy === 'comprado') {
+    const direction = comprasSortDir === 'asc' ? 1 : -1;
+    items = [...items].sort((a, b) =>
+      (Number(Boolean(comprasCheckMap[a.id])) - Number(Boolean(comprasCheckMap[b.id]))) * direction
+    );
+  }
 
   comprasItensCache = items;
 
@@ -4538,9 +4678,7 @@ async function loadCompras() {
   const empty = document.getElementById('comprasEmpty');
 
   if (!items.length) {
-    tbody.innerHTML = '';
-    empty.classList.remove('hidden');
-    document.getElementById('comprasPagination').innerHTML = '';
+    showComprasEmpty('Nenhum item encontrado', 'Ajuste os filtros para tentar novamente.');
     return;
   }
   empty.classList.add('hidden');
@@ -4552,6 +4690,7 @@ async function loadCompras() {
     const estab = s.estabelecimento_tipo || '—';
     return `
       <tr id="compra-row-${s.id}" class="row-hover transition-colors ${rowClass}">
+        <td class="px-5 py-3.5"><span class="text-xs font-mono font-semibold text-amber-700">${s.ordem_compra || '—'}</span></td>
         <td class="px-5 py-3.5"><p class="font-semibold text-sm">${estab}</p></td>
         <td class="px-5 py-3.5">
           <p class="font-medium text-sm">${itemLabel}</p>

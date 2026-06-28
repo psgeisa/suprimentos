@@ -5,7 +5,7 @@ from sqlalchemy import func, case, asc
 
 from app.database import get_db
 from app.models.suprimento import Suprimento
-from app.models.categoria import Categoria
+from app.models.segmento import Segmento
 from app.models.unidade import Unidade
 from app.schemas.suprimento import SuprimentoOut
 from app.auth import get_current_user, get_viewer, require_admin
@@ -50,43 +50,43 @@ def dashboard(db: Session = Depends(get_db), _=Depends(get_viewer)):
     }
 
 
-@router.get("/categorias")
-def categorias(db: Session = Depends(get_db), _=Depends(get_viewer)):
+@router.get("/segmentos")
+def segmentos(db: Session = Depends(get_db), _=Depends(get_viewer)):
     from_suprimentos = {r[0] for r in db.query(Suprimento.categoria).distinct().all() if r[0]}
-    from_categorias = {r[0] for r in db.query(Categoria.nome).filter(Categoria.ativo == True).all()}
-    return sorted(from_suprimentos | from_categorias)
+    from_segmentos = {r[0] for r in db.query(Segmento.nome).filter(Segmento.ativo == True).all()}
+    return sorted(from_suprimentos | from_segmentos)
 
 
-class CategoriaCreate(BaseModel):
+class SegmentoCreate(BaseModel):
     nome: str
 
 
-@router.get("/categorias/list")
-def listar_categorias(db: Session = Depends(get_db), _=Depends(get_viewer)):
-    rows = db.query(Categoria).filter(Categoria.ativo == True).order_by(Categoria.nome).all()
+@router.get("/segmentos/list")
+def listar_segmentos(db: Session = Depends(get_db), _=Depends(get_viewer)):
+    rows = db.query(Segmento).filter(Segmento.ativo == True).order_by(Segmento.nome).all()
     return [{"id": r.id, "nome": r.nome} for r in rows]
 
 
-@router.post("/categorias", status_code=201)
-def criar_categoria(data: CategoriaCreate, db: Session = Depends(get_db), _=Depends(require_admin)):
+@router.post("/segmentos", status_code=201)
+def criar_segmento(data: SegmentoCreate, db: Session = Depends(get_db), _=Depends(require_admin)):
     nome = data.nome.strip()
     if not nome:
         raise HTTPException(400, "Informe o nome do segmento")
-    if db.query(Categoria).filter(Categoria.nome.ilike(nome), Categoria.ativo == True).first():
+    if db.query(Segmento).filter(Segmento.nome.ilike(nome), Segmento.ativo == True).first():
         raise HTTPException(400, "Segmento já cadastrado")
-    cat = Categoria(nome=nome)
-    db.add(cat)
+    seg = Segmento(nome=nome)
+    db.add(seg)
     db.commit()
-    db.refresh(cat)
-    return {"id": cat.id, "nome": cat.nome}
+    db.refresh(seg)
+    return {"id": seg.id, "nome": seg.nome}
 
 
-@router.delete("/categorias/{id}", status_code=204)
-def remover_categoria(id: int, db: Session = Depends(get_db), _=Depends(require_admin)):
-    cat = db.query(Categoria).filter(Categoria.id == id).first()
-    if not cat:
+@router.delete("/segmentos/{id}", status_code=204)
+def remover_segmento(id: int, db: Session = Depends(get_db), _=Depends(require_admin)):
+    seg = db.query(Segmento).filter(Segmento.id == id).first()
+    if not seg:
         raise HTTPException(404, "Segmento não encontrado")
-    cat.ativo = False
+    seg.ativo = False
     db.commit()
 
 
