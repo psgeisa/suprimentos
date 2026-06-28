@@ -2098,7 +2098,7 @@ function buildItemSelectorOptions() {
   container.innerHTML = itensCache.filter(i => i.ativo !== false).map(i =>
     `<label class="ms-option" data-search="${i.nome.toLowerCase()} ${i.segmento.toLowerCase()}">
       <input type="checkbox" value="${i.id}" data-nome="${i.nome}" data-segmento="${i.segmento}" onchange="onItemSelectorChange(this)">
-      <span class="text-sm text-slate-700">${i.nome} <span class="text-xs text-slate-400">${i.segmento}</span></span>
+      <span class="text-sm text-slate-700">${i.nome} <span class="text-xs text-slate-400">(${i.segmento})</span></span>
     </label>`
   ).join('') || '<p class="text-xs text-slate-400 p-3">Nenhum item cadastrado</p>';
   // restore checked state
@@ -2212,17 +2212,14 @@ function renderMultiItemMatrix() {
         onchange="onMatrixFornecedorChange(this)">${fornOpts}</select></td>
       <td class="px-3 py-2"><select data-item="${idx}" data-field="estabelecimento" class="matrix-input w-full border border-slate-200 rounded px-2 py-1.5 text-xs">${estabOpts}</select></td>
       <td class="px-2 py-2">
-        <div class="flex gap-0.5 flex-wrap">
-          ${['baixa','media','alta','urgente'].map(p => {
-            const labels = {baixa:'B',media:'M',alta:'A',urgente:'U'};
-            const cls = {baixa:'prio-pill-b',media:'prio-pill-m',alta:'prio-pill-a',urgente:'prio-pill-u'};
-            const titles = {baixa:'Baixa',media:'Média',alta:'Alta',urgente:'Urgente'};
-            const active = (item.prioridade||'baixa') === p ? 'active' : '';
-            return `<button type="button" class="prio-pill ${cls[p]} ${active}" title="${titles[p]}"
-              onclick="setItemPrio(${idx},'${p}')">${labels[p]}</button>`;
-          }).join('')}
-        </div>
-        ${(item.prioridade === 'urgente') ? `
+        <select class="matrix-input w-full border border-slate-200 rounded px-2 py-1.5 text-xs"
+          onchange="onMatrixPrioChange(this,${idx})">
+          <option value="baixa"   ${(item.prioridade||'baixa')==='baixa'   ?'selected':''}>Baixa</option>
+          <option value="media"   ${item.prioridade==='media'   ?'selected':''}>Média</option>
+          <option value="alta"    ${item.prioridade==='alta'    ?'selected':''}>Alta</option>
+          <option value="urgente" ${item.prioridade==='urgente' ?'selected':''}>Urgente</option>
+        </select>
+        ${item.prioridade === 'urgente' ? `
         <input type="datetime-local" value="${item.prazo_urgente || nextHour()}"
           onchange="setItemPrazo(${idx},this.value)"
           class="mt-1 text-xs border border-red-200 rounded px-1 py-0.5 w-full bg-red-50 text-red-800" />` : ''}
@@ -2533,15 +2530,19 @@ function formatDateLabel(dateStr) {
 // ── Prioridade por item na matriz ──────────────────────────────────────────
 let _urgentePrioIdx = -1;
 
-function setItemPrio(idx, prio) {
-  if (prio === 'urgente') {
+function onMatrixPrioChange(el, idx) {
+  if (el.value === 'urgente') {
     _urgentePrioIdx = idx;
     document.getElementById('modalUrgentePrio').classList.remove('hidden');
-    return;
+  } else {
+    selectedItems[idx].prioridade = el.value;
+    selectedItems[idx].prazo_urgente = null;
+    renderMultiItemMatrix();
   }
-  selectedItems[idx].prioridade = prio;
-  selectedItems[idx].prazo_urgente = null;
-  renderMultiItemMatrix();
+}
+
+function setItemPrio(idx, prio) {
+  onMatrixPrioChange({ value: prio }, idx);
 }
 
 function confirmarUrgentePrio(todos) {
