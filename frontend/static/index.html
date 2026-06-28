@@ -11,6 +11,7 @@
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="/static/vendor/chart.umd.min.js"></script>
+  <script src="/static/vendor/echarts.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     * { font-family: 'Inter', sans-serif; }
@@ -1843,21 +1844,21 @@
       <div class="bi-card">
         <p class="bi-title">Custo por time</p>
         <div class="bi-donut-layout">
-          <div class="bi-donut-canvas"><canvas id="biChartTime"></canvas><div id="biChartTimeCenter" class="bi-donut-center"></div></div>
+          <div class="bi-donut-canvas"><div id="biChartTime" style="width:100%;height:100%;position:relative;"></div><div id="biChartTimeCenter" class="bi-donut-center"></div></div>
           <ul id="biChartTimeLegend" class="bi-legend"></ul>
         </div>
       </div>
       <div class="bi-card">
         <p class="bi-title">Custo por Responsável</p>
         <div class="bi-donut-layout">
-          <div class="bi-donut-canvas"><canvas id="biChartResp"></canvas><div id="biChartRespCenter" class="bi-donut-center"></div></div>
+          <div class="bi-donut-canvas"><div id="biChartResp" style="width:100%;height:100%;position:relative;"></div><div id="biChartRespCenter" class="bi-donut-center"></div></div>
           <ul id="biChartRespLegend" class="bi-legend"></ul>
         </div>
       </div>
       <div class="bi-card">
         <p class="bi-title">Custo por Solicitante</p>
         <div class="bi-donut-layout">
-          <div class="bi-donut-canvas"><canvas id="biChartSol"></canvas><div id="biChartSolCenter" class="bi-donut-center"></div></div>
+          <div class="bi-donut-canvas"><div id="biChartSol" style="width:100%;height:100%;position:relative;"></div><div id="biChartSolCenter" class="bi-donut-center"></div></div>
           <ul id="biChartSolLegend" class="bi-legend"></ul>
         </div>
       </div>
@@ -7191,7 +7192,11 @@ async function loadCustosBi() {
 }
 
 function destroyBiChart(id) {
-  if (biCharts[id]) { biCharts[id].destroy(); delete biCharts[id]; }
+  if (biCharts[id]) {
+    if (typeof biCharts[id].dispose === 'function') biCharts[id].dispose();
+    else if (typeof biCharts[id].destroy === 'function') biCharts[id].destroy();
+    delete biCharts[id];
+  }
 }
 
 function biBarOptions() {
@@ -7309,25 +7314,28 @@ function renderBiCharts(d) {
     options: biBarOptions(),
   });
 
-  // ── 5-7. Rose (Nightingale) ──────────────────────────────────────────────
+  // ── 5-7. Rose (Nightingale / ECharts) ───────────────────────────────────
   function renderDonut(canvasId, centerId, legendId, rows, keyField, valueField) {
     destroyBiChart(canvasId);
     const total = rows.reduce((s, r) => s + r[valueField], 0);
     const ctr = document.getElementById(centerId);
     ctr.innerHTML = `<span class="bi-total">Total</span><span class="bi-value">${fmtBRL(total)}</span>`;
 
-    biCharts[canvasId] = new Chart(document.getElementById(canvasId), {
-      type: 'polarArea',
-      data: {
-        labels: rows.map(r => r[keyField]),
-        datasets: [{ data: rows.map(r => r[valueField]), backgroundColor: rows.map((_, i) => biColor(i) + 'cc'), borderWidth: 1.5, borderColor: rows.map((_, i) => biColor(i)) }],
-      },
-      options: {
-        responsive: true, maintainAspectRatio: false,
-        scales: { r: { display: false, ticks: { display: false }, grid: { display: false } } },
-        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${fmtBRL(ctx.parsed.r)}` } } },
-      },
+    const chart = echarts.init(document.getElementById(canvasId), dark ? 'dark' : null, { renderer: 'canvas' });
+    chart.setOption({
+      backgroundColor: 'transparent',
+      tooltip: { trigger: 'item', formatter: p => `${p.name}<br/>${fmtBRL(p.value)}` },
+      series: [{
+        type: 'pie',
+        radius: ['15%', '75%'],
+        center: ['50%', '50%'],
+        roseType: 'area',
+        itemStyle: { borderRadius: 6 },
+        label: { show: false },
+        data: rows.map((r, i) => ({ value: r[valueField], name: r[keyField], itemStyle: { color: biColor(i) } })),
+      }],
     });
+    biCharts[canvasId] = chart;
 
     const legend = document.getElementById(legendId);
     legend.innerHTML = rows.slice(0, 8).map((r, i) => {
