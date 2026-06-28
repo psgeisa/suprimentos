@@ -1,52 +1,141 @@
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
+
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from sqlalchemy import func, case, asc
+from sqlalchemy import func, or_
 
 from app.database import get_db
 from app.models.suprimento import Suprimento
+from app.models.estabelecimento import Estabelecimento
 from app.models.segmento import Segmento
 from app.models.unidade import Unidade
-from app.schemas.suprimento import SuprimentoOut
-from app.auth import get_current_user, get_viewer, require_admin
+from app.auth import get_viewer, require_admin
 
 router = APIRouter(prefix="/api", tags=["dashboard"])
 
 
 @router.get("/dashboard")
 def dashboard(db: Session = Depends(get_db), _=Depends(get_viewer)):
-    total = db.query(func.count(Suprimento.id)).scalar()
+    now_local = datetime.now(ZoneInfo("America/Sao_Paulo"))
+    month_start_local = now_local.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    if month_start_local.month == 12:
+        next_month_local = month_start_local.replace(
+            year=month_start_local.year + 1,
+            month=1,
+        )
+    else:
+        next_month_local = month_start_local.replace(month=month_start_local.month + 1)
+    month_start = month_start_local.astimezone(timezone.utc).replace(tzinfo=None)
+    next_month = next_month_local.astimezone(timezone.utc).replace(tzinfo=None)
+    month_filter = (
+        Suprimento.created_at >= month_start,
+        Suprimento.created_at < next_month,
+    )
+
+    total = db.query(func.count(Suprimento.id)).filter(*month_filter).scalar()
     por_status = dict(
         db.query(Suprimento.status, func.count(Suprimento.id))
+        .filter(*month_filter)
         .group_by(Suprimento.status)
         .all()
     )
     por_prioridade = dict(
         db.query(Suprimento.prioridade, func.count(Suprimento.id))
+        .filter(*month_filter)
         .group_by(Suprimento.prioridade)
         .all()
     )
-    valor_total = db.query(func.sum(Suprimento.valor_estimado)).scalar() or 0
-    _prio_order = case(
-        (Suprimento.prioridade == 'urgente', 0),
-        (Suprimento.prioridade == 'alta', 1),
-        else_=2,
+    valor_total = (
+        db.query(func.sum(Suprimento.valor_estimado))
+        .filter(*month_filter)
+        .scalar()
+        or 0
     )
+
     importantes = (
         db.query(Suprimento)
-        .filter(Suprimento.prioridade.in_(['urgente', 'alta']))
-        .filter(Suprimento.status.notin_(['concluido', 'cancelado']))
-        .order_by(_prio_order, Suprimento.created_at.desc())
+        .filter(*month_filter)
+        .filter(Suprimento.status == "pendente")
+        .filter(
+            or_(
+                Suprimento.emergencia == 1,
+                Suprimento.prioridade == "urgente",
+            )
+        )
+        .order_by(Suprimento.created_at.desc())
         .limit(5)
         .all()
     )
-    recentes = importantes
+
+    month_items = (
+        db.query(Suprimento)
+        .filter(*month_filter)
+        .order_by(Suprimento.created_at.desc())
+        .limit(1000)
+        .all()
+    )
+    establishment_ids = {
+        item.estabelecimento_id
+        for item in (importantes + month_items)
+        if item.estabelecimento_id
+    }
+    establishment_map = {}
+    if establishment_ids:
+        establishments = (
+            db.query(Estabelecimento)
+            .filter(Estabelecimento.id.in_(establishment_ids))
+            .all()
+        )
+        establishment_map = {item.id: item.tipo for item in establishments}
+
+    if importantes:
+        preview_type = "emergencias"
+        preview = [
+            {
+                "id": item.id,
+                "item": item.item_nome or item.titulo,
+                "estabelecimento": establishment_map.get(item.estabelecimento_id) or "—",
+                "solicitante": item.solicitante,
+                "data_solicitacao": item.created_at.isoformat() if item.created_at else None,
+                "data_conclusao_necessaria": item.prazo_emergencia or item.data_necessidade,
+            }
+            for item in importantes
+        ]
+    else:
+        preview_type = "ordens_recentes"
+        grouped_orders = {}
+        for item in month_items:
+            order_code = item.ordem_compra or f"SOL{item.id:04d}"
+            if order_code not in grouped_orders:
+                if len(grouped_orders) >= 5:
+                    continue
+                grouped_orders[order_code] = {
+                    "id": item.id,
+                    "ordem": order_code,
+                    "estabelecimentos": [],
+                    "solicitantes": [],
+                    "data_solicitacao": item.created_at.isoformat() if item.created_at else None,
+                }
+            group = grouped_orders.get(order_code)
+            if not group:
+                continue
+            establishment = establishment_map.get(item.estabelecimento_id)
+            if establishment and establishment not in group["estabelecimentos"]:
+                group["estabelecimentos"].append(establishment)
+            if item.solicitante and item.solicitante not in group["solicitantes"]:
+                group["solicitantes"].append(item.solicitante)
+        preview = list(grouped_orders.values())
+
     return {
         "total": total,
         "por_status": por_status,
         "por_prioridade": por_prioridade,
         "valor_total_estimado": round(valor_total, 2),
-        "recentes": [SuprimentoOut.model_validate(r) for r in recentes],
+        "mes_referencia": month_start_local.strftime("%Y-%m"),
+        "preview_tipo": preview_type,
+        "preview": preview,
     }
 
 

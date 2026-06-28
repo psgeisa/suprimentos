@@ -894,7 +894,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div class="card-glass lg:col-span-2 bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="font-bold text-slate-700">Solicitações Importantes</h2>
+          <h2 id="dashboardPreviewTitle" class="font-bold text-slate-700">Solicitações Importantes</h2>
           <button onclick="showPage('suprimentos')" class="text-xs font-semibold text-amber-700 hover:text-amber-900 flex items-center gap-1 transition-colors">
             Ver mais
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
@@ -3170,6 +3170,15 @@ async function loadDashboard() {
   const res = await apiFetch('/api/dashboard');
   if (!res) return;
   const data = await res.json();
+  const [referenceYear, referenceMonth] = (data.mes_referencia || '').split('-').map(Number);
+  const referenceLabel = referenceYear && referenceMonth
+    ? new Date(referenceYear, referenceMonth - 1, 1).toLocaleDateString('pt-BR', {
+        month: 'long',
+        year: 'numeric',
+      })
+    : '';
+  document.getElementById('pageSubtitle').innerHTML =
+    `Visão geral do sistema ${referenceLabel ? `<span class="text-slate-400">(${referenceLabel})</span>` : ''}`;
 
   const kpis = [
     { label:'Total de Solicitações', value: data.total, icon:'📋', color:'from-indigo-500 to-purple-600' },
@@ -3185,24 +3194,41 @@ async function loadDashboard() {
       <p class="text-xs text-slate-500 mt-1">${k.label}</p>
     </div>`).join('');
 
-  const PRIO_LABEL = { urgente:'Urgente', alta:'Alta', media:'Média', baixa:'Baixa' };
-  const PRIO_CLASS = { urgente:'bg-red-100 text-red-700', alta:'bg-orange-100 text-orange-700', media:'bg-amber-100 text-amber-700', baixa:'bg-slate-100 text-slate-500' };
-  document.getElementById('recentList').innerHTML = data.recentes.length
-    ? data.recentes.map(s => `
-      <div class="recent-request-item flex items-center justify-between p-3 rounded-xl cursor-pointer" onclick="showDetail(${s.id})">
-        <div class="flex items-center gap-3 min-w-0">
-          <div class="w-9 h-9 gradient-card rounded-lg flex items-center justify-center text-white text-xs font-bold flex-shrink-0">#${s.id}</div>
-          <div class="min-w-0">
-            <p class="text-sm font-semibold text-slate-700 leading-tight truncate">${s.titulo}</p>
-            <p class="text-xs text-slate-400">${s.solicitante} · ${s.departamento}</p>
-          </div>
+  const dashboardDate = value => {
+    if (!value) return '—';
+    const parsed = new Date(value.length === 10 ? `${value}T00:00:00` : value);
+    return Number.isNaN(parsed.getTime()) ? value : parsed.toLocaleString('pt-BR');
+  };
+  const preview = data.preview || [];
+  const isEmergencyPreview = data.preview_tipo === 'emergencias';
+  document.getElementById('dashboardPreviewTitle').textContent = isEmergencyPreview
+    ? 'Solicitações Importantes'
+    : 'Ordens de Compra Mais Recentes';
+  document.getElementById('recentList').innerHTML = preview.length
+    ? preview.map(item => isEmergencyPreview ? `
+      <div class="recent-request-item p-4 rounded-xl cursor-pointer" onclick="showDetail(${item.id})">
+        <div class="flex items-center justify-between gap-3 mb-2">
+          <p class="text-sm font-bold text-slate-700 truncate">${item.item}</p>
+          <span class="bg-red-100 text-red-700 text-xs px-2 py-1 rounded-full font-semibold whitespace-nowrap">🚨 Emergencial</span>
         </div>
-        <div class="flex items-center gap-2 ml-2 flex-shrink-0">
-          <span class="text-xs px-2 py-0.5 rounded-full font-semibold ${PRIO_CLASS[s.prioridade]||''}">${PRIO_LABEL[s.prioridade]||s.prioridade}</span>
-          <span class="badge-${s.status} text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap">${STATUS_LABEL[s.status]||s.status}</span>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-xs">
+          <p class="text-slate-500"><span class="font-semibold">Estabelecimento:</span> ${item.estabelecimento}</p>
+          <p class="text-slate-500"><span class="font-semibold">Solicitante:</span> ${item.solicitante}</p>
+          <p class="text-slate-400"><span class="font-semibold">Solicitado em:</span> ${dashboardDate(item.data_solicitacao)}</p>
+          <p class="text-red-500"><span class="font-semibold">Conclusão necessária:</span> ${dashboardDate(item.data_conclusao_necessaria)}</p>
+        </div>
+      </div>` : `
+      <div class="recent-request-item p-4 rounded-xl cursor-pointer" onclick="showDetail(${item.id})">
+        <div class="flex items-center justify-between gap-3 mb-2">
+          <p class="text-sm font-bold text-slate-700">${item.ordem}</p>
+          <span class="text-xs text-slate-400">${dashboardDate(item.data_solicitacao)}</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1 text-xs">
+          <p class="text-slate-500"><span class="font-semibold">Estabelecimentos:</span> ${(item.estabelecimentos || []).join(', ') || '—'}</p>
+          <p class="text-slate-500"><span class="font-semibold">Solicitantes:</span> ${(item.solicitantes || []).join(', ') || '—'}</p>
         </div>
       </div>`).join('')
-    : '<p class="text-slate-400 text-sm text-center py-8">Nenhuma solicitação urgente ou de alta prioridade</p>';
+    : '<p class="text-slate-400 text-sm text-center py-8">Nenhuma solicitação encontrada no mês de referência</p>';
 
   const statusColors = { pendente:'#F59E0B', aprovado:'#10B981', em_andamento:'#3B82F6', concluido:'#6366F1', cancelado:'#EF4444' };
   const total = data.total || 1;
