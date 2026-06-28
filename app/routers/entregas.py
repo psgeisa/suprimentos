@@ -334,7 +334,7 @@ def finalizar_entregas(
         )
         if not item:
             continue
-        item.status = "concluido"
+        item.status = "entregue"
         item.responsavel_entrega = (
             delivered_item.responsavel or item.responsavel_entrega or ""
         ).strip() or None

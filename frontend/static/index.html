@@ -409,6 +409,14 @@
     .dark #page-entregas .ms-option { color:#fff !important; }
     .dark #page-entregas .ms-option:hover { background:#30343B !important; }
 
+    /* ── Dark mode — Aprovações ─── */
+    .dark #page-aprovacoes table { color: rgba(255,255,255,0.87); }
+    .dark #page-aprovacoes input,
+    .dark #page-aprovacoes select { color:#fff !important; background:rgba(0,0,0,0.45) !important; border-color:rgba(212,165,32,0.3) !important; }
+    .dark #page-aprovacoes input::placeholder { color:rgba(255,255,255,0.4) !important; }
+    .dark #page-aprovacoes .ms-trigger { background:#0d0d0d !important; border-color:rgba(212,165,32,0.3) !important; color:#fff !important; }
+    .dark #page-aprovacoes .aprov-teto-header { color: rgba(255,255,255,0.87) !important; }
+
     /* ── Modal Finalizar Compra ── */
     #modalFinalizarCompra .itens-pendentes-list { max-height: 220px; overflow-y: auto; }
     .dark #modalFinalizarCompra > div { background: rgba(10,10,10,0.97) !important; border: 1px solid rgba(212,165,32,0.2); }
@@ -766,6 +774,14 @@
       </svg>
       <span class="sidebar-label">Solicitações</span>
     </a>
+    <a id="sidebarAprovacoesItem" onclick="showPage('aprovacoes')" data-tip="Aprovações"
+      class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-yellow-200 hover:text-white text-sm font-medium cursor-pointer transition-all" style="display:none">
+      <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      <span class="sidebar-label">Aprovações</span>
+    </a>
     <a id="sidebarComprasItem" onclick="showPage('compras')" data-tip="Compras"
       class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-yellow-200 hover:text-white text-sm font-medium cursor-pointer transition-all" style="display:none">
       <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -978,6 +994,59 @@
     </div>
   </section>
 
+  <!-- ── Aprovações ── -->
+<section id="page-aprovacoes" class="p-8 hidden" style="min-height:calc(100vh - 73px)">
+  <div class="filter-bar">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+      <input id="aBusca" type="text" placeholder="Ordem, item, segmento, estabelecimento..."
+        class="border border-slate-200 rounded-lg px-3 py-2 text-sm" oninput="aprovacoesResetAndLoad()" />
+      <div class="filter-ms" data-filter="aOrdem"><button type="button" class="ms-trigger w-full" onclick="toggleAprovacoesFilter('aOrdem',event)"><span id="filterAOrdemLabel">Ordem de Aprovação</span><span>▾</span></button><div id="filterAOrdemMenu" class="filter-ms-menu hidden"><input class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs mb-2" placeholder="Pesquisar ID..." oninput="searchAprovacoesFilter('aOrdem',this.value)"><div id="filterAOrdemOptions"></div></div></div>
+      <div class="filter-ms" data-filter="aSegmento"><button type="button" class="ms-trigger w-full" onclick="toggleAprovacoesFilter('aSegmento',event)"><span id="filterASegmentoLabel">Segmentos</span><span>▾</span></button><div id="filterASegmentoMenu" class="filter-ms-menu hidden"><input class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs mb-2" placeholder="Pesquisar..." oninput="searchAprovacoesFilter('aSegmento',this.value)"><div id="filterASegmentoOptions"></div></div></div>
+      <div class="filter-ms" data-filter="aPrioridade"><button type="button" class="ms-trigger w-full" onclick="toggleAprovacoesFilter('aPrioridade',event)"><span id="filterAPrioridadeLabel">Prioridades</span><span>▾</span></button><div id="filterAPrioridadeMenu" class="filter-ms-menu hidden"><input class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs mb-2" placeholder="Pesquisar..." oninput="searchAprovacoesFilter('aPrioridade',this.value)"><div id="filterAPrioridadeOptions"></div></div></div>
+      <div class="filter-ms" data-filter="aEstabelecimento"><button type="button" class="ms-trigger w-full" onclick="toggleAprovacoesFilter('aEstabelecimento',event)"><span id="filterAEstabelecimentoLabel">Estabelecimento</span><span>▾</span></button><div id="filterAEstabelecimentoMenu" class="filter-ms-menu hidden"><input class="w-full border border-slate-200 rounded-lg px-2 py-1.5 text-xs mb-2" placeholder="Pesquisar..." oninput="searchAprovacoesFilter('aEstabelecimento',this.value)"><div id="filterAEstabelecimentoOptions"></div></div></div>
+    </div>
+  </div>
+
+  <div class="card-glass bg-white rounded-2xl shadow-sm border border-slate-100" style="overflow-x:auto;">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="bg-slate-50 border-b border-slate-100">
+          <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none" onclick="setAprovacoesSort('ordem')"><div class="flex flex-col items-start gap-0.5"><span>Ordem</span><span class="text-amber-400 text-[10px] font-normal normal-case" data-aprov-sort="ordem">↕</span></div></th>
+          <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none" onclick="setAprovacoesSort('estabelecimento')"><div class="flex flex-col items-start gap-0.5"><span>Estab.</span><span class="text-amber-400 text-[10px] font-normal normal-case" data-aprov-sort="estabelecimento">↕</span></div></th>
+          <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none" onclick="setAprovacoesSort('item')"><div class="flex flex-col items-start gap-0.5"><span>Item</span><span class="text-amber-400 text-[10px] font-normal normal-case" data-aprov-sort="item">↕</span></div></th>
+          <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none" onclick="setAprovacoesSort('segmento')"><div class="flex flex-col items-start gap-0.5"><span>Segmento</span><span class="text-amber-400 text-[10px] font-normal normal-case" data-aprov-sort="segmento">↕</span></div></th>
+          <th class="text-center px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none" onclick="setAprovacoesSort('prioridade')"><div class="flex flex-col items-center gap-0.5"><span>Prioridade</span><span class="text-amber-400 text-[10px] font-normal normal-case" data-aprov-sort="prioridade">↕</span></div></th>
+          <th class="text-center px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none" onclick="setAprovacoesSort('aprovado')"><div class="flex flex-col items-center gap-0.5"><span>Aprovado</span><span class="text-amber-400 text-[10px] font-normal normal-case" data-aprov-sort="aprovado">↕</span></div></th>
+          <th class="text-center px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide w-20">Eliminar</th>
+          <th class="aprov-teto-header text-center px-5 py-3 font-semibold text-xs uppercase tracking-wide">
+            <div class="flex flex-col items-center gap-0.5">
+              <span class="flex items-center gap-1">
+                Teto de Gasto
+                <span class="relative group cursor-help">
+                  <svg class="w-3.5 h-3.5 text-slate-400 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 16v-4m0-4h.01"/></svg>
+                  <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 bg-slate-800 text-white text-xs rounded-lg px-3 py-2 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 normal-case font-normal text-left leading-relaxed">
+                    Valor estimado pelo solicitante acrescido de 20% de margem. Pode ser editado antes da aprovação.
+                  </span>
+                </span>
+              </span>
+              <span id="aprovacoesTotalHeader" class="block text-sm mt-1 normal-case font-semibold text-slate-600">R$ 0,00</span>
+            </div>
+          </th>
+        </tr>
+      </thead>
+      <tbody id="aprovacoesBody" class="divide-y divide-slate-50"></tbody>
+    </table>
+    <div id="aprovacoesEmpty" class="hidden flex flex-col items-center py-16 text-slate-400">
+      <svg class="w-12 h-12 mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      <p id="aprovacoesEmptyTitle" class="font-medium">Filtre uma ordem ou item para iniciar a aprovação</p>
+      <p id="aprovacoesEmptyHint" class="text-xs mt-1">Use um dos filtros acima para carregar os itens.</p>
+    </div>
+    <div id="aprovacoesPagination" class="px-5 py-4 border-t border-slate-100"></div>
+  </div>
+</section>
+
   <!-- ── Compras ── -->
   <section id="page-compras" class="p-8 hidden" style="min-height:calc(100vh - 73px)">
     <div class="filter-bar">
@@ -995,12 +1064,12 @@
       <table class="w-full text-sm">
         <thead>
           <tr class="bg-slate-50 border-b border-slate-100">
-            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none" onclick="setComprasSort('ordem')">Ordem <span data-compras-sort="ordem"></span></th>
-            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none" onclick="setComprasSort('estabelecimento')">Estab. <span data-compras-sort="estabelecimento"></span></th>
-            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none" onclick="setComprasSort('item')">Item <span data-compras-sort="item"></span></th>
-            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none" onclick="setComprasSort('segmento')">Segmento <span data-compras-sort="segmento"></span></th>
-            <th class="text-center px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none" onclick="setComprasSort('prioridade')">Prioridade <span data-compras-sort="prioridade"></span></th>
-            <th class="text-center px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none" onclick="setComprasSort('comprado')">Comprado <span data-compras-sort="comprado"></span></th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none" onclick="setComprasSort('ordem')"><div class="flex flex-col items-start gap-0.5"><span>Ordem</span><span class="text-amber-400 text-[10px] font-normal normal-case" data-compras-sort="ordem">↕</span></div></th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none" onclick="setComprasSort('estabelecimento')"><div class="flex flex-col items-start gap-0.5"><span>Estab.</span><span class="text-amber-400 text-[10px] font-normal normal-case" data-compras-sort="estabelecimento">↕</span></div></th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none" onclick="setComprasSort('item')"><div class="flex flex-col items-start gap-0.5"><span>Item</span><span class="text-amber-400 text-[10px] font-normal normal-case" data-compras-sort="item">↕</span></div></th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none" onclick="setComprasSort('segmento')"><div class="flex flex-col items-start gap-0.5"><span>Segmento</span><span class="text-amber-400 text-[10px] font-normal normal-case" data-compras-sort="segmento">↕</span></div></th>
+            <th class="text-center px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none" onclick="setComprasSort('prioridade')"><div class="flex flex-col items-center gap-0.5"><span>Prioridade</span><span class="text-amber-400 text-[10px] font-normal normal-case" data-compras-sort="prioridade">↕</span></div></th>
+            <th class="text-center px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none" onclick="setComprasSort('comprado')"><div class="flex flex-col items-center gap-0.5"><span>Comprado</span><span class="text-amber-400 text-[10px] font-normal normal-case" data-compras-sort="comprado">↕</span></div></th>
             <th class="text-center px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide w-20">Eliminar</th>
             <th class="compra-valor-header text-center px-5 py-3 font-semibold text-xs uppercase tracking-wide">
               <span class="block">Valor da Compra</span>
@@ -1047,7 +1116,6 @@
             <th class="text-center px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Entregue</th>
             <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide min-w-56">Responsável</th>
             <th class="text-center px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide min-w-48">Foto do Recebedor</th>
-            <th class="text-right px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Valor da Compra</th>
           </tr>
         </thead>
         <tbody id="entregasBody" class="divide-y divide-slate-50"></tbody>
@@ -3044,14 +3112,17 @@ function applyLogin() {
   } else {
     adminGroup.style.setProperty('display', 'none', 'important');
   }
-  // Mostrar Compras para compras e admin
+  // Mostrar Aprovações, Compras e Entregas para compras e admin
+  const aprovacoesItem = document.getElementById('sidebarAprovacoesItem');
   const comprasItem = document.getElementById('sidebarComprasItem');
   const entregasItem = document.getElementById('sidebarEntregasItem');
   if (comprasItem) {
     if (normalizedRole === 'compras' || normalizedRole === 'admin') {
+      aprovacoesItem?.style.setProperty('display', 'flex', 'important');
       comprasItem.style.setProperty('display', 'flex', 'important');
       entregasItem?.style.setProperty('display', 'flex', 'important');
     } else {
+      aprovacoesItem?.style.setProperty('display', 'none', 'important');
       comprasItem.style.setProperty('display', 'none', 'important');
       entregasItem?.style.setProperty('display', 'none', 'important');
     }
@@ -3193,6 +3264,7 @@ function showPage(page) {
   const titles = {
     dashboard:    ['Dashboard',         'Visão geral do sistema'],
     suprimentos:  ['Solicitações',      'Gerenciar todas as solicitações'],
+    aprovacoes:   ['Aprovações',       'Revisar e aprovar solicitações de suprimentos'],
     compras:      ['Compras',           'Executar e registrar compras de suprimentos'],
     entregas:     ['Entregas',          'Registrar responsáveis e concluir entregas'],
     usuarios:     ['Stakeholders',      'Gerenciar contas de acesso'],
@@ -3206,7 +3278,11 @@ function showPage(page) {
   document.getElementById('pageTitle').textContent    = titles[page][0];
   document.getElementById('pageSubtitle').textContent = titles[page][1];
 
-  if (page === 'compras') {
+  if (page === 'aprovacoes') {
+    headerNovaBtn.style.display = '';
+    headerNovaBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Finalizar Aprovação';
+    headerNovaBtn.onclick = finalizarAprovacao;
+  } else if (page === 'compras') {
     headerNovaBtn.style.display = '';
     headerNovaBtn.textContent = '';
     headerNovaBtn.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Finalizar Compra';
@@ -3223,6 +3299,7 @@ function showPage(page) {
 
   if (page === 'dashboard')    loadDashboard();
   if (page === 'suprimentos')  { supPage = 1; initializeSolicitacaoFilters(); loadSuprimentos(); }
+  if (page === 'aprovacoes')   { aprovacoesPage = 1; initAprovacoesFilters(); loadAprovacoes(); }
   if (page === 'compras')      { comprasPage = 1; initComprasFilters(); loadCompras(); }
   if (page === 'entregas')     { entregasPage = 1; initEntregasFilters(); loadEntregas(); }
   if (page === 'usuarios')     { userPage=1; loadUsuarios(); }
@@ -5325,6 +5402,341 @@ document.getElementById('modalFinalizarCompra').addEventListener('click', e => {
   if (e.target === document.getElementById('modalFinalizarCompra')) fecharModalFinalizar();
 });
 
+// ── Aprovações ──────────────────────────────────────────────────────────────
+let aprovacoesPage = 1;
+const APROVACOES_LIMIT = 50;
+let aprovacoesSortBy = null;
+let aprovacoesSortDir = 'asc';
+
+const aprovacoesFilterState = {
+  aOrdem: new Set(),
+  aSegmento: new Set(),
+  aPrioridade: new Set(),
+  aEstabelecimento: new Set(),
+};
+
+let aprovacoesCheckMap = {};
+let aprovacoesTetoMap = {};
+let aprovacoesItensCache = [];
+
+async function initAprovacoesFilters() {
+  const res = await apiFetch('/api/aprovacoes/filtros');
+  if (!res || !res.ok) return;
+  const filtros = await res.json();
+  renderAprovacoesFilterOptions('aOrdem',          (filtros.ordens          || []).map(o => [o.value, o.label]));
+  renderAprovacoesFilterOptions('aSegmento',       (filtros.segmentos       || []).map(s => [s, s]));
+  renderAprovacoesFilterOptions('aPrioridade',     (filtros.prioridades     || []).map(p => [p.value, p.label]));
+  renderAprovacoesFilterOptions('aEstabelecimento',(filtros.estabelecimentos|| []).map(e => [e.value, e.label]));
+}
+
+function renderAprovacoesFilterOptions(type, options) {
+  const container = document.getElementById(`filter${type[0].toUpperCase()+type.slice(1)}Options`);
+  if (!container) return;
+  container.innerHTML = options.map(([value, label]) =>
+    `<label class="filter-ms-option" data-search="${String(label).toLowerCase()}">
+      <input type="checkbox" value="${value}" ${aprovacoesFilterState[type].has(String(value)) ? 'checked' : ''}
+        onchange="updateAprovacoesFilter('${type}',this)">
+      <span>${label}</span>
+    </label>`
+  ).join('') || '<p class="text-xs text-slate-400 p-2">Nenhum registro</p>';
+}
+
+function toggleAprovacoesFilter(type, event) {
+  event.stopPropagation();
+  const target = document.getElementById(`filter${type[0].toUpperCase()+type.slice(1)}Menu`);
+  document.querySelectorAll('#page-aprovacoes .filter-ms-menu').forEach(m => { if (m !== target) m.classList.add('hidden'); });
+  target.classList.toggle('hidden');
+}
+
+function searchAprovacoesFilter(type, term) {
+  const q = term.trim().toLowerCase();
+  const container = document.getElementById(`filter${type[0].toUpperCase()+type.slice(1)}Options`);
+  if (!container) return;
+  container.querySelectorAll('.filter-ms-option').forEach(opt =>
+    opt.classList.toggle('hidden', Boolean(q) && !opt.dataset.search.includes(q))
+  );
+}
+
+function updateAprovacoesFilter(type, checkbox) {
+  checkbox.checked
+    ? aprovacoesFilterState[type].add(String(checkbox.value))
+    : aprovacoesFilterState[type].delete(String(checkbox.value));
+  const defaults = { aOrdem:'Ordem de Aprovação', aSegmento:'Segmentos', aPrioridade:'Prioridades', aEstabelecimento:'Estabelecimento' };
+  const labelEl = document.getElementById(`filterA${type[1].toUpperCase()+type.slice(2)}Label`);
+  if (labelEl) labelEl.textContent = aprovacoesFilterState[type].size
+    ? `${defaults[type]} (${aprovacoesFilterState[type].size})`
+    : defaults[type];
+  aprovacoesResetAndLoad();
+}
+
+document.addEventListener('click', event => {
+  if (!event.target.closest('#page-aprovacoes .filter-ms'))
+    document.querySelectorAll('#page-aprovacoes .filter-ms-menu').forEach(m => m.classList.add('hidden'));
+});
+
+function aprovacoesResetAndLoad() { aprovacoesPage = 1; loadAprovacoes(); }
+
+function setAprovacoesSort(field) {
+  if (aprovacoesSortBy === field) {
+    aprovacoesSortDir = aprovacoesSortDir === 'asc' ? 'desc' : 'asc';
+  } else {
+    aprovacoesSortBy = field;
+    aprovacoesSortDir = 'asc';
+  }
+  aprovacoesPage = 1;
+  loadAprovacoes();
+}
+
+function updateAprovacoesSortIndicators() {
+  document.querySelectorAll('[data-aprov-sort]').forEach(el => {
+    el.textContent = el.dataset.aprovSort === aprovacoesSortBy
+      ? (aprovacoesSortDir === 'asc' ? '▲' : '▼')
+      : '↕';
+  });
+}
+
+function showAprovacoesEmpty(title = 'Filtre uma ordem ou item para iniciar a aprovação', hint = 'Use um dos filtros acima para carregar os itens.') {
+  document.getElementById('aprovacoesBody').innerHTML = '';
+  document.getElementById('aprovacoesEmpty').classList.remove('hidden');
+  const ps = document.getElementById('aprovacoesEmpty').querySelectorAll('p');
+  if (ps[0]) ps[0].textContent = title;
+  if (ps[1]) ps[1].textContent = hint;
+  document.getElementById('aprovacoesPagination').innerHTML = '';
+  updateAprovacoesTotal();
+}
+
+function updateAprovacoesTotal() {
+  const total = aprovacoesItensCache.reduce((sum, i) => {
+    const teto = aprovacoesTetoMap[i.id] ?? i.teto_gasto ?? 0;
+    return sum + (aprovacoesCheckMap[i.id] ? teto : 0);
+  }, 0);
+  const el = document.getElementById('aprovacoesTotalHeader');
+  if (el) el.textContent = `R$ ${total.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+}
+
+function formatAprovacaoTeto(value) {
+  if (!value && value !== 0) return '';
+  return Number(value).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+function parseAprovacaoTeto(value) {
+  const normalized = String(value || '').replace(/\./g, '').replace(',', '.');
+  const amount = Number(normalized);
+  return Number.isFinite(amount) && amount > 0 ? amount : 0;
+}
+
+async function onAprovacaoTetoBlur(id, input) {
+  const valor = parseAprovacaoTeto(input.value);
+  if (valor > 0) {
+    input.value = formatAprovacaoTeto(valor);
+    aprovacoesTetoMap[id] = valor;
+  } else {
+    delete aprovacoesTetoMap[id];
+  }
+  await apiFetch(`/api/aprovacoes/${id}/teto`, {
+    method: 'PUT',
+    body: JSON.stringify({ teto_gasto: valor > 0 ? valor : null }),
+  });
+  updateAprovacoesTotal();
+}
+
+function onAprovacaoTetoInput(id, input) {
+  aprovacoesTetoMap[id] = parseAprovacaoTeto(input.value) || undefined;
+  updateAprovacoesTotal();
+}
+
+async function loadAprovacoes() {
+  const params = new URLSearchParams();
+  const busca = document.getElementById('aBusca').value.trim();
+  const hasFilter = Boolean(busca) || Object.values(aprovacoesFilterState).some(s => s.size);
+  updateAprovacoesSortIndicators();
+  if (!hasFilter) {
+    aprovacoesItensCache = [];
+    showAprovacoesEmpty();
+    return;
+  }
+  if (busca) params.set('busca', busca);
+  if (aprovacoesFilterState.aOrdem.size)          params.set('ordens',         [...aprovacoesFilterState.aOrdem].join(','));
+  if (aprovacoesFilterState.aSegmento.size)       params.set('segmento',       [...aprovacoesFilterState.aSegmento].join(','));
+  if (aprovacoesFilterState.aPrioridade.size)     params.set('prioridade',     [...aprovacoesFilterState.aPrioridade].join(','));
+  if (aprovacoesFilterState.aEstabelecimento.size)params.set('estabelecimento',[...aprovacoesFilterState.aEstabelecimento].join(','));
+  if (aprovacoesSortBy && aprovacoesSortBy !== 'aprovado') {
+    params.set('sort_by', aprovacoesSortBy);
+    params.set('sort_dir', aprovacoesSortDir);
+  }
+  params.set('page', aprovacoesPage);
+  params.set('limit', APROVACOES_LIMIT);
+
+  const res = await apiFetch('/api/aprovacoes/itens?' + params);
+  if (!res) return;
+  const data = await res.json();
+  let items = data.items || [];
+  if (aprovacoesSortBy === 'aprovado') {
+    const direction = aprovacoesSortDir === 'asc' ? 1 : -1;
+    items = [...items].sort((a, b) =>
+      (Number(Boolean(aprovacoesCheckMap[a.id])) - Number(Boolean(aprovacoesCheckMap[b.id]))) * direction
+    );
+  }
+
+  aprovacoesItensCache = items;
+  items.forEach(i => {
+    if (!(i.id in aprovacoesCheckMap)) aprovacoesCheckMap[i.id] = false;
+    if (!(i.id in aprovacoesTetoMap) && i.teto_gasto) aprovacoesTetoMap[i.id] = i.teto_gasto;
+  });
+
+  const tbody = document.getElementById('aprovacoesBody');
+  const empty = document.getElementById('aprovacoesEmpty');
+
+  if (!items.length) {
+    showAprovacoesEmpty('Nenhum item encontrado', 'Ajuste os filtros para tentar novamente.');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  tbody.innerHTML = items.map(s => {
+    const checked = aprovacoesCheckMap[s.id] ? 'checked' : '';
+    const rowClass = aprovacoesCheckMap[s.id] ? 'compra-row-checked' : '';
+    const itemLabel = s.item_nome || s.titulo || '—';
+    const estab = s.estabelecimento_tipo || '—';
+    const tetoVal = aprovacoesTetoMap[s.id] ?? s.teto_gasto ?? 0;
+    return `
+      <tr id="aprov-row-${s.id}" class="row-hover transition-colors ${rowClass}">
+        <td class="px-5 py-3.5"><span class="text-xs font-mono font-semibold text-amber-700">${s.ordem_compra || '—'}</span></td>
+        <td class="px-5 py-3.5"><p class="font-semibold text-sm">${estab}</p></td>
+        <td class="px-5 py-3.5">
+          <p class="font-medium text-sm">${itemLabel}</p>
+          <p class="text-xs text-slate-400">${s.quantidade} ${s.unidade || ''} · ${s.solicitante || ''}</p>
+        </td>
+        <td class="px-5 py-3.5 text-sm">${s.categoria || '—'}</td>
+        <td class="px-5 py-3.5 text-center">${priorityIcon(s.prioridade, s.emergencia)}</td>
+        <td class="px-5 py-3.5 text-center" onclick="event.stopPropagation()">
+          <input type="checkbox" class="compra-check" ${checked}
+            onchange="toggleAprovacaoCheck(${s.id}, this.checked)" />
+        </td>
+        <td class="px-5 py-3.5 text-center" onclick="event.stopPropagation()">
+          <button class="btn-eliminar" title="Eliminar item"
+            onclick="eliminarItemAprovacao(${s.id}, '${(itemLabel).replace(/'/g,"&#39;")}', '${(s.solicitante||'').replace(/'/g,"&#39;")}')">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M4 7h16m-4 0V5a1 1 0 00-1-1h-4a1 1 0 00-1 1v2"/>
+            </svg>
+          </button>
+        </td>
+        <td class="px-4 py-3.5 bg-amber-50/60" onclick="event.stopPropagation()">
+          <input type="text" inputmode="decimal" placeholder="0,00"
+            value="${tetoVal ? formatAprovacaoTeto(tetoVal) : ''}"
+            oninput="onAprovacaoTetoInput(${s.id},this)"
+            onblur="onAprovacaoTetoBlur(${s.id},this)"
+            class="compra-valor-input w-full border border-amber-200 rounded-lg px-3 py-2 text-sm"
+            aria-label="Teto de gasto de ${String(itemLabel).replace(/"/g, '&quot;')}" />
+        </td>
+      </tr>`;
+  }).join('');
+
+  updateAprovacoesTotal();
+  renderAprovacoesPagination(data.total, data.page, data.pages);
+}
+
+async function toggleAprovacaoCheck(id, checked) {
+  aprovacoesCheckMap[id] = checked;
+  const row = document.getElementById(`aprov-row-${id}`);
+  if (row) row.classList.toggle('compra-row-checked', checked);
+  const response = await apiFetch(`/api/aprovacoes/${id}/marcar`, {
+    method: 'POST',
+    body: JSON.stringify({ aprovado: checked }),
+  });
+  if (!response || !response.ok) {
+    aprovacoesCheckMap[id] = !checked;
+    row?.classList.toggle('compra-row-checked', !checked);
+    const checkbox = row?.querySelector('.compra-check');
+    if (checkbox) checkbox.checked = !checked;
+    showToast('Não foi possível atualizar o status da aprovação.', 'error');
+    return;
+  }
+  showToast(checked ? 'Item aprovado.' : 'Item devolvido para pendente.', 'success');
+  updateAprovacoesTotal();
+}
+
+async function eliminarItemAprovacao(id, nome, solicitante) {
+  const ok = await showConfirm({
+    title: 'Eliminar item?',
+    msg: `"${nome}" será cancelado. Esta ação ficará registrada no log com seu nome e horário.`,
+    okLabel: 'Eliminar item',
+    danger: true,
+  });
+  if (!ok) return;
+  const res = await apiFetch('/api/aprovacoes/eliminar', {
+    method: 'POST',
+    body: JSON.stringify({ suprimento_id: id }),
+  });
+  if (res && res.ok) {
+    showToast('Item eliminado e registrado no log.', 'success');
+    aprovacoesItensCache = aprovacoesItensCache.filter(i => i.id !== id);
+    delete aprovacoesCheckMap[id];
+    delete aprovacoesTetoMap[id];
+    const row = document.getElementById(`aprov-row-${id}`);
+    if (row) row.remove();
+    if (!document.getElementById('aprovacoesBody').querySelectorAll('tr').length) {
+      document.getElementById('aprovacoesEmpty').classList.remove('hidden');
+    }
+    updateAprovacoesTotal();
+  } else {
+    showToast('Erro ao eliminar item.', 'error');
+  }
+}
+
+async function finalizarAprovacao() {
+  if (!aprovacoesItensCache.length) {
+    showToast('Nenhum item carregado para finalizar.', 'error');
+    return;
+  }
+  const aprovados = aprovacoesItensCache.filter(i => aprovacoesCheckMap[i.id]);
+  if (!aprovados.length) {
+    showToast('Marque pelo menos um item como aprovado.', 'error');
+    return;
+  }
+  const ok = await showConfirm({
+    title: 'Finalizar aprovação?',
+    msg: `${aprovados.length} item${aprovados.length !== 1 ? 's' : ''} ser${aprovados.length !== 1 ? 'ão' : 'á'} aprovado${aprovados.length !== 1 ? 's' : ''} e encaminhado${aprovados.length !== 1 ? 's' : ''} para Compras.`,
+    okLabel: 'Finalizar aprovação',
+    danger: false,
+  });
+  if (!ok) return;
+
+  const res = await apiFetch('/api/aprovacoes/finalizar', {
+    method: 'POST',
+    body: JSON.stringify({ aprovados: aprovados.map(i => i.id) }),
+  });
+  if (res && res.ok) {
+    showToast('Aprovação finalizada com sucesso!', 'success');
+    aprovacoesCheckMap = {};
+    aprovacoesTetoMap = {};
+    aprovacoesItensCache = [];
+    aprovacoesPage = 1;
+    await loadAprovacoes();
+    initAprovacoesFilters();
+  } else {
+    showToast('Erro ao finalizar aprovação.', 'error');
+  }
+}
+
+function renderAprovacoesPagination(total, page, pages) {
+  const el = document.getElementById('aprovacoesPagination');
+  if (pages <= 1) { el.innerHTML = ''; return; }
+  let html = '<div class="flex items-center gap-1.5 flex-wrap justify-center">';
+  html += `<button class="pg-btn" onclick="goPageAprovacoes(${page-1})" ${page<=1?'disabled':''}>← Anterior</button>`;
+  const range = 2;
+  let start = Math.max(1, page-range), end = Math.min(pages, page+range);
+  if (start > 1) { html += `<button class="pg-btn" onclick="goPageAprovacoes(1)">1</button>`; if (start>2) html += `<span class="text-slate-400 text-sm px-1">…</span>`; }
+  for (let i = start; i <= end; i++) html += `<button class="pg-btn ${i===page?'active':''}" onclick="goPageAprovacoes(${i})">${i}</button>`;
+  if (end < pages) { if (end<pages-1) html += `<span class="text-slate-400 text-sm px-1">…</span>`; html += `<button class="pg-btn" onclick="goPageAprovacoes(${pages})">${pages}</button>`; }
+  html += `<button class="pg-btn" onclick="goPageAprovacoes(${page+1})" ${page>=pages?'disabled':''}>Próxima →</button>`;
+  html += `</div><p class="text-center text-xs text-slate-400 mt-2">${total} item${total!==1?'s':''}</p>`;
+  el.innerHTML = html;
+}
+
+function goPageAprovacoes(p) { aprovacoesPage = p; loadAprovacoes(); }
+
 // ── Entregas ─────────────────────────────────────────────────────────────
 let entregasPage = 1;
 const ENTREGAS_LIMIT = 50;
@@ -5455,9 +5867,6 @@ async function loadEntregas() {
     const fotoThumb = s.foto_url
       ? `<a href="${s.foto_url}" target="_blank"><img src="${s.foto_url}" alt="Foto" class="w-14 h-14 object-cover rounded-lg mx-auto cursor-pointer hover:opacity-80 transition-opacity" /></a>`
       : '';
-    const valorFormatted = s.valor_compra != null
-      ? `R$ ${Number(s.valor_compra).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2})}`
-      : '—';
     return `
       <tr id="entrega-row-${s.id}" class="row-hover transition-colors ${rowClass}">
         <td class="px-5 py-3.5"><span class="text-xs font-mono font-semibold text-amber-700">${s.ordem_compra || '—'}</span></td>
@@ -5501,7 +5910,6 @@ async function loadEntregas() {
             </label>
           </div>
         </td>
-        <td class="px-5 py-3.5 text-right text-sm font-medium">${valorFormatted}</td>
       </tr>`;
   }).join('');
 

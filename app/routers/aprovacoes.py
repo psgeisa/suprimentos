@@ -1,4 +1,3 @@
-import json
 import math
 from datetime import datetime
 from typing import List, Optional
@@ -10,42 +9,11 @@ from sqlalchemy.orm import Session
 
 from app.auth import get_current_user
 from app.database import get_db
-from app.models.compra_log import CompraLog
 from app.models.estabelecimento import Estabelecimento
 from app.models.item_eliminado_log import ItemEliminadoLog
 from app.models.suprimento import Suprimento
 
-router = APIRouter(prefix="/api/compras", tags=["compras"])
-
-STATUSES_ABERTOS = ["aprovado"]
-
-
-@router.get("/ordens")
-def listar_ordens(
-    db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
-):
-    """Retorna IDs e títulos de suprimentos em aberto para o multiselect de Ordem de Compra."""
-    items = (
-        db.query(Suprimento)
-        .filter(Suprimento.status == "aprovado")
-        .order_by(Suprimento.id.desc())
-        .limit(2000)
-        .all()
-    )
-    grouped = {}
-    for item in items:
-        ordem = item.ordem_compra or f"SOL{item.id:04d}"
-        if ordem not in grouped:
-            grouped[ordem] = {"titulo": item.titulo or "", "total": 0}
-        grouped[ordem]["total"] += 1
-    return [{
-        "ordem_compra": ordem,
-        "label": (
-            f"{ordem} — {group['titulo'][:50]} "
-            f"({group['total']} {'item' if group['total'] == 1 else 'itens'})"
-        ),
-    } for ordem, group in grouped.items()]
+router = APIRouter(prefix="/api/aprovacoes", tags=["aprovacoes"])
 
 
 @router.get("/filtros")
@@ -53,10 +21,10 @@ def listar_filtros(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
-    """Opções dos filtros de compra derivadas somente de solicitações aprovadas."""
+    """Opções dos filtros de aprovação derivadas somente de solicitações pendentes."""
     items = (
         db.query(Suprimento)
-        .filter(Suprimento.status == "aprovado")
+        .filter(Suprimento.status == "pendente")
         .order_by(Suprimento.id.desc())
         .limit(5000)
         .all()
@@ -113,7 +81,7 @@ def listar_filtros(
 
 
 @router.get("/itens")
-def listar_itens_compra(
+def listar_itens_aprovacao(
     ids: Optional[str] = Query(None),
     ordens: Optional[str] = Query(None),
     busca: Optional[str] = Query(None),
@@ -127,7 +95,7 @@ def listar_itens_compra(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
-    q = db.query(Suprimento).filter(Suprimento.status.in_(STATUSES_ABERTOS))
+    q = db.query(Suprimento).filter(Suprimento.status == "pendente")
 
     if ids:
         id_list = [int(v) for v in ids.split(",") if v.strip().isdigit()]
@@ -167,7 +135,7 @@ def listar_itens_compra(
         if est_ids:
             q = q.filter(Suprimento.estabelecimento_id.in_(est_ids))
 
-    _prio_compras = case(
+    _prio = case(
         (Suprimento.prioridade == 'urgente', 0),
         (Suprimento.prioridade == 'alta', 1),
         (Suprimento.prioridade == 'media', 2),
@@ -184,7 +152,7 @@ def listar_itens_compra(
         "estabelecimento": func.lower(func.coalesce(Estabelecimento.tipo, "")),
         "item": func.lower(func.coalesce(Suprimento.item_nome, Suprimento.titulo, "")),
         "segmento": func.lower(func.coalesce(Suprimento.categoria, "")),
-        "prioridade": _prio_compras,
+        "prioridade": _prio,
     }
     if sort_by in sortable:
         sort_column = sortable[sort_by]
@@ -194,7 +162,7 @@ def listar_itens_compra(
         order_by = [
             Suprimento.emergencia.desc(),
             func.lower(func.coalesce(Estabelecimento.tipo, "")).asc(),
-            _prio_compras,
+            _prio,
             Suprimento.created_at.asc(),
         ]
     items = (
@@ -212,6 +180,10 @@ def listar_itens_compra(
 
     result = []
     for i in items:
+        if i.valor_compra is not None:
+            teto_gasto = i.valor_compra
+        else:
+            teto_gasto = (i.valor_estimado or 0) * 1.2
         result.append(
             {
                 "id": i.id,
@@ -223,6 +195,7 @@ def listar_itens_compra(
                 "unidade": i.unidade,
                 "valor_estimado": i.valor_estimado,
                 "valor_compra": i.valor_compra,
+                "teto_gasto": teto_gasto,
                 "prioridade": i.prioridade,
                 "emergencia": i.emergencia,
                 "status": i.status,
@@ -237,58 +210,55 @@ def listar_itens_compra(
     return {"items": result, "total": total, "page": page, "pages": pages}
 
 
-class EliminarRequest(BaseModel):
-    suprimento_id: int
-    motivo: Optional[str] = None
-
-
-class CompraMarcadaRequest(BaseModel):
-    comprado: bool
-    valor_compra: Optional[float] = Field(default=None, gt=0)
+class AprovacaoMarcarRequest(BaseModel):
+    aprovado: bool
 
 
 @router.post("/{suprimento_id}/marcar")
-def marcar_comprado(
+def marcar_aprovado(
     suprimento_id: int,
-    data: CompraMarcadaRequest,
+    data: AprovacaoMarcarRequest,
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
     item = db.query(Suprimento).filter(Suprimento.id == suprimento_id).first()
     if not item:
         raise HTTPException(404, "Suprimento não encontrado")
-    if data.comprado and item.status != "aprovado":
-        raise HTTPException(409, "Somente solicitações aprovadas podem ser marcadas como compradas")
-    if not data.comprado and item.status != "em_andamento":
-        raise HTTPException(409, "Somente compras em andamento podem voltar para aprovado")
-    item.status = "em_andamento" if data.comprado else "aprovado"
-    if data.valor_compra is not None:
-        item.valor_compra = data.valor_compra
+    if data.aprovado and item.status != "pendente":
+        raise HTTPException(409, "Somente solicitações pendentes podem ser aprovadas")
+    if not data.aprovado and item.status != "aprovado":
+        raise HTTPException(409, "Somente itens aprovados podem voltar para pendente")
+    item.status = "aprovado" if data.aprovado else "pendente"
     item.updated_at = datetime.utcnow()
     db.commit()
     return {"ok": True, "status": item.status}
 
 
-class CompraValorRequest(BaseModel):
-    valor_compra: Optional[float] = Field(default=None, gt=0)
+class TetoGastoRequest(BaseModel):
+    teto_gasto: Optional[float] = Field(default=None, gt=0)
 
 
-@router.put("/{suprimento_id}/valor")
-def salvar_valor_compra(
+@router.put("/{suprimento_id}/teto")
+def salvar_teto_gasto(
     suprimento_id: int,
-    data: CompraValorRequest,
+    data: TetoGastoRequest,
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
     item = db.query(Suprimento).filter(Suprimento.id == suprimento_id).first()
     if not item:
         raise HTTPException(404, "Suprimento não encontrado")
-    if item.status not in ("aprovado", "em_andamento"):
-        raise HTTPException(409, "O valor desta compra não pode mais ser alterado")
-    item.valor_compra = data.valor_compra
+    if item.status != "pendente":
+        raise HTTPException(409, "O teto de gasto só pode ser editado em itens pendentes")
+    item.valor_compra = data.teto_gasto
     item.updated_at = datetime.utcnow()
     db.commit()
     return {"ok": True, "valor_compra": item.valor_compra}
+
+
+class EliminarRequest(BaseModel):
+    suprimento_id: int
+    motivo: Optional[str] = None
 
 
 @router.post("/eliminar")
@@ -321,64 +291,31 @@ def eliminar_item(
     return {"ok": True, "log_id": log.id}
 
 
-class FinalizarItemSchema(BaseModel):
-    id: int
-    titulo: Optional[str] = None
-    item_nome: Optional[str] = None
-    categoria: Optional[str] = None
-    quantidade: Optional[float] = None
-    unidade: Optional[str] = None
-    valor_estimado: Optional[float] = None
-    valor_compra: Optional[float] = Field(default=None, gt=0)
-    estabelecimento_tipo: Optional[str] = None
-    solicitante: Optional[str] = None
-    prioridade: Optional[str] = None
-
-
-class FinalizarRequest(BaseModel):
-    comprados: List[FinalizarItemSchema]
-    nao_comprados: List[int]
-    observacoes: Optional[str] = None
+class FinalizarAprovacaoRequest(BaseModel):
+    aprovados: List[int]
 
 
 @router.post("/finalizar")
-def finalizar_compra(
-    data: FinalizarRequest,
+def finalizar_aprovacao(
+    data: FinalizarAprovacaoRequest,
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
-    comprados_ids = [i.id for i in data.comprados]
+    if not data.aprovados:
+        return {"ok": True, "total_aprovados": 0}
 
-    if comprados_ids:
-        purchased_values = {item.id: item.valor_compra for item in data.comprados}
-        purchased_rows = (
-            db.query(Suprimento)
-            .filter(Suprimento.id.in_(comprados_ids))
-            .all()
+    rows = (
+        db.query(Suprimento)
+        .filter(
+            Suprimento.id.in_(data.aprovados),
+            Suprimento.status == "pendente",
         )
-        for row in purchased_rows:
-            row.status = "em_andamento"
-            if purchased_values.get(row.id) is not None:
-                row.valor_compra = purchased_values[row.id]
-            row.updated_at = datetime.utcnow()
-
-    total_estimado = sum(
-        i.valor_compra if i.valor_compra is not None else (i.valor_estimado or 0)
-        for i in data.comprados
-    ) or None
-
-    log = CompraLog(
-        usuario=current_user.nome,
-        usuario_id=current_user.id,
-        data_hora=datetime.utcnow(),
-        itens_comprados=json.dumps(
-            [i.model_dump() for i in data.comprados], ensure_ascii=False
-        ),
-        itens_nao_comprados=json.dumps(data.nao_comprados),
-        total_estimado=total_estimado,
-        observacoes=data.observacoes,
+        .all()
     )
-    db.add(log)
+    now = datetime.utcnow()
+    for row in rows:
+        row.status = "aprovado"
+        row.updated_at = now
     db.commit()
 
-    return {"ok": True, "log_id": log.id, "total_comprados": len(comprados_ids)}
+    return {"ok": True, "total_aprovados": len(rows)}
