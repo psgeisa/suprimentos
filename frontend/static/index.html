@@ -2261,7 +2261,7 @@ document.addEventListener('click', e => {
 function resetItemSelector() {
   selectedItems = [];
   renderItemSelectorTags();
-  document.getElementById('itemSelectorOptions').querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = false);
+  buildItemSelectorOptions(); // reconstrói as opções a partir do cache
   document.getElementById('itemSelectorSearch').value = '';
   searchItemSelector('');
   updateFormLayout();
@@ -2696,6 +2696,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   buildCatOptions();
   buildAreaOptions();
   buildUnidadeOptions();
+  // Pré-carrega itens na inicialização para que o drawer abra sem delay
+  loadItensCache().then(buildItemSelectorOptions);
 
   // Verifica silenciosamente se há sessão ativa e faz upgrade para autenticado
   const token = localStorage.getItem('sup_token');
