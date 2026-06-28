@@ -10,7 +10,7 @@
     }
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+  <script src="/static/vendor/chart.umd.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     * { font-family: 'Inter', sans-serif; }
@@ -455,6 +455,8 @@
     .bi-title { font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:#64748b; margin-bottom:14px; }
     .dark .bi-title { color:#94a3b8; }
     .bi-chart-wrap { position:relative; height:220px; }
+    .bi-chart-error { border:1px solid #FCA5A5; background:#FEF2F2; color:#991B1B; border-radius:12px; padding:12px 14px; font-size:.8rem; margin-bottom:1rem; }
+    .dark .bi-chart-error { background:rgba(127,29,29,.18); border-color:rgba(248,113,113,.45); color:#FCA5A5; }
     .bi-donut-layout { display:flex; align-items:center; gap:12px; }
     .bi-donut-canvas { position:relative; width:140px; height:140px; flex-shrink:0; }
     .bi-donut-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; pointer-events:none; }
@@ -1516,6 +1518,7 @@
         <button onclick="resetBiFilters()" class="px-4 py-2 rounded-lg border border-slate-200 text-sm text-slate-500 hover:bg-slate-50">Limpar</button>
       </div>
     </div>
+    <div id="biChartError" class="bi-chart-error hidden" role="alert"></div>
 
     <!-- Row 1: Custo total por mês | Custo médio por dia da semana -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
@@ -3468,9 +3471,10 @@ function setMsValues(id, values) {
 document.addEventListener('click', e => {
   if (!e.target.closest('#equipeWrapper')) {
     ['equipe'].forEach(k => {
-      document.getElementById(k+'Dropdown').classList.add('hidden');
-      document.getElementById(k+'Chevron').style.transform = '';
-      document.getElementById(k+'Trigger').classList.remove('open');
+      document.getElementById(k+'Dropdown')?.classList.add('hidden');
+      const chevron = document.getElementById(k+'Chevron');
+      if (chevron) chevron.style.transform = '';
+      document.getElementById(k+'Trigger')?.classList.remove('open');
     });
   }
 });
@@ -6501,7 +6505,21 @@ async function loadCustosBi() {
     return;
   }
   const d = await res.json();
-  renderBiCharts(d);
+  const errorBox = document.getElementById('biChartError');
+  if (errorBox) errorBox.classList.add('hidden');
+  try {
+    if (typeof Chart !== 'function') {
+      throw new Error('A biblioteca de gráficos não foi carregada.');
+    }
+    renderBiCharts(d);
+  } catch (error) {
+    console.error('[CustosBi] Falha ao renderizar gráficos:', error);
+    if (errorBox) {
+      errorBox.textContent = 'Não foi possível exibir os gráficos. Atualize a página; se o problema continuar, informe o suporte.';
+      errorBox.classList.remove('hidden');
+    }
+    showToast('Os dados foram carregados, mas houve uma falha ao desenhar os gráficos.', 'error');
+  }
 }
 
 function destroyBiChart(id) {
