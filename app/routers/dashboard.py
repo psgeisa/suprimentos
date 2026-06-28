@@ -7,10 +7,11 @@ from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 
 import httpx
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from sqlalchemy import func, or_
+from app.limiter import limiter
 
 from app.database import get_db
 from app.models.suprimento import Suprimento
@@ -179,7 +180,8 @@ class SimilarityCheckRequest(BaseModel):
 
 
 @router.post("/check-similar")
-async def check_similar(data: SimilarityCheckRequest):
+@limiter.limit("10/day")
+async def check_similar(request: Request, data: SimilarityCheckRequest):
     nome = data.nome.strip().lower()
     candidates = [c.strip() for c in data.candidates if c.strip()]
     if not nome or not candidates:
@@ -228,7 +230,8 @@ class SimilarSegmentoRequest(BaseModel):
 
 
 @router.post("/check-similar-segmento")
-async def check_similar_segmento(data: SimilarSegmentoRequest):
+@limiter.limit("10/day")
+async def check_similar_segmento(request: Request, data: SimilarSegmentoRequest):
     nome = data.nome.strip()
     nome_norm = _normalize_term(nome)
     pairs = [(c.strip(), _normalize_term(c)) for c in data.candidates if c.strip()]

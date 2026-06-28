@@ -6,6 +6,9 @@ load_dotenv()
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from app.limiter import limiter
 
 from app.database import Base, engine, SessionLocal
 import app.models  # noqa — garante registro de todos os modelos antes do create_all
@@ -190,6 +193,8 @@ def migrate_segmento_table():
 
 def create_app() -> FastAPI:
     app = FastAPI(title="Gestão de Suprimentos", version="2.0.0")
+    app.state.limiter = limiter
+    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
     @app.on_event("startup")
     def startup():

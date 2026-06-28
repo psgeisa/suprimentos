@@ -93,6 +93,22 @@
     .strategy-native-icon { width:2.25rem; height:2.25rem; border-radius:.75rem; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
     .strategy-stack-tag { display:inline-flex; padding:.3rem .65rem; border-radius:999px; background:#FEF3C7; color:#92400E; font-size:.7rem; font-weight:700; }
     .dark .strategy-stack-tag { background:rgba(245,158,11,.16); color:#FCD34D; border:1px solid rgba(245,158,11,.25); }
+
+    /* ── Flip Cards ── */
+    .flip-card { perspective:1000px; cursor:pointer; height:220px; }
+    .flip-card-inner { position:relative; width:100%; height:100%; transition:transform .55s cubic-bezier(.4,0,.2,1); transform-style:preserve-3d; }
+    .flip-card.flipped .flip-card-inner { transform:rotateY(180deg); }
+    .flip-card-front, .flip-card-back { position:absolute; inset:0; backface-visibility:hidden; border-radius:1rem; padding:1.25rem; display:flex; flex-direction:column; }
+    .flip-card-front { background:#fff; border:1px solid #e2e8f0; box-shadow:0 1px 6px rgba(0,0,0,.06); justify-content:space-between; }
+    .flip-card-back { background:#f1f5f9; border:1px solid #cbd5e1; transform:rotateY(180deg); overflow-y:auto; }
+    .flip-card-back::-webkit-scrollbar { width:4px; }
+    .flip-card-back::-webkit-scrollbar-thumb { background:#cbd5e1; border-radius:4px; }
+    .flip-open-btn { display:inline-flex; align-items:center; gap:.35rem; font-size:.7rem; font-weight:700; color:#92400E; background:#FEF3C7; border:none; border-radius:999px; padding:.3rem .75rem; cursor:pointer; transition:background .2s; }
+    .flip-open-btn:hover { background:#FDE68A; }
+    .flip-back-tag { display:inline-flex; padding:.25rem .6rem; border-radius:999px; background:#fff; border:1px solid #cbd5e1; color:#1e293b; font-size:.68rem; font-weight:600; }
+    .dark .flip-card-front { background:#1e293b; border-color:#334155; }
+    .dark .flip-card-back { background:#0f172a; border-color:#1e293b; }
+    .dark .flip-back-tag { background:#1e293b; border-color:#334155; color:#e2e8f0; }
     .dark .strategy-native-icon { background:rgba(245,158,11,.16) !important; color:#F59E0B !important; }
     .dark #page-estrategia .card-glass {
       background-color:#282B30 !important;
@@ -1116,12 +1132,12 @@
           Transformar processos de suprimentos em um fluxo digital, integrado e rastreável, conectando solicitações, aprovações, compras e entregas em uma única plataforma.
         </p>
         <div class="flex flex-wrap gap-2 mt-5">
-          <span class="strategy-stack-tag">FastAPI</span>
-          <span class="strategy-stack-tag">JavaScript</span>
-          <span class="strategy-stack-tag">Tailwind CSS</span>
-          <span class="strategy-stack-tag">PostgreSQL</span>
-          <span class="strategy-stack-tag">SQLAlchemy</span>
-          <span class="strategy-stack-tag">Chart.js</span>
+          <span class="strategy-stack-tag">Arquitetura Modular</span>
+          <span class="strategy-stack-tag">Deploy Cloud</span>
+          <span class="strategy-stack-tag">RBAC</span>
+          <span class="strategy-stack-tag">IA Aplicada</span>
+          <span class="strategy-stack-tag">IA Generativa</span>
+          <span class="strategy-stack-tag">Cloud Ready</span>
         </div>
         <div class="flex flex-wrap gap-3 mt-5 text-xs font-semibold">
           <a href="https://www.linkedin.com/in/geisa-reis/" target="_blank" rel="noopener noreferrer" class="text-amber-700 hover:text-amber-900">LinkedIn ↗</a>
@@ -1131,72 +1147,214 @@
       </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-      <article class="strategy-native-card card-glass bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
-        <div class="flex items-start gap-4">
-          <div class="strategy-native-icon bg-indigo-50 text-indigo-600">⌨</div>
-          <div><h3 class="font-bold text-slate-700">Desenvolvimento</h3><p class="text-sm text-slate-500 mt-1 leading-relaxed">FastAPI, JavaScript, Tailwind CSS e APIs REST.</p></div>
-        </div>
-      </article>
-      <article class="strategy-native-card card-glass bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
-        <div class="flex items-start gap-4">
-          <div class="strategy-native-icon bg-blue-50 text-blue-600">▤</div>
-          <div><h3 class="font-bold text-slate-700">Dados</h3><p class="text-sm text-slate-500 mt-1 leading-relaxed">PostgreSQL, SQLAlchemy, migrações e indicadores de custos.</p></div>
-        </div>
-      </article>
-      <article class="strategy-native-card card-glass bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
-        <div class="flex items-start gap-4">
-          <div class="strategy-native-icon bg-purple-50 text-purple-600">↗</div>
-          <div><h3 class="font-bold text-slate-700">Data Science/BI</h3><p class="text-sm text-slate-500 mt-1 leading-relaxed">Dashboards interativos, comparativos e projeções financeiras.</p></div>
-        </div>
-      </article>
-      <article class="strategy-native-card card-glass bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
-        <div class="flex items-start gap-4">
-          <div class="strategy-native-icon bg-emerald-50 text-emerald-600">◆</div>
-          <div><h3 class="font-bold text-slate-700">Segurança</h3><p class="text-sm text-slate-500 mt-1 leading-relaxed">Autenticação, perfis de acesso e validações no backend com OAuth2 e JWT Bearer.</p></div>
-        </div>
-      </article>
-      <article class="strategy-native-card card-glass bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
-        <div class="flex items-start gap-4">
-          <div class="strategy-native-icon bg-amber-50 text-amber-700">⚙</div>
-          <div><h3 class="font-bold text-slate-700">Engenharia</h3><p class="text-sm text-slate-500 mt-1 leading-relaxed">Rastreabilidade de operações, logs e anexos.</p></div>
-        </div>
-      </article>
-      <article class="strategy-native-card card-glass bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
-        <div class="flex items-start gap-4">
-          <div class="strategy-native-icon bg-orange-50 text-orange-600">◎</div>
-          <div><h3 class="font-bold text-slate-700">Estratégia</h3><p class="text-sm text-slate-500 mt-1 leading-relaxed">Desenvolvimento incremental orientado aos fluxos reais dos usuários.</p></div>
-        </div>
-      </article>
-      <article class="strategy-native-card card-glass bg-white rounded-2xl shadow-sm border border-slate-100 p-5 md:col-span-2 xl:col-span-3">
-        <div class="flex items-start gap-4">
-          <div class="strategy-native-icon bg-cyan-50 text-cyan-600">☁</div>
-          <div><h3 class="font-bold text-slate-700">Deploy</h3><p class="text-sm text-slate-500 mt-1 leading-relaxed">Aplicação versionada com Git e publicada no Render.</p></div>
-        </div>
-      </article>
-      <article class="strategy-native-card card-glass bg-white rounded-2xl shadow-sm border border-slate-100 p-5 md:col-span-2 xl:col-span-3">
-        <div class="flex items-start gap-4">
-          <div class="strategy-native-icon bg-violet-50 text-violet-600">✦</div>
-          <div class="min-w-0">
-            <h3 class="font-bold text-slate-700">IA Aplicada</h3>
-            <p class="text-sm text-slate-500 mt-1 leading-relaxed">
-              Pipeline de validação inteligente que combina regras determinísticas e modelos de IA para apoiar decisões de cadastro, mantendo consistência dos dados mesmo diante de sinônimos, regionalismos e variações linguísticas. A arquitetura utiliza múltiplos provedores de IA em fallback, aumentando a disponibilidade e a resiliência da solução.
-            </p>
-            <div class="flex flex-wrap gap-2 mt-4">
-              <span class="strategy-stack-tag">gemini-2.0-flash</span>
-              <span class="strategy-stack-tag">llama-3.3-70b-versatile</span>
-              <span class="strategy-stack-tag">llama-3.3-70b</span>
-              <span class="strategy-stack-tag">mistral-small-latest</span>
-              <span class="strategy-stack-tag">meta-llama/llama-3.3-70b-instruct:free</span>
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5" onclick="handleFlipClick(event)">
+
+      <!-- Desenvolvimento -->
+      <div class="flip-card" data-flip>
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <div class="strategy-native-icon bg-indigo-50 text-indigo-600">⌨</div>
+                <h3 class="font-bold text-slate-700">Desenvolvimento</h3>
+              </div>
+              <p class="text-sm text-slate-500 leading-relaxed">Arquitetura modular baseada em APIs REST, priorizando escalabilidade, separação de responsabilidades e facilidade de evolução contínua da plataforma.</p>
             </div>
-            <div class="mt-4">
-              <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Regex de detecção de termos compostos</p>
-              <code class="block bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs text-violet-700 font-mono break-all">(?&lt;![a-z])&lt;termo_normalizado&gt;(?![a-z])</code>
+            <button class="flip-open-btn self-start mt-3" tabindex="-1">Abrir stacks ↩</button>
+          </div>
+          <div class="flip-card-back">
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-wide mb-3">Stacks</p>
+            <div class="flex flex-wrap gap-1.5">
+              <span class="flip-back-tag">Python</span><span class="flip-back-tag">FastAPI</span><span class="flip-back-tag">JavaScript</span><span class="flip-back-tag">Tailwind CSS</span><span class="flip-back-tag">HTML</span><span class="flip-back-tag">REST API</span><span class="flip-back-tag">Uvicorn</span><span class="flip-back-tag">Pydantic</span>
             </div>
           </div>
         </div>
-      </article>
+      </div>
+
+      <!-- Dados -->
+      <div class="flip-card" data-flip>
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <div class="strategy-native-icon bg-blue-50 text-blue-600">▤</div>
+                <h3 class="font-bold text-slate-700">Dados</h3>
+              </div>
+              <p class="text-sm text-slate-500 leading-relaxed">Modelagem relacional voltada à consistência das informações, reutilização de cadastros e rastreabilidade completa das operações.</p>
+            </div>
+            <button class="flip-open-btn self-start mt-3" tabindex="-1">Abrir stacks ↩</button>
+          </div>
+          <div class="flip-card-back">
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-wide mb-3">Stacks</p>
+            <div class="flex flex-wrap gap-1.5">
+              <span class="flip-back-tag">PostgreSQL</span><span class="flip-back-tag">SQLite</span><span class="flip-back-tag">SQLAlchemy</span><span class="flip-back-tag">Supabase Storage</span><span class="flip-back-tag">Migrações</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- IA Aplicada -->
+      <div class="flip-card" data-flip>
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <div class="strategy-native-icon bg-violet-50 text-violet-600">✦</div>
+                <h3 class="font-bold text-slate-700">IA Aplicada</h3>
+              </div>
+              <p class="text-sm text-slate-500 leading-relaxed">Validação inteligente de cadastros utilizando um pipeline híbrido de regras de negócio e modelos de linguagem, reduzindo duplicidades sem comprometer desempenho ou custos operacionais.</p>
+            </div>
+            <button class="flip-open-btn self-start mt-3" tabindex="-1">Abrir stacks ↩</button>
+          </div>
+          <div class="flip-card-back">
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-wide mb-3">Stacks</p>
+            <div class="flex flex-wrap gap-1.5">
+              <span class="flip-back-tag">Gemini 2.0 Flash</span><span class="flip-back-tag">Groq Llama 3.3</span><span class="flip-back-tag">Cerebras Llama 3.3</span><span class="flip-back-tag">Mistral Small</span><span class="flip-back-tag">OpenRouter</span><span class="flip-back-tag">Sentence Transformers</span><span class="flip-back-tag">HTTPX</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Business Intelligence -->
+      <div class="flip-card" data-flip>
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <div class="strategy-native-icon bg-purple-50 text-purple-600">↗</div>
+                <h3 class="font-bold text-slate-700">Business Intelligence</h3>
+              </div>
+              <p class="text-sm text-slate-500 leading-relaxed">Transformação de dados operacionais em indicadores gerenciais para acompanhamento de custos, desempenho e tomada de decisão.</p>
+            </div>
+            <button class="flip-open-btn self-start mt-3" tabindex="-1">Abrir stacks ↩</button>
+          </div>
+          <div class="flip-card-back">
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-wide mb-3">Stacks</p>
+            <div class="flex flex-wrap gap-1.5">
+              <span class="flip-back-tag">Chart.js</span><span class="flip-back-tag">Dashboards</span><span class="flip-back-tag">Indicadores</span><span class="flip-back-tag">APIs Analíticas</span><span class="flip-back-tag">Filtros Dinâmicos</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Segurança -->
+      <div class="flip-card" data-flip>
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <div class="strategy-native-icon bg-emerald-50 text-emerald-600">◆</div>
+                <h3 class="font-bold text-slate-700">Segurança</h3>
+              </div>
+              <p class="text-sm text-slate-500 leading-relaxed">Controle de acesso baseado em papéis, autenticação segura e proteção das operações críticas da plataforma.</p>
+            </div>
+            <button class="flip-open-btn self-start mt-3" tabindex="-1">Abrir stacks ↩</button>
+          </div>
+          <div class="flip-card-back">
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-wide mb-3">Stacks</p>
+            <div class="flex flex-wrap gap-1.5">
+              <span class="flip-back-tag">JWT</span><span class="flip-back-tag">OAuth2</span><span class="flip-back-tag">RBAC</span><span class="flip-back-tag">bcrypt</span><span class="flip-back-tag">Passlib</span><span class="flip-back-tag">python-jose</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Governança -->
+      <div class="flip-card" data-flip>
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <div class="strategy-native-icon bg-orange-50 text-orange-600">◎</div>
+                <h3 class="font-bold text-slate-700">Governança</h3>
+              </div>
+              <p class="text-sm text-slate-500 leading-relaxed">Mecanismos de padronização de cadastros, auditoria de decisões e qualidade dos dados para manter a base consistente ao longo do tempo.</p>
+            </div>
+            <button class="flip-open-btn self-start mt-3" tabindex="-1">Abrir stacks ↩</button>
+          </div>
+          <div class="flip-card-back">
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-wide mb-3">Stacks</p>
+            <div class="flex flex-wrap gap-1.5">
+              <span class="flip-back-tag">Auditoria</span><span class="flip-back-tag">Logs</span><span class="flip-back-tag">Validações</span><span class="flip-back-tag">Fluxos</span><span class="flip-back-tag">Normalização</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Engenharia -->
+      <div class="flip-card" data-flip>
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <div class="strategy-native-icon bg-amber-50 text-amber-700">⚙</div>
+                <h3 class="font-bold text-slate-700">Engenharia</h3>
+              </div>
+              <p class="text-sm text-slate-500 leading-relaxed">Fluxos desenhados para refletir processos reais de suprimentos, mantendo rastreabilidade desde a solicitação até a entrega.</p>
+            </div>
+            <button class="flip-open-btn self-start mt-3" tabindex="-1">Abrir stacks ↩</button>
+          </div>
+          <div class="flip-card-back">
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-wide mb-3">Stacks</p>
+            <div class="flex flex-wrap gap-1.5">
+              <span class="flip-back-tag">Workflow</span><span class="flip-back-tag">Uploads</span><span class="flip-back-tag">Anexos</span><span class="flip-back-tag">Status</span><span class="flip-back-tag">Histórico</span><span class="flip-back-tag">Logs</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Deploy -->
+      <div class="flip-card" data-flip>
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <div class="strategy-native-icon bg-cyan-50 text-cyan-600">☁</div>
+                <h3 class="font-bold text-slate-700">Deploy</h3>
+              </div>
+              <p class="text-sm text-slate-500 leading-relaxed">Aplicação preparada para execução em nuvem, com configuração por ambiente e integração contínua para facilitar novas versões.</p>
+            </div>
+            <button class="flip-open-btn self-start mt-3" tabindex="-1">Abrir stacks ↩</button>
+          </div>
+          <div class="flip-card-back">
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-wide mb-3">Stacks</p>
+            <div class="flex flex-wrap gap-1.5">
+              <span class="flip-back-tag">Render</span><span class="flip-back-tag">Git</span><span class="flip-back-tag">GitHub</span><span class="flip-back-tag">Procfile</span><span class="flip-back-tag">Environment Variables</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Arquitetura de IA -->
+      <div class="flip-card" data-flip>
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <div class="strategy-native-icon bg-rose-50 text-rose-600">⬡</div>
+                <h3 class="font-bold text-slate-700">Arquitetura de IA</h3>
+              </div>
+              <p class="text-sm text-slate-500 leading-relaxed">Pipeline resiliente que combina validações determinísticas, análise linguística e múltiplos modelos de IA executados sob demanda, garantindo alta disponibilidade e menor custo de processamento.</p>
+            </div>
+            <button class="flip-open-btn self-start mt-3" tabindex="-1">Abrir stacks ↩</button>
+          </div>
+          <div class="flip-card-back">
+            <p class="text-xs font-bold text-slate-500 uppercase tracking-wide mb-3">Stacks</p>
+            <div class="flex flex-wrap gap-1.5">
+              <span class="flip-back-tag">Regras determinísticas</span><span class="flip-back-tag">Normalização</span><span class="flip-back-tag">Fuzzy Matching</span><span class="flip-back-tag">Fallback entre provedores</span><span class="flip-back-tag">LLMs</span><span class="flip-back-tag">Logs de Auditoria</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
+
+    <script>
+      function handleFlipClick(e) {
+        const card = e.target.closest('[data-flip]');
+        if (card) card.classList.toggle('flipped');
+      }
+    </script>
   </section>
 
   <!-- ── Suprimentos ── -->
