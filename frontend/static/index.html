@@ -7309,32 +7309,24 @@ function renderBiCharts(d) {
     options: biBarOptions(),
   });
 
-  // ── 5-7. Donuts ──────────────────────────────────────────────────────────
+  // ── 5-7. Rose (Nightingale) ──────────────────────────────────────────────
   function renderDonut(canvasId, centerId, legendId, rows, keyField, valueField) {
     destroyBiChart(canvasId);
     const total = rows.reduce((s, r) => s + r[valueField], 0);
     const ctr = document.getElementById(centerId);
     ctr.innerHTML = `<span class="bi-total">Total</span><span class="bi-value">${fmtBRL(total)}</span>`;
 
-    const centerPlugin = {
-      id: 'centerText_' + canvasId,
-      beforeDraw(chart) {
-        const { width, height, ctx } = chart;
-        ctx.restore();
-        ctx.save();
-      },
-    };
     biCharts[canvasId] = new Chart(document.getElementById(canvasId), {
-      type: 'doughnut',
+      type: 'polarArea',
       data: {
         labels: rows.map(r => r[keyField]),
-        datasets: [{ data: rows.map(r => r[valueField]), backgroundColor: rows.map((_, i) => biColor(i)), borderWidth: 2, borderColor: dark ? '#1e2330' : '#fff' }],
+        datasets: [{ data: rows.map(r => r[valueField]), backgroundColor: rows.map((_, i) => biColor(i) + 'cc'), borderWidth: 1.5, borderColor: rows.map((_, i) => biColor(i)) }],
       },
       options: {
-        responsive: true, maintainAspectRatio: false, cutout: '65%',
-        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${fmtBRL(ctx.parsed)}` } } },
+        responsive: true, maintainAspectRatio: false,
+        scales: { r: { display: false, ticks: { display: false }, grid: { display: false } } },
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${fmtBRL(ctx.parsed.r)}` } } },
       },
-      plugins: [centerPlugin],
     });
 
     const legend = document.getElementById(legendId);
