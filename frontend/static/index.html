@@ -7078,8 +7078,9 @@ let biCharts = {};
 let biFiltrosCache = null;
 
 const BI_COLORS = [
-  '#6366F1','#F59E0B','#10B981','#3B82F6','#EF4444','#8B5CF6','#EC4899',
-  '#14B8A6','#F97316','#84CC16','#06B6D4','#A855F7','#F43F5E','#22D3EE',
+  '#D4A520','#10B981','#3B82F6','#8B5CF6','#F97316','#EC4899',
+  '#14B8A6','#84CC16','#06B6D4','#A855F7','#F43F5E','#22D3EE',
+  '#F59E0B','#EF4444',
 ];
 
 function biColor(i) { return BI_COLORS[i % BI_COLORS.length]; }
@@ -7189,36 +7190,54 @@ function destroyBiChart(id) {
   if (biCharts[id]) { biCharts[id].destroy(); delete biCharts[id]; }
 }
 
-function biBarOptions(title) {
+function biBarOptions() {
   const dark = document.documentElement.classList.contains('dark');
-  const gridColor = dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+  const gridColor = dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)';
   const tickColor = dark ? '#94a3b8' : '#64748b';
+  const ttBg   = dark ? '#1e2330' : '#ffffff';
+  const ttTitle = dark ? '#e2e8f0' : '#1e293b';
+  const ttBody  = dark ? '#94a3b8' : '#475569';
+  const ttBorder = dark ? '#374151' : '#e2e8f0';
   return {
     responsive: true, maintainAspectRatio: false,
+    animation: { duration: 600, easing: 'easeInOutQuart' },
     plugins: {
-      legend: { position: 'top', align: 'start', labels: { boxWidth: 10, font: { size: 10 }, color: tickColor } },
-      tooltip: { callbacks: { label: ctx => ` ${fmtBRL(ctx.parsed.y)}` } },
+      legend: { position: 'top', align: 'start', labels: { boxWidth: 10, boxHeight: 10, useBorderRadius: true, borderRadius: 3, padding: 14, font: { size: 11, weight: '500' }, color: tickColor } },
+      tooltip: {
+        backgroundColor: ttBg, titleColor: ttTitle, bodyColor: ttBody,
+        borderColor: ttBorder, borderWidth: 1, padding: 10, cornerRadius: 10,
+        callbacks: { label: ctx => ` ${ctx.dataset.label || ''}: ${fmtBRL(ctx.parsed.y)}` },
+      },
     },
     scales: {
-      x: { stacked: true, ticks: { color: tickColor, font: { size: 10 } }, grid: { display: false } },
-      y: { stacked: true, ticks: { color: tickColor, font: { size: 10 }, callback: v => fmtBRL(v) }, grid: { color: gridColor } },
+      x: { stacked: true, ticks: { color: tickColor, font: { size: 11 } }, grid: { display: false }, border: { display: false } },
+      y: { stacked: true, ticks: { color: tickColor, font: { size: 11 }, callback: v => fmtBRL(v) }, grid: { color: gridColor }, border: { display: false } },
     },
   };
 }
 
 function biLineOptions() {
   const dark = document.documentElement.classList.contains('dark');
-  const gridColor = dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+  const gridColor = dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)';
   const tickColor = dark ? '#94a3b8' : '#64748b';
+  const ttBg    = dark ? '#1e2330' : '#ffffff';
+  const ttTitle  = dark ? '#e2e8f0' : '#1e293b';
+  const ttBody   = dark ? '#94a3b8' : '#475569';
+  const ttBorder = dark ? '#374151' : '#e2e8f0';
   return {
     responsive: true, maintainAspectRatio: false,
+    animation: { duration: 600, easing: 'easeInOutQuart' },
     plugins: {
-      legend: { position: 'top', align: 'start', labels: { boxWidth: 10, font: { size: 10 }, color: tickColor } },
-      tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${fmtBRL(ctx.parsed.y)}` } },
+      legend: { position: 'top', align: 'start', labels: { boxWidth: 24, boxHeight: 3, padding: 14, font: { size: 11, weight: '500' }, color: tickColor } },
+      tooltip: {
+        backgroundColor: ttBg, titleColor: ttTitle, bodyColor: ttBody,
+        borderColor: ttBorder, borderWidth: 1, padding: 10, cornerRadius: 10,
+        callbacks: { label: ctx => ` ${ctx.dataset.label}: ${fmtBRL(ctx.parsed.y)}` },
+      },
     },
     scales: {
-      x: { ticks: { color: tickColor, font: { size: 10 } }, grid: { display: false } },
-      y: { ticks: { color: tickColor, font: { size: 10 }, callback: v => fmtBRL(v) }, grid: { color: gridColor } },
+      x: { ticks: { color: tickColor, font: { size: 11 } }, grid: { display: false }, border: { display: false } },
+      y: { ticks: { color: tickColor, font: { size: 11 }, callback: v => fmtBRL(v) }, grid: { color: gridColor }, border: { display: false } },
     },
   };
 }
@@ -7234,7 +7253,7 @@ function renderBiCharts(d) {
     type: 'bar',
     data: {
       labels: d.por_mes.map(r => r.mes),
-      datasets: [{ label: 'Custo total', data: d.por_mes.map(r => r.custo), backgroundColor: '#6366F1', borderRadius: 4 }],
+      datasets: [{ label: 'Custo total', data: d.por_mes.map(r => r.custo), backgroundColor: 'rgba(212,165,32,0.85)', borderRadius: 8, borderSkipped: false }],
     },
     options: { ...biBarOptions(), plugins: { ...biBarOptions().plugins }, scales: { x: { stacked: false, ticks: { color: tickColor, font: { size: 10 } }, grid: { display: false } }, y: { stacked: false, ticks: { color: tickColor, font: { size: 10 }, callback: v => fmtBRL(v) }, grid: { color: gridColor } } } },
   });
@@ -7245,7 +7264,7 @@ function renderBiCharts(d) {
     type: 'bar',
     data: {
       labels: d.por_dia_semana.map(r => r.label),
-      datasets: [{ label: 'Custo médio', data: d.por_dia_semana.map(r => r.media), backgroundColor: '#F59E0B', borderRadius: 4 }],
+      datasets: [{ label: 'Custo médio', data: d.por_dia_semana.map(r => r.media), backgroundColor: 'rgba(245,158,11,0.85)', borderRadius: 8, borderSkipped: false }],
     },
     options: { ...biBarOptions(), plugins: { ...biBarOptions().plugins }, scales: { x: { stacked: false, ticks: { color: tickColor, font: { size: 10 } }, grid: { display: false } }, y: { stacked: false, ticks: { color: tickColor, font: { size: 10 }, callback: v => fmtBRL(v) }, grid: { color: gridColor } } } },
   });
@@ -7335,9 +7354,9 @@ function renderBiCharts(d) {
     data: {
       labels: d.comparativo.map(r => r.mes),
       datasets: [
-        { label: 'Estimado', data: d.comparativo.map(r => r.estimado), borderColor: '#6366F1', backgroundColor: 'rgba(99,102,241,.08)', tension: .35, fill: true, pointRadius: 4 },
-        { label: 'Teto de gasto', data: d.comparativo.map(r => r.teto), borderColor: '#F59E0B', backgroundColor: 'transparent', tension: .35, borderDash: [5,3], pointRadius: 4 },
-        { label: 'Valor real', data: d.comparativo.map(r => r.real), borderColor: '#10B981', backgroundColor: 'rgba(16,185,129,.08)', tension: .35, fill: true, pointRadius: 4 },
+        { label: 'Estimado', data: d.comparativo.map(r => r.estimado), borderColor: '#D4A520', backgroundColor: 'rgba(212,165,32,.10)', tension: .4, fill: true, borderWidth: 2.5, pointRadius: 5, pointHoverRadius: 7, pointBackgroundColor: '#D4A520' },
+        { label: 'Teto de gasto', data: d.comparativo.map(r => r.teto), borderColor: '#EF4444', backgroundColor: 'transparent', tension: .4, borderDash: [6,4], borderWidth: 2, pointRadius: 4, pointHoverRadius: 6, pointBackgroundColor: '#EF4444' },
+        { label: 'Valor real', data: d.comparativo.map(r => r.real), borderColor: '#10B981', backgroundColor: 'rgba(16,185,129,.10)', tension: .4, fill: true, borderWidth: 2.5, pointRadius: 5, pointHoverRadius: 7, pointBackgroundColor: '#10B981' },
       ],
     },
     options: biLineOptions(),
@@ -7354,8 +7373,8 @@ function renderBiCharts(d) {
     data: {
       labels: projLabels,
       datasets: [
-        { label: 'Custo estimado acum.', data: projAccEst, borderColor: '#6366F1', backgroundColor: 'rgba(99,102,241,.06)', borderDash: [6,4], tension: .3, fill: true, pointRadius: 4 },
-        { label: 'Teto de gasto acum.', data: projAccTeto, borderColor: '#F59E0B', backgroundColor: 'rgba(245,158,11,.06)', borderDash: [6,4], tension: .3, fill: true, pointRadius: 4 },
+        { label: 'Custo estimado acum.', data: projAccEst, borderColor: '#D4A520', backgroundColor: 'rgba(212,165,32,.10)', borderDash: [6,4], tension: .4, fill: true, borderWidth: 2.5, pointRadius: 5, pointHoverRadius: 7, pointBackgroundColor: '#D4A520' },
+        { label: 'Teto de gasto acum.', data: projAccTeto, borderColor: '#EF4444', backgroundColor: 'rgba(239,68,68,.08)', borderDash: [6,4], tension: .4, fill: true, borderWidth: 2, pointRadius: 4, pointHoverRadius: 6, pointBackgroundColor: '#EF4444' },
       ],
     },
     options: biLineOptions(),
