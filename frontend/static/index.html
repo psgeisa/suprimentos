@@ -6492,17 +6492,15 @@ async function loadCustosBi() {
   if (biFilterState.ests.size) params.set('estabelecimento', [...biFilterState.ests].join(','));
   if (biFilterState.times.size) params.set('time', [...biFilterState.times].join(','));
 
-  let res;
-  try { res = await fetch(`/api/custos-bi/dados?${params}`, { headers: { 'Authorization': `Bearer ${localStorage.getItem('sup_token')}` } }); }
-  catch(e) { showToast('Erro BI (rede): ' + e.message, 'error'); return; }
+  const res = await apiFetch(`/api/custos-bi/dados?${params}`);
+  if (!res) return; // 401 — apiFetch já fez logout
   if (!res.ok) {
-    let txt = ''; try { txt = await res.text(); } catch(_) {}
-    showToast(`Erro BI HTTP ${res.status}: ${txt.slice(0,150)}`, 'error');
+    let txt = ''; try { txt = await res.clone().text(); } catch(_) {}
+    showToast(`Erro BI ${res.status}: ${txt.slice(0, 200)}`, 'error');
     console.error('[CustosBi]', res.status, txt);
     return;
   }
   const d = await res.json();
-  console.log('[CustosBi] dados:', d);
   renderBiCharts(d);
 }
 
