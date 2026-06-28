@@ -222,6 +222,7 @@ def listar_itens_compra(
                 "quantidade": i.quantidade,
                 "unidade": i.unidade,
                 "valor_estimado": i.valor_estimado,
+                "teto_gasto": i.teto_gasto if i.teto_gasto is not None else (i.valor_estimado or 0) * 1.2,
                 "valor_compra": i.valor_compra,
                 "prioridade": i.prioridade,
                 "emergencia": i.emergencia,
@@ -356,6 +357,7 @@ def finalizar_compra(
             .filter(Suprimento.id.in_(comprados_ids))
             .all()
         )
+        rows_by_id = {row.id: row for row in purchased_rows}
         for row in purchased_rows:
             row.status = "em_andamento"
             if purchased_values.get(row.id) is not None:

@@ -5209,7 +5209,7 @@ function onCompraValorInput(id, input) {
   updateComprasTotal();
 }
 
-async function onCompraValorBlur(id, input) {
+function onCompraValorBlur(id, input) {
   const amount = parseCompraValor(input.value);
   if (amount > 0) {
     comprasValorMap[id] = amount;
@@ -5220,11 +5220,6 @@ async function onCompraValorBlur(id, input) {
   }
   updateCompraLimitState(id, input);
   updateComprasTotal();
-  const response = await apiFetch(`/api/compras/${id}/valor`, {
-    method: 'PUT',
-    body: JSON.stringify({ valor_compra: comprasValorMap[id] || null }),
-  });
-  if (!response || !response.ok) showToast('Não foi possível salvar o valor da compra.', 'error');
 }
 
 function showComprasEmpty(title, hint = '') {
@@ -5342,26 +5337,10 @@ async function loadCompras() {
   renderComprasPagination(data.total, data.page, data.pages);
 }
 
-async function toggleCompraCheck(id, checked) {
+function toggleCompraCheck(id, checked) {
   comprasCheckMap[id] = checked;
   const row = document.getElementById(`compra-row-${id}`);
   if (row) row.classList.toggle('compra-row-checked', checked);
-  const response = await apiFetch(`/api/compras/${id}/marcar`, {
-    method: 'POST',
-    body: JSON.stringify({
-      comprado: checked,
-      valor_compra: comprasValorMap[id] || null,
-    }),
-  });
-  if (!response || !response.ok) {
-    comprasCheckMap[id] = !checked;
-    row?.classList.toggle('compra-row-checked', !checked);
-    const checkbox = row?.querySelector('.compra-check');
-    if (checkbox) checkbox.checked = !checked;
-    showToast('Não foi possível atualizar o status da compra.', 'error');
-    return;
-  }
-  showToast(checked ? 'Item movido para Em andamento.' : 'Item devolvido para Pendente.', 'success');
 }
 
 function renderComprasPagination(total, page, pages) {
@@ -5664,7 +5643,7 @@ function parseAprovacaoTeto(value) {
   return Number.isFinite(amount) && amount > 0 ? amount : 0;
 }
 
-async function onAprovacaoTetoBlur(id, input) {
+function onAprovacaoTetoBlur(id, input) {
   const valor = parseAprovacaoTeto(input.value);
   if (valor > 0) {
     input.value = formatAprovacaoTeto(valor);
@@ -5672,10 +5651,6 @@ async function onAprovacaoTetoBlur(id, input) {
   } else {
     delete aprovacoesTetoMap[id];
   }
-  await apiFetch(`/api/aprovacoes/${id}/teto`, {
-    method: 'PUT',
-    body: JSON.stringify({ teto_gasto: valor > 0 ? valor : null }),
-  });
   updateAprovacoesTotal();
 }
 
@@ -5776,23 +5751,10 @@ async function loadAprovacoes() {
   renderAprovacoesPagination(data.total, data.page, data.pages);
 }
 
-async function toggleAprovacaoCheck(id, checked) {
+function toggleAprovacaoCheck(id, checked) {
   aprovacoesCheckMap[id] = checked;
   const row = document.getElementById(`aprov-row-${id}`);
   if (row) row.classList.toggle('compra-row-checked', checked);
-  const response = await apiFetch(`/api/aprovacoes/${id}/marcar`, {
-    method: 'POST',
-    body: JSON.stringify({ aprovado: checked }),
-  });
-  if (!response || !response.ok) {
-    aprovacoesCheckMap[id] = !checked;
-    row?.classList.toggle('compra-row-checked', !checked);
-    const checkbox = row?.querySelector('.compra-check');
-    if (checkbox) checkbox.checked = !checked;
-    showToast('Não foi possível atualizar o status da aprovação.', 'error');
-    return;
-  }
-  showToast(checked ? 'Item aprovado.' : 'Item devolvido para pendente.', 'success');
   updateAprovacoesTotal();
 }
 
@@ -5834,17 +5796,28 @@ async function finalizarAprovacao() {
     showToast('Marque pelo menos um item como aprovado.', 'error');
     return;
   }
+
+  const naoAprovados = aprovacoesItensCache.filter(i => !aprovacoesCheckMap[i.id]);
+  let msg = `${aprovados.length} item${aprovados.length !== 1 ? 's' : ''} ser${aprovados.length !== 1 ? 'ão' : 'á'} aprovado${aprovados.length !== 1 ? 's' : ''} e encaminhado${aprovados.length !== 1 ? 's' : ''} para Compras.`;
+  if (naoAprovados.length) {
+    const lista = naoAprovados.map(i => `• ${i.item_nome || i.titulo}`).join('\n');
+    msg += `\n\n${naoAprovados.length} item${naoAprovados.length !== 1 ? 's' : ''} não marcado${naoAprovados.length !== 1 ? 's' : ''} permanecerá${naoAprovados.length !== 1 ? 'ão' : ''} como pendente${naoAprovados.length !== 1 ? 's' : ''}:\n${lista}`;
+  }
   const ok = await showConfirm({
     title: 'Finalizar aprovação?',
-    msg: `${aprovados.length} item${aprovados.length !== 1 ? 's' : ''} ser${aprovados.length !== 1 ? 'ão' : 'á'} aprovado${aprovados.length !== 1 ? 's' : ''} e encaminhado${aprovados.length !== 1 ? 's' : ''} para Compras.`,
+    msg,
     okLabel: 'Finalizar aprovação',
     danger: false,
   });
   if (!ok) return;
 
+  const payload = aprovados.map(i => ({
+    id: i.id,
+    teto_gasto: aprovacoesTetoMap[i.id] ?? i.teto_gasto ?? null,
+  }));
   const res = await apiFetch('/api/aprovacoes/finalizar', {
     method: 'POST',
-    body: JSON.stringify({ aprovados: aprovados.map(i => i.id) }),
+    body: JSON.stringify({ aprovados: payload }),
   });
   if (res && res.ok) {
     showToast('Aprovação finalizada com sucesso!', 'success');
@@ -6150,9 +6123,15 @@ async function finalizarEntrega() {
     showToast('Marque pelo menos um item como entregue antes de finalizar.', 'error');
     return;
   }
+  const naoEntregues = entregasItensCache.filter(i => !entregasCheckMap[i.id]);
+  let msgEntrega = `${entregues.length} item${entregues.length !== 1 ? 's' : ''} ser${entregues.length !== 1 ? 'ão' : 'á'} marcado${entregues.length !== 1 ? 's' : ''} como entregue${entregues.length !== 1 ? 's' : ''}. Esta ação não pode ser desfeita.`;
+  if (naoEntregues.length) {
+    const lista = naoEntregues.map(i => `• ${i.item_nome || i.titulo}`).join('\n');
+    msgEntrega += `\n\n${naoEntregues.length} item${naoEntregues.length !== 1 ? 's' : ''} não marcado${naoEntregues.length !== 1 ? 's' : ''} permanecerá${naoEntregues.length !== 1 ? 'ão' : ''} em andamento:\n${lista}`;
+  }
   const ok = await showConfirm({
     title: 'Finalizar entregas?',
-    msg: `${entregues.length} item${entregues.length !== 1 ? 's' : ''} ser${entregues.length !== 1 ? 'ão' : 'á'} marcado${entregues.length !== 1 ? 's' : ''} como concluído${entregues.length !== 1 ? 's' : ''}. Esta ação não pode ser desfeita.`,
+    msg: msgEntrega,
     okLabel: 'Finalizar',
     danger: false,
   });

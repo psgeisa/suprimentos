@@ -180,8 +180,8 @@ def listar_itens_aprovacao(
 
     result = []
     for i in items:
-        if i.valor_compra is not None:
-            teto_gasto = i.valor_compra
+        if i.teto_gasto is not None:
+            teto_gasto = i.teto_gasto
         else:
             teto_gasto = (i.valor_estimado or 0) * 1.2
         result.append(
@@ -250,10 +250,10 @@ def salvar_teto_gasto(
         raise HTTPException(404, "Suprimento não encontrado")
     if item.status != "pendente":
         raise HTTPException(409, "O teto de gasto só pode ser editado em itens pendentes")
-    item.valor_compra = data.teto_gasto
+    item.teto_gasto = data.teto_gasto
     item.updated_at = datetime.utcnow()
     db.commit()
-    return {"ok": True, "valor_compra": item.valor_compra}
+    return {"ok": True, "teto_gasto": item.teto_gasto}
 
 
 class EliminarRequest(BaseModel):
@@ -291,8 +291,13 @@ def eliminar_item(
     return {"ok": True, "log_id": log.id}
 
 
+class FinalizarAprovacaoItem(BaseModel):
+    id: int
+    teto_gasto: Optional[float] = Field(default=None, gt=0)
+
+
 class FinalizarAprovacaoRequest(BaseModel):
-    aprovados: List[int]
+    aprovados: List[FinalizarAprovacaoItem]
 
 
 @router.post("/finalizar")
@@ -304,10 +309,12 @@ def finalizar_aprovacao(
     if not data.aprovados:
         return {"ok": True, "total_aprovados": 0}
 
+    ids = [item.id for item in data.aprovados]
+    teto_map = {item.id: item.teto_gasto for item in data.aprovados}
     rows = (
         db.query(Suprimento)
         .filter(
-            Suprimento.id.in_(data.aprovados),
+            Suprimento.id.in_(ids),
             Suprimento.status == "pendente",
         )
         .all()
@@ -315,6 +322,10 @@ def finalizar_aprovacao(
     now = datetime.utcnow()
     for row in rows:
         row.status = "aprovado"
+        if teto_map.get(row.id) is not None:
+            row.teto_gasto = teto_map[row.id]
+        elif row.teto_gasto is None:
+            row.teto_gasto = (row.valor_estimado or 0) * 1.2
         row.updated_at = now
     db.commit()
 
