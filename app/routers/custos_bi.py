@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Query
-from sqlalchemy import func, case, extract
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.auth import get_current_user
@@ -94,21 +94,6 @@ def dados_custos_bi(
 ):
     base_q = db.query(Suprimento).filter(Suprimento.status.in_(STATUSES_CUSTO))
     base_q = _apply_filters(base_q, busca, data_inicio, data_fim, segmento, estabelecimento, time_val, db)
-
-    # ── 1. Custo total por mês ────────────────────────────────────────────
-    por_mes_rows = (
-        db.query(
-            func.to_char(Suprimento.created_at, "YYYY-MM").label("mes"),
-            func.sum(_custo()).label("custo"),
-        )
-        .filter(Suprimento.status.in_(STATUSES_CUSTO))
-        .filter(*(base_q.whereclause,) if base_q.whereclause is not None else ())
-        .group_by("mes")
-        .order_by("mes")
-        .all()
-    )
-
-    # ── easier: pull items and aggregate in Python ─────────────────────────
     items = base_q.all()
 
     # custo efetivo por item

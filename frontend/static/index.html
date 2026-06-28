@@ -6474,7 +6474,7 @@ async function loadCustosBi() {
   if (biFilterState.times.size) params.set('time', [...biFilterState.times].join(','));
 
   const res = await apiFetch(`/api/custos-bi/dados?${params}`);
-  if (!res || !res.ok) return;
+  if (!res || !res.ok) { showToast('Erro ao carregar dados de Custos BI.', 'error'); return; }
   const d = await res.json();
   renderBiCharts(d);
 }
