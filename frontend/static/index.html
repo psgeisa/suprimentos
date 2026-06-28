@@ -6496,7 +6496,7 @@ async function loadCustosBi() {
   if (!res) return; // 401 — apiFetch já fez logout
   if (!res.ok) {
     let txt = ''; try { txt = await res.clone().text(); } catch(_) {}
-    showToast(`Erro BI ${res.status}: ${txt.slice(0, 200)}`, 'error');
+    showToast(`Erro BI ${res.status}: ${txt.slice(0, 800)}`, 'error');
     console.error('[CustosBi]', res.status, txt);
     return;
   }
