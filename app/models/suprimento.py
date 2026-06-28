@@ -18,6 +18,7 @@ class Suprimento(Base):
     fornecedor_sugerido = Column(String(200), nullable=True)
     estabelecimento_id = Column(Integer, nullable=True)
     solicitante = Column(String(150), nullable=False)
+    solicitante_responsavel = Column(String(150), nullable=True)
     departamento = Column(String(500), nullable=False)
     prioridade = Column(String(20), nullable=False, default="media")
     emergencia = Column(Integer, default=0)

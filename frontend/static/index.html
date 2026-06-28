@@ -1209,6 +1209,47 @@
         </div>
       </div>
 
+      <!-- ── Solicitante Responsável ── -->
+      <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1">Solicitante Responsável</label>
+        <div class="relative" id="respWrapper">
+          <div class="ss-trigger" id="respTrigger" onclick="toggleRespSelector()">
+            <span id="respDisplay" class="text-sm text-slate-400">Selecionar responsável...</span>
+            <svg class="w-4 h-4 text-slate-400 flex-shrink-0 ml-2 transition-transform" id="respChevron"
+              fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </div>
+          <div class="ss-dropdown" id="respDropdown">
+            <div class="ms-search-wrap">
+              <input class="ms-search" id="respSearch" placeholder="Buscar stakeholder..."
+                oninput="searchRespOptions(this.value)" autocomplete="off" />
+            </div>
+            <div id="respOptions"></div>
+          </div>
+        </div>
+        <input type="hidden" id="fSolicitanteResp" />
+      </div>
+
+      <!-- ── Time do Responsável ── -->
+      <div id="respTimeRow" class="hidden">
+        <label class="block text-xs font-semibold text-slate-600 mb-1">Time do Responsável</label>
+        <div class="relative" id="respTimeWrapper">
+          <div class="ss-trigger" id="respTimeTrigger" onclick="toggleRespTimeSelector()">
+            <span id="respTimeDisplay" class="text-sm text-slate-400">Selecionar time...</span>
+            <svg class="w-4 h-4 text-slate-400 flex-shrink-0 ml-2 transition-transform" id="respTimeChevron"
+              fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+            </svg>
+          </div>
+          <div class="ss-dropdown" id="respTimeDropdown">
+            <div id="respTimeOptions"></div>
+          </div>
+        </div>
+        <input type="hidden" id="fRespTime" />
+        <p class="text-xs text-slate-400 mt-1">Times vinculados a este responsável</p>
+      </div>
+
       <div>
         <label class="block text-xs font-semibold text-slate-600 mb-1">Equipe demandante *</label>
         <div class="relative" id="equipeWrapper">
@@ -2097,6 +2138,8 @@ function closeSsAll() {
     if (document.getElementById(id+'Chevron')) document.getElementById(id+'Chevron').style.transform = '';
     document.getElementById(id+'Trigger')?.classList.remove('open');
   });
+  closeRespSelector();
+  closeRespTimeSelector();
 }
 
 function selectSsOption(id, value, label) {
@@ -2139,8 +2182,143 @@ function setSsValue(id, value) {
 }
 
 document.addEventListener('click', e => {
-  if (!e.target.closest('#unidadeWrapper') && !e.target.closest('#estabelecimentoWrapper')) closeSsAll();
+  if (!e.target.closest('#unidadeWrapper') && !e.target.closest('#estabelecimentoWrapper')
+      && !e.target.closest('#respWrapper') && !e.target.closest('#respTimeWrapper')) closeSsAll();
 });
+
+// ── Solicitante Responsável ───────────────────────────────────────────────
+let stakeholdersCache = [];
+
+async function loadStakeholdersCache() {
+  if (stakeholdersCache.length) return;
+  const res = await apiFetch('/api/usuarios');
+  if (res && res.ok) stakeholdersCache = await res.json();
+}
+
+function buildRespOptions(filterTerm = '') {
+  const term = filterTerm.toLowerCase();
+  const container = document.getElementById('respOptions');
+  if (!container) return;
+  const list = term
+    ? stakeholdersCache.filter(u => u.nome.toLowerCase().includes(term) || (u.time || '').toLowerCase().includes(term))
+    : stakeholdersCache;
+  container.innerHTML = list.map(u =>
+    `<div class="ss-option" data-value="${u.id}" data-nome="${u.nome}"
+        data-time="${u.time || ''}" data-search="${(u.nome + ' ' + (u.time||'')).toLowerCase()}"
+        onclick="selectResp(${u.id},'${u.nome.replace(/'/g,"&#39;")}','${(u.time||'').replace(/'/g,"&#39;")}')">
+      ${u.nome}${u.time ? `<span class="text-xs text-slate-400 ml-1">· ${u.time}</span>` : ''}
+    </div>`
+  ).join('') || '<p class="text-xs text-slate-400 p-3">Nenhum stakeholder encontrado</p>';
+}
+
+function toggleRespSelector() {
+  const dd = document.getElementById('respDropdown');
+  const isOpen = dd.classList.contains('open');
+  closeSsAll();
+  if (!isOpen) {
+    loadStakeholdersCache().then(() => buildRespOptions());
+    dd.classList.add('open');
+    document.getElementById('respChevron').style.transform = 'rotate(180deg)';
+    document.getElementById('respTrigger').classList.add('open');
+    setTimeout(() => document.getElementById('respSearch')?.focus(), 50);
+  }
+}
+
+function closeRespSelector() {
+  document.getElementById('respDropdown')?.classList.remove('open');
+  const ch = document.getElementById('respChevron');
+  if (ch) ch.style.transform = '';
+  document.getElementById('respTrigger')?.classList.remove('open');
+}
+
+function searchRespOptions(q) {
+  buildRespOptions(q);
+}
+
+function selectResp(id, nome, time) {
+  document.getElementById('fSolicitanteResp').value = nome;
+  const display = document.getElementById('respDisplay');
+  display.textContent = nome;
+  display.classList.remove('text-slate-400');
+  display.classList.add('text-slate-700');
+  closeRespSelector();
+  document.getElementById('respSearch').value = '';
+
+  // Monta o seletor de times do responsável
+  const times = time ? time.split(',').map(t => t.trim()).filter(Boolean) : [];
+  const row = document.getElementById('respTimeRow');
+  if (times.length) {
+    row.classList.remove('hidden');
+    buildRespTimeOptions(times);
+  } else {
+    row.classList.add('hidden');
+    document.getElementById('fRespTime').value = '';
+    resetRespTimeDisplay();
+  }
+}
+
+function clearResp() {
+  document.getElementById('fSolicitanteResp').value = '';
+  const display = document.getElementById('respDisplay');
+  display.textContent = 'Selecionar responsável...';
+  display.classList.add('text-slate-400');
+  display.classList.remove('text-slate-700');
+  document.getElementById('respTimeRow').classList.add('hidden');
+  document.getElementById('fRespTime').value = '';
+  resetRespTimeDisplay();
+}
+
+// ── Time do Responsável ───────────────────────────────────────────────────
+function buildRespTimeOptions(times) {
+  const container = document.getElementById('respTimeOptions');
+  if (!container) return;
+  container.innerHTML = times.map(t =>
+    `<div class="ss-option" data-value="${t}" onclick="selectRespTime('${t.replace(/'/g,"&#39;")}')">
+      ${t}
+    </div>`
+  ).join('');
+  // Se só tem um time, pré-seleciona
+  if (times.length === 1) selectRespTime(times[0]);
+}
+
+function toggleRespTimeSelector() {
+  const dd = document.getElementById('respTimeDropdown');
+  const isOpen = dd.classList.contains('open');
+  closeSsAll();
+  if (!isOpen) {
+    dd.classList.add('open');
+    document.getElementById('respTimeChevron').style.transform = 'rotate(180deg)';
+    document.getElementById('respTimeTrigger').classList.add('open');
+  }
+}
+
+function closeRespTimeSelector() {
+  document.getElementById('respTimeDropdown')?.classList.remove('open');
+  const ch = document.getElementById('respTimeChevron');
+  if (ch) ch.style.transform = '';
+  document.getElementById('respTimeTrigger')?.classList.remove('open');
+}
+
+function selectRespTime(value) {
+  document.getElementById('fRespTime').value = value;
+  const display = document.getElementById('respTimeDisplay');
+  display.textContent = value;
+  display.classList.remove('text-slate-400');
+  display.classList.add('text-slate-700');
+  document.getElementById('respTimeOptions').querySelectorAll('.ss-option').forEach(o =>
+    o.classList.toggle('active', o.dataset.value === value)
+  );
+  closeRespTimeSelector();
+}
+
+function resetRespTimeDisplay() {
+  const display = document.getElementById('respTimeDisplay');
+  if (display) {
+    display.textContent = 'Selecionar time...';
+    display.classList.add('text-slate-400');
+    display.classList.remove('text-slate-700');
+  }
+}
 
 function buildUnidadeOptions() {
   const hidden = document.getElementById('fUnidade');
@@ -2659,6 +2837,14 @@ async function openDrawer(item = null) {
     setMsValues('equipe', (item.departamento||'').split(',').map(s=>s.trim()).filter(Boolean));
     toggleEmergencia(!!item.emergencia);
     if (item.prazo_emergencia) document.getElementById('fPrazoEmerg').value = item.prazo_emergencia;
+    // Solicitante Responsável
+    await loadStakeholdersCache();
+    if (item.solicitante_responsavel) {
+      const u = stakeholdersCache.find(s => s.nome === item.solicitante_responsavel);
+      selectResp(u ? u.id : 0, item.solicitante_responsavel, u ? (u.time || '') : '');
+    } else {
+      clearResp();
+    }
     // Anexos
     document.getElementById('anexosSection').classList.remove('hidden');
     loadAnexos(item.id);
@@ -2678,6 +2864,8 @@ async function openDrawer(item = null) {
     document.getElementById('emergToggle').classList.remove('on');
     document.getElementById('prazoEmergRow').classList.add('hidden');
     document.getElementById('anexosSection').classList.add('hidden');
+    clearResp();
+    await loadStakeholdersCache();
   }
 
   document.getElementById('drawer').classList.add('open');
@@ -2704,13 +2892,14 @@ async function submitForm(e) {
   const data_necessidade= document.getElementById('fDataNec').value || null;
   const descricao       = document.getElementById('fDescricao').value || null;
   const observacoes     = document.getElementById('fObs').value || null;
-  const solicitante     = currentUser ? currentUser.nome : '';
+  const solicitante              = currentUser ? currentUser.nome : '';
+  const solicitante_responsavel  = document.getElementById('fSolicitanteResp').value || null;
 
   // Edição: sempre um item, layout único
   if (id) {
     const item = selectedItems[0] || {};
     const body = {
-      titulo, solicitante, departamento: equipe, categoria: item.segmento || '',
+      titulo, solicitante, solicitante_responsavel, departamento: equipe, categoria: item.segmento || '',
       item_id: item.id || null, item_nome: item.nome || null,
       quantidade: parseFloat(document.getElementById('fQtd').value),
       unidade: document.getElementById('fUnidade').value,
@@ -2753,7 +2942,7 @@ async function submitForm(e) {
     }
 
     const body = {
-      titulo, solicitante, departamento: equipe, categoria: si.segmento,
+      titulo, solicitante, solicitante_responsavel, departamento: equipe, categoria: si.segmento,
       item_id: si.id, item_nome: si.nome,
       quantidade, unidade, prioridade, emergencia, prazo_emergencia,
       data_necessidade, valor_estimado, fornecedor_sugerido, estabelecimento_id,
@@ -2883,8 +3072,9 @@ async function showDetail(id) {
         </div>` : ''}
       ${s.descricao ? `<p class="text-sm text-slate-600 bg-slate-50 rounded-xl p-4">${s.descricao}</p>` : ''}
       <div class="grid grid-cols-2 gap-3 text-sm">
-        <div class="bg-slate-50 rounded-xl p-3"><p class="text-xs text-slate-400 mb-1">Solicitante</p><p class="font-semibold text-slate-700">${s.solicitante}</p></div>
-        <div class="bg-slate-50 rounded-xl p-3"><p class="text-xs text-slate-400 mb-1">Equipe demandante</p><div class="flex flex-wrap gap-1 mt-1">${equipes.map(e=>`<span class="bg-amber-50 text-amber-800 text-xs px-2 py-0.5 rounded font-medium">${e}</span>`).join('')}</div></div>
+        <div class="bg-slate-50 rounded-xl p-3"><p class="text-xs text-slate-400 mb-1">Aberto por</p><p class="font-semibold text-slate-700">${s.solicitante}</p></div>
+        ${s.solicitante_responsavel ? `<div class="bg-slate-50 rounded-xl p-3"><p class="text-xs text-slate-400 mb-1">Solicitante Responsável</p><p class="font-semibold text-slate-700">${s.solicitante_responsavel}</p></div>` : '<div></div>'}
+        <div class="bg-slate-50 rounded-xl p-3 col-span-2"><p class="text-xs text-slate-400 mb-1">Equipe demandante</p><div class="flex flex-wrap gap-1 mt-1">${equipes.map(e=>`<span class="bg-amber-50 text-amber-800 text-xs px-2 py-0.5 rounded font-medium">${e}</span>`).join('')}</div></div>
         <div class="bg-slate-50 rounded-xl p-3"><p class="text-xs text-slate-400 mb-1">Quantidade</p><p class="font-semibold text-slate-700">${s.quantidade} ${s.unidade}</p></div>
         <div class="bg-slate-50 rounded-xl p-3"><p class="text-xs text-slate-400 mb-1">Valor Estimado</p><p class="font-semibold text-slate-700">${s.valor_estimado?'R$ '+s.valor_estimado.toLocaleString('pt-BR',{minimumFractionDigits:2}):'—'}</p></div>
         ${s.fornecedor_sugerido?`<div class="bg-slate-50 rounded-xl p-3"><p class="text-xs text-slate-400 mb-1">Fornecedor</p><p class="font-semibold text-slate-700">${s.fornecedor_sugerido}</p></div>`:''}

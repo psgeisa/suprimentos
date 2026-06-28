@@ -149,6 +149,9 @@ def migrate_schema():
     if "item_nome" not in sup_columns2:
         with engine.begin() as connection:
             connection.execute(text("ALTER TABLE suprimentos ADD COLUMN item_nome VARCHAR(200)"))
+    if "solicitante_responsavel" not in sup_columns2:
+        with engine.begin() as connection:
+            connection.execute(text("ALTER TABLE suprimentos ADD COLUMN solicitante_responsavel VARCHAR(150)"))
 
 
 def create_app() -> FastAPI:

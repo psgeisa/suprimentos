@@ -15,6 +15,7 @@ class SuprimentoCreate(BaseModel):
     fornecedor_sugerido: Optional[str] = None
     estabelecimento_id: Optional[int] = None
     solicitante: str
+    solicitante_responsavel: Optional[str] = None
     departamento: str
     prioridade: str = "media"
     emergencia: int = 0
@@ -36,6 +37,7 @@ class SuprimentoUpdate(BaseModel):
     fornecedor_sugerido: Optional[str] = None
     estabelecimento_id: Optional[int] = None
     solicitante: Optional[str] = None
+    solicitante_responsavel: Optional[str] = None
     departamento: Optional[str] = None
     prioridade: Optional[str] = None
     emergencia: Optional[int] = None
@@ -59,6 +61,7 @@ class SuprimentoOut(BaseModel):
     estabelecimento_id: Optional[int]
     estabelecimento_tipo: Optional[str] = None
     solicitante: str
+    solicitante_responsavel: Optional[str] = None
     departamento: str
     prioridade: str
     emergencia: int
