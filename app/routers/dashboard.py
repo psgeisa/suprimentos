@@ -248,15 +248,20 @@ async def check_similar_segmento(data: SimilarSegmentoRequest):
             return {"conflict_type": "composed", "similar_to": cand}
 
     # Caso 3 — variação morfológica (fuzzy >= 0.72 na forma normalizada)
-    best_ratio, best_cand = 0.0, None
+    best_ratio, best_cand, best_cand_norm = 0.0, None, None
     for cand, cand_norm in pairs:
         ratio = difflib.SequenceMatcher(None, nome_norm, cand_norm).ratio()
         if ratio > best_ratio:
-            best_ratio, best_cand = ratio, cand
+            best_ratio, best_cand, best_cand_norm = ratio, cand, cand_norm
     if best_ratio >= 0.72:
-        return {"conflict_type": "variation", "similar_to": best_cand, "score": round(best_ratio, 3)}
+        return {
+            "conflict_type": "variation",
+            "similar_to": best_cand,
+            "score": round(best_ratio, 3),
+            "variation_type": _detect_variation_type(nome_norm, best_cand_norm),
+        }
 
-    # Caso 4 — verificação semântica via IA (Gemini → Groq como fallback)
+    # Caso 4 — verificação semântica via IA (Gemini → Groq → Cerebras)
     cand_list = [c for c, _ in pairs]
     prompt = (
         "Você é especialista em categorização de produtos para um sistema de gestão de suprimentos brasileiro.\n"
@@ -276,9 +281,19 @@ async def check_similar_segmento(data: SimilarSegmentoRequest):
         text = re.sub(r"^```[a-z]*\n?", "", text.strip()).rstrip("` \n")
         return _json.loads(text)
 
-    # Tentativa 1: Google Gemini
+    def _ai_result(ai_data: dict, model_name: str):
+        if ai_data.get("match"):
+            return {
+                "conflict_type": "ai",
+                "similar_to": ai_data.get("matched_term"),
+                "explanation": ai_data.get("explanation"),
+                "model_name": model_name,
+            }
+        return None
+
+    # Tentativa 1: Google Gemini (gemini-2.0-flash)
     gemini_key = os.getenv("GEMINI_API_KEY", "")
-    print(f"[IA] GEMINI_API_KEY presente: {bool(gemini_key)} | GROQ_API_KEY presente: {bool(os.getenv('GROQ_API_KEY'))}")
+    print(f"[IA] GEMINI_API_KEY: {bool(gemini_key)} | GROQ: {bool(os.getenv('GROQ_API_KEY'))} | CEREBRAS: {bool(os.getenv('CEREBRAS_API_KEY'))}")
     if gemini_key:
         try:
             async with httpx.AsyncClient(timeout=15.0) as client:
@@ -290,30 +305,21 @@ async def check_similar_segmento(data: SimilarSegmentoRequest):
                 print(f"[IA] Gemini status: {resp.status_code} | body: {resp.text[:300]}")
                 if resp.status_code == 200:
                     text = resp.json()["candidates"][0]["content"]["parts"][0]["text"]
-                    ai_data = _parse_ai_json(text)
-                    if ai_data.get("match"):
-                        return {
-                            "conflict_type": "ai",
-                            "similar_to": ai_data.get("matched_term"),
-                            "explanation": ai_data.get("explanation"),
-                        }
-                    return {"conflict_type": None}
+                    result = _ai_result(_parse_ai_json(text), "Gemini 2.0 Flash")
+                    return result if result else {"conflict_type": None}
         except Exception as e:
             print(f"[IA] Gemini erro: {e}")
 
-    # Tentativa 2: Groq (fallback gratuito)
+    # Tentativa 2: Groq — llama-3.3-70b-versatile
     groq_key = os.getenv("GROQ_API_KEY", "")
     if groq_key:
         try:
             async with httpx.AsyncClient(timeout=15.0) as client:
                 resp = await client.post(
                     "https://api.groq.com/openai/v1/chat/completions",
-                    headers={
-                        "Authorization": f"Bearer {groq_key}",
-                        "content-type": "application/json",
-                    },
+                    headers={"Authorization": f"Bearer {groq_key}", "content-type": "application/json"},
                     json={
-                        "model": "llama3-70b-8192",
+                        "model": "llama-3.3-70b-versatile",
                         "messages": [{"role": "user", "content": prompt}],
                         "max_tokens": 200,
                         "temperature": 0,
@@ -322,17 +328,68 @@ async def check_similar_segmento(data: SimilarSegmentoRequest):
                 print(f"[IA] Groq status: {resp.status_code} | body: {resp.text[:300]}")
                 if resp.status_code == 200:
                     text = resp.json()["choices"][0]["message"]["content"]
-                    ai_data = _parse_ai_json(text)
-                    if ai_data.get("match"):
-                        return {
-                            "conflict_type": "ai",
-                            "similar_to": ai_data.get("matched_term"),
-                            "explanation": ai_data.get("explanation"),
-                        }
+                    result = _ai_result(_parse_ai_json(text), "Groq Llama 3.3 70B")
+                    if result:
+                        return result
         except Exception as e:
             print(f"[IA] Groq erro: {e}")
 
+    # Tentativa 3: Cerebras — llama-3.3-70b (generoso, ~1000 req/hora grátis)
+    cerebras_key = os.getenv("CEREBRAS_API_KEY", "")
+    if cerebras_key:
+        try:
+            async with httpx.AsyncClient(timeout=15.0) as client:
+                resp = await client.post(
+                    "https://api.cerebras.ai/v1/chat/completions",
+                    headers={"Authorization": f"Bearer {cerebras_key}", "content-type": "application/json"},
+                    json={
+                        "model": "llama-3.3-70b",
+                        "messages": [{"role": "user", "content": prompt}],
+                        "max_tokens": 200,
+                        "temperature": 0,
+                    },
+                )
+                print(f"[IA] Cerebras status: {resp.status_code} | body: {resp.text[:300]}")
+                if resp.status_code == 200:
+                    text = resp.json()["choices"][0]["message"]["content"]
+                    result = _ai_result(_parse_ai_json(text), "Cerebras Llama 3.3 70B")
+                    if result:
+                        return result
+        except Exception as e:
+            print(f"[IA] Cerebras erro: {e}")
+
     return {"conflict_type": None}
+
+
+def _detect_variation_type(new_norm: str, cand_norm: str) -> str:
+    """Detecta o tipo de variação morfológica entre dois termos normalizados."""
+    # Plural do candidato
+    plurals = {cand_norm + "s", cand_norm + "es"}
+    if cand_norm.endswith("ao"):
+        plurals.update([cand_norm[:-2] + "oes", cand_norm[:-2] + "aes", cand_norm + "s"])
+    if cand_norm.endswith("m"):
+        plurals.add(cand_norm[:-1] + "ns")
+    if cand_norm.endswith("l"):
+        plurals.add(cand_norm[:-1] + "is")
+    if new_norm in plurals:
+        return "plural"
+    # Singular (candidato é plural do novo)
+    singulars = {new_norm + "s", new_norm + "es"}
+    if new_norm.endswith("ao"):
+        singulars.update([new_norm[:-2] + "oes", new_norm[:-2] + "aes"])
+    if cand_norm in singulars:
+        return "singular"
+    # Diminutivo
+    for suf in ("zinho", "zinha", "inho", "inha"):
+        if new_norm.endswith(suf) and new_norm[: -len(suf)].rstrip("z") == cand_norm:
+            return "diminutivo"
+        if cand_norm.endswith(suf) and cand_norm[: -len(suf)].rstrip("z") == new_norm:
+            return "diminutivo"
+    # Aumentativo
+    for suf in ("zao", "zaona", "ona"):
+        if new_norm.endswith(suf) and new_norm[: -len(suf)] == cand_norm:
+            return "aumentativo"
+    return "variação morfológica"
 
 
 class IaSugestaoLogCreate(BaseModel):

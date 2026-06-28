@@ -1399,9 +1399,9 @@
   <section id="page-segmentos" class="p-8 hidden" style="min-height:calc(100vh - 73px)">
     <div class="filter-bar">
       <div class="flex items-center gap-4">
-        <input id="segSearch" type="text" placeholder="Buscar segmento..."
-          class="border border-slate-200 rounded-lg px-3 py-2 text-sm flex-1" oninput="segPage=1;renderSegmentos()" />
-        <button onclick="openMgmtDrawer('segmento')" class="btn-primary flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold shadow-md">
+        <input id="segSearch" type="text" placeholder="Buscar ou digitar novo segmento..."
+          class="border border-slate-200 rounded-lg px-3 py-2 text-sm flex-1" oninput="segPage=1;renderSegmentos();updateSegBtn()" />
+        <button id="segBtn" onclick="openMgmtDrawer('segmento')" class="btn-primary flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold shadow-md">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
           Novo Segmento
         </button>
@@ -2317,38 +2317,51 @@
   </div>
 </div>
 
-<!-- ── Modal Validação Segmento Similar ───────────────────────────────────── -->
+<!-- ── Modal Variação Morfológica (bloqueante) ─────────────────────────────── -->
+<div id="modalVariacaoSegmento" class="modal-overlay" style="z-index:10000;">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full mx-4 p-6">
+    <div class="flex items-start gap-4 mb-4">
+      <div class="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 bg-orange-100">
+        <svg class="w-5 h-5 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+        </svg>
+      </div>
+      <div class="flex-1">
+        <h3 id="varSegTitle" class="font-bold text-slate-800 text-base mb-1"></h3>
+        <p id="varSegMsg" class="text-slate-500 text-sm leading-relaxed"></p>
+      </div>
+    </div>
+    <button id="varSegOkBtn"
+      class="w-full mt-4 px-4 py-2.5 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-semibold text-sm transition-colors">
+      Entendido
+    </button>
+  </div>
+</div>
+
+<!-- ── Modal IA Semântica (com escolha) ───────────────────────────────────── -->
 <div id="modalSimilarSegmento" class="modal-overlay" style="z-index:10000;">
   <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full mx-4 p-6">
     <div class="flex items-start gap-4 mb-4">
-      <div id="simSegIconWrap" class="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 bg-amber-100">
-        <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20A10 10 0 0012 2z"/>
+      <div class="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 bg-violet-100">
+        <svg class="w-5 h-5 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
         </svg>
       </div>
       <div class="flex-1">
         <h3 id="simSegTitle" class="font-bold text-slate-800 text-base mb-1"></h3>
-        <p id="simSegMsg" class="text-slate-500 text-sm leading-relaxed mb-2"></p>
-        <p class="text-slate-400 text-xs leading-relaxed">Usar o termo existente ajuda a evitar duplicidades e mantém os cadastros padronizados.</p>
-        <div id="simSegExplanationWrap" class="hidden mt-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
-          <p class="text-xs text-amber-700 font-medium mb-0.5">Identificado pela IA:</p>
-          <p id="simSegExplanation" class="text-sm text-amber-800 leading-snug"></p>
+        <p id="simSegMsg" class="text-slate-400 text-xs leading-relaxed mb-2"></p>
+        <div id="simSegExplanationWrap" class="hidden mt-2 bg-violet-50 border border-violet-200 rounded-lg px-3 py-2">
+          <p id="simSegExplanation" class="text-sm text-violet-800 leading-snug"></p>
         </div>
       </div>
     </div>
     <div class="space-y-2 mt-4">
       <button id="simSegUseExisting"
-        class="w-full px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-semibold text-sm transition-colors text-left flex items-center gap-3">
-        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-        </svg>
+        class="w-full px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-700 text-white font-semibold text-sm transition-colors">
         <span id="simSegUseExistingLabel"></span>
       </button>
       <button id="simSegForceNew"
-        class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-semibold text-sm hover:bg-slate-50 transition-colors text-left flex items-center gap-3">
-        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-        </svg>
+        class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-semibold text-sm hover:bg-slate-50 transition-colors">
         <span id="simSegForceNewLabel"></span>
       </button>
     </div>
@@ -2446,15 +2459,39 @@ function showNotice({ title, msg, okLabel = 'Entendi' }) {
   return promise;
 }
 
-// Retorna Promise<boolean>: true = usar existente, false = cadastrar mesmo assim
-function showSimilarSegmentoChoice({ conflictType, similarTo, explanation, newTerm }) {
+// Modal bloqueante para variação morfológica (plural, diminutivo, etc.)
+function showVariacaoSegmento({ similarTo, variationType }) {
+  const modal = document.getElementById('modalVariacaoSegmento');
+  const typeLabels = {
+    plural:              'forma plural',
+    singular:            'forma singular',
+    diminutivo:          'forma diminutiva',
+    aumentativo:         'forma aumentativa',
+    'variação morfológica': 'variação morfológica',
+  };
+  const label = typeLabels[variationType] || 'variação morfológica';
+  document.getElementById('varSegTitle').textContent = `Você quis dizer "${similarTo}"?`;
+  document.getElementById('varSegMsg').textContent   =
+    `O termo digitado é a ${label} de "${similarTo}", que já está cadastrado. Use o termo existente para manter os cadastros padronizados.`;
+  modal.classList.add('open');
+  return new Promise(resolve => {
+    const close = () => { modal.classList.remove('open'); resolve(); };
+    document.getElementById('varSegOkBtn').onclick = close;
+    modal.onclick = e => { if (e.target === modal) close(); };
+  });
+}
+
+// Modal com escolha para correspondência semântica identificada pela IA
+// Retorna Promise<boolean>: true = usar existente, false = manter novo
+function showSimilarSegmentoChoice({ similarTo, explanation, newTerm, modelName }) {
   const modal = document.getElementById('modalSimilarSegmento');
   document.getElementById('simSegTitle').textContent = `Você quis dizer "${similarTo}"?`;
-  document.getElementById('simSegMsg').textContent   = 'Já existe um termo muito parecido cadastrado.';
+  document.getElementById('simSegMsg').textContent   =
+    `Uma análise semântica realizada pelo modelo "${modelName || 'IA'}" identificou uma forte semelhança entre "${newTerm}" e "${similarTo}".`;
   document.getElementById('simSegUseExistingLabel').textContent = `Usar "${similarTo}"`;
-  document.getElementById('simSegForceNewLabel').textContent    = `Continuar com "${newTerm}"`;
+  document.getElementById('simSegForceNewLabel').textContent    = `Manter "${newTerm}"`;
   const expWrap = document.getElementById('simSegExplanationWrap');
-  if (conflictType === 'ai' && explanation) {
+  if (explanation) {
     document.getElementById('simSegExplanation').textContent = explanation;
     expWrap.classList.remove('hidden');
   } else {
@@ -2465,7 +2502,7 @@ function showSimilarSegmentoChoice({ conflictType, similarTo, explanation, newTe
     const cleanup = result => { modal.classList.remove('open'); resolve(result); };
     document.getElementById('simSegUseExisting').onclick = () => cleanup(true);
     document.getElementById('simSegForceNew').onclick    = () => cleanup(false);
-    modal.onclick = e => { if (e.target === modal) cleanup(true); }; // fechar fora = usar existente (default)
+    modal.onclick = e => { if (e.target === modal) cleanup(true); };
   });
 }
 
@@ -4967,19 +5004,22 @@ async function submitMgmtForm(e) {
           if (useExisting) { closeMgmtDrawer(); return; }
         }
 
-        // Caso 3 — variação morfológica (plural, diminutivo, etc.)
+        // Caso 3 — variação morfológica: bloqueante, sem opção de continuar
         if (check.conflict_type === 'variation') {
-          const useExisting = await showSimilarSegmentoChoice({
-            conflictType: 'variation', similarTo: check.similar_to, newTerm: nome
+          await showVariacaoSegmento({
+            similarTo: check.similar_to,
+            variationType: check.variation_type || 'variação morfológica',
           });
-          if (useExisting) { closeMgmtDrawer(); return; }
+          return;
         }
 
         // Caso 4 — correspondência semântica detectada pela IA
         if (check.conflict_type === 'ai') {
           const useExisting = await showSimilarSegmentoChoice({
-            conflictType: 'ai', similarTo: check.similar_to,
-            explanation: check.explanation, newTerm: nome
+            similarTo: check.similar_to,
+            explanation: check.explanation,
+            newTerm: nome,
+            modelName: check.model_name,
           });
           // Persiste decisão do stakeholder
           await apiFetch('/api/ia-sugestao-log', {
@@ -5306,6 +5346,72 @@ function renderSegmentos() {
   renderMgmtPagination('segmentosPagination', all.length, segPage, pages, 'goPageSeg');
 }
 function goPageSeg(p) { segPage=p; renderSegmentos(); }
+
+function updateSegBtn() {
+  const val = (document.getElementById('segSearch')?.value || '').trim();
+  const btn = document.getElementById('segBtn');
+  if (!btn) return;
+  const noMatch = val.length > 0 && !(segmentosCache || []).some(s => s.nome.toLowerCase().includes(val.toLowerCase()));
+  if (noMatch) {
+    btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Salvar`;
+    btn.onclick = saveSegmentoFromSearch;
+  } else {
+    btn.innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg> Novo Segmento`;
+    btn.onclick = () => openMgmtDrawer('segmento');
+  }
+}
+
+async function saveSegmentoFromSearch() {
+  const nome = (document.getElementById('segSearch')?.value || '').trim();
+  if (!nome) { showToast('Digite o nome do segmento.', 'error'); return; }
+
+  const candidates = (segmentosCache || []).map(s => s.nome).filter(Boolean);
+  const checkRes = await apiFetch('/api/check-similar-segmento', {
+    method: 'POST',
+    body: JSON.stringify({ nome, candidates, stakeholder_id: currentUser?.id ?? null })
+  });
+  if (checkRes && checkRes.ok) {
+    const check = await checkRes.json();
+
+    if (check.conflict_type === 'exact') {
+      await showNotice({ title: 'Termo já cadastrado', msg: `"${check.similar_to}" já existe na base. Não é possível cadastrar um termo idêntico.`, okLabel: 'Entendi' });
+      return;
+    }
+    if (check.conflict_type === 'composed') {
+      const useExisting = await showSimilarSegmentoChoice({ conflictType: 'composed', similarTo: check.similar_to, newTerm: nome });
+      if (useExisting) { _clearSegSearch(); return; }
+    }
+    if (check.conflict_type === 'variation') {
+      const useExisting = await showSimilarSegmentoChoice({ conflictType: 'variation', similarTo: check.similar_to, newTerm: nome });
+      if (useExisting) { _clearSegSearch(); return; }
+    }
+    if (check.conflict_type === 'ai') {
+      const useExisting = await showSimilarSegmentoChoice({ conflictType: 'ai', similarTo: check.similar_to, explanation: check.explanation, newTerm: nome });
+      await apiFetch('/api/ia-sugestao-log', { method: 'POST', body: JSON.stringify({
+        tipo: 'segmento', stakeholder_id: currentUser?.id ?? null,
+        termo_stakeholder: nome, sugestao_ia: check.similar_to,
+        aprovacao_stakeholder: useExisting, termo_final: useExisting ? check.similar_to : nome
+      })});
+      if (useExisting) { _clearSegSearch(); return; }
+    }
+  }
+
+  const res = await apiFetch('/api/segmentos', { method: 'POST', body: JSON.stringify({ nome }) });
+  if (res && res.ok) {
+    await loadSegmentosCache();
+    _clearSegSearch();
+    showToast('Segmento cadastrado!', 'success');
+  } else {
+    const err = res ? await res.json().catch(() => ({})) : {};
+    showToast(err.detail || 'Erro ao salvar segmento.', 'error');
+  }
+}
+
+function _clearSegSearch() {
+  const inp = document.getElementById('segSearch');
+  if (inp) inp.value = '';
+  segPage = 1; renderSegmentos(); updateSegBtn();
+}
 
 function renderAreas() {
   const search = (document.getElementById('areaSearch')?.value || '').toLowerCase();
