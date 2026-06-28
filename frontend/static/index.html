@@ -170,6 +170,17 @@
     .dark .drawer .gradient-brand { background:#000 !important; }
     .dark .drawer .gradient-brand p.text-purple-200 { color:#D4A520 !important; }
     .dark .kpi-card { background:rgba(var(--kc),0.22) !important; backdrop-filter:blur(4px); border-color:rgba(var(--kc),0.3) !important; border-top:3px solid rgb(var(--kc)) !important; }
+    .dark .kpi-card::before {
+      content:'';
+      position:absolute;
+      z-index:3;
+      top:0;
+      right:0;
+      left:0;
+      height:3px;
+      background:rgb(var(--kc));
+      pointer-events:none;
+    }
     .dark .kpi-card .kpi-deco { opacity:0.55 !important; }
     .dark .kpi-card p.text-slate-800 { color:#fff !important; }
     .dark .kpi-card .kpi-label { color:#fff !important; }
@@ -2306,6 +2317,43 @@
   </div>
 </div>
 
+<!-- ── Modal Validação Segmento Similar ───────────────────────────────────── -->
+<div id="modalSimilarSegmento" class="modal-overlay" style="z-index:10000;">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full mx-4 p-6">
+    <div class="flex items-start gap-4 mb-4">
+      <div id="simSegIconWrap" class="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 bg-amber-100">
+        <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20A10 10 0 0012 2z"/>
+        </svg>
+      </div>
+      <div class="flex-1">
+        <h3 id="simSegTitle" class="font-bold text-slate-800 text-base mb-1"></h3>
+        <p id="simSegMsg" class="text-slate-500 text-sm leading-relaxed"></p>
+        <div id="simSegExplanationWrap" class="hidden mt-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+          <p class="text-xs text-amber-700 font-medium mb-0.5">Motivo identificado pela IA:</p>
+          <p id="simSegExplanation" class="text-sm text-amber-800 leading-snug"></p>
+        </div>
+      </div>
+    </div>
+    <div class="space-y-2 mt-4">
+      <button id="simSegUseExisting"
+        class="w-full px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-semibold text-sm transition-colors text-left flex items-center gap-3">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+        </svg>
+        <span id="simSegUseExistingLabel"></span>
+      </button>
+      <button id="simSegForceNew"
+        class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-semibold text-sm hover:bg-slate-50 transition-colors text-left flex items-center gap-3">
+        <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+        </svg>
+        <span id="simSegForceNewLabel"></span>
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- ── Modal Urgência por Item ──────────────────────────────────────────────── -->
 <div id="modalUrgentePrio" class="modal-overlay hidden" style="z-index:9999;">
   <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full mx-4 p-6">
@@ -2397,6 +2445,39 @@ function showNotice({ title, msg, okLabel = 'Entendi' }) {
   return promise;
 }
 
+// Retorna Promise<boolean>: true = usar existente, false = cadastrar mesmo assim
+function showSimilarSegmentoChoice({ conflictType, similarTo, explanation, newTerm }) {
+  const modal = document.getElementById('modalSimilarSegmento');
+  const titles = {
+    composed:  'Termo composto identificado',
+    variation: 'Variação do termo identificada',
+    ai:        'IA identificou compatibilidade',
+  };
+  const msgs = {
+    composed:  `O termo que você digitou contém "${similarTo}", que já está cadastrado. Recomendamos usar o existente para manter a padronização.`,
+    variation: `"${newTerm}" parece ser uma variação de "${similarTo}", que já está cadastrado. Recomendamos usar o existente.`,
+    ai:        `A IA identificou que "${newTerm}" corresponde ao termo "${similarTo}" já cadastrado. Recomendamos usar o existente.`,
+  };
+  document.getElementById('simSegTitle').textContent        = titles[conflictType] || 'Termo similar encontrado';
+  document.getElementById('simSegMsg').textContent          = msgs[conflictType]   || '';
+  document.getElementById('simSegUseExistingLabel').textContent = `Usar "${similarTo}"`;
+  document.getElementById('simSegForceNewLabel').textContent    = `Cadastrar "${newTerm}" mesmo assim`;
+  const expWrap = document.getElementById('simSegExplanationWrap');
+  if (conflictType === 'ai' && explanation) {
+    document.getElementById('simSegExplanation').textContent = explanation;
+    expWrap.classList.remove('hidden');
+  } else {
+    expWrap.classList.add('hidden');
+  }
+  modal.classList.add('open');
+  return new Promise(resolve => {
+    const cleanup = result => { modal.classList.remove('open'); resolve(result); };
+    document.getElementById('simSegUseExisting').onclick = () => cleanup(true);
+    document.getElementById('simSegForceNew').onclick    = () => cleanup(false);
+    modal.onclick = e => { if (e.target === modal) cleanup(true); }; // fechar fora = usar existente (default)
+  });
+}
+
 function showFloatingInfo(anchor, text) {
   hideFloatingInfo();
   const tooltip = document.createElement('div');
@@ -2454,7 +2535,7 @@ async function loadItensCache() {
   if (res && res.ok) itensCache = await res.json();
 }
 
-const STATUS_LABEL = { pendente:'Pendente', aprovado:'Aprovado', em_andamento:'Em Andamento', entregue:'Concluído', cancelado:'Cancelado' };
+const STATUS_LABEL = { pendente:'Pendente', aprovado:'Aprovado', em_andamento:'Em Andamento', concluido:'Concluído', entregue:'Entregue', cancelado:'Cancelado' };
 const PRIO_LABEL   = { baixa:'Baixa', media:'Média', alta:'Alta', urgente:'Urgente' };
 const ROLE_LABEL   = { admin:'Administrador', compras:'Compras', solicitante:'Solicitante' };
 
@@ -4870,19 +4951,62 @@ async function submitMgmtForm(e) {
   if (type === 'segmento') {
     if (!editId) {
       const candidates = (segmentosCache || []).map(s => s.nome).filter(Boolean);
-      const simRes = await apiFetch('/api/check-similar', { method: 'POST', body: JSON.stringify({ nome, candidates }) });
-      if (simRes && simRes.ok) {
-        const simData = await simRes.json();
-        if (simData.conflict) {
+      const checkRes = await apiFetch('/api/check-similar-segmento', {
+        method: 'POST',
+        body: JSON.stringify({ nome, candidates, stakeholder_id: currentUser?.id ?? null })
+      });
+      if (checkRes && checkRes.ok) {
+        const check = await checkRes.json();
+
+        // Caso 1 — termo idêntico: bloqueia
+        if (check.conflict_type === 'exact') {
           await showNotice({
-            title: 'Segmento similar já existe',
-            msg: `"${simData.similar_to}" já está cadastrado e é muito similar ao que você digitou. Use o existente para evitar duplicatas.`,
+            title: 'Termo já cadastrado',
+            msg: `"${check.similar_to}" já existe na base. Não é possível cadastrar um termo idêntico.`,
             okLabel: 'Entendi'
           });
           return;
         }
+
+        // Caso 2 — termo composto que contém o existente
+        if (check.conflict_type === 'composed') {
+          const useExisting = await showSimilarSegmentoChoice({
+            conflictType: 'composed', similarTo: check.similar_to, newTerm: nome
+          });
+          if (useExisting) { closeMgmtDrawer(); return; }
+        }
+
+        // Caso 3 — variação morfológica (plural, diminutivo, etc.)
+        if (check.conflict_type === 'variation') {
+          const useExisting = await showSimilarSegmentoChoice({
+            conflictType: 'variation', similarTo: check.similar_to, newTerm: nome
+          });
+          if (useExisting) { closeMgmtDrawer(); return; }
+        }
+
+        // Caso 4 — correspondência semântica detectada pela IA
+        if (check.conflict_type === 'ai') {
+          const useExisting = await showSimilarSegmentoChoice({
+            conflictType: 'ai', similarTo: check.similar_to,
+            explanation: check.explanation, newTerm: nome
+          });
+          // Persiste decisão do stakeholder
+          await apiFetch('/api/ia-sugestao-log', {
+            method: 'POST',
+            body: JSON.stringify({
+              tipo: 'segmento',
+              stakeholder_id: currentUser?.id ?? null,
+              termo_stakeholder: nome,
+              sugestao_ia: check.similar_to,
+              aprovacao_stakeholder: useExisting,
+              termo_final: useExisting ? check.similar_to : nome
+            })
+          });
+          if (useExisting) { closeMgmtDrawer(); return; }
+        }
       }
     }
+
     const res = await apiFetch('/api/segmentos', { method: 'POST', body: JSON.stringify({ nome }) });
     if (res && res.ok) {
       const saved = await res.json();

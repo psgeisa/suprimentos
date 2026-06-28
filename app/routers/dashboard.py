@@ -1,6 +1,12 @@
+import difflib
+import json as _json
+import os
+import re
+import unicodedata
 from datetime import datetime, timezone
 from zoneinfo import ZoneInfo
 
+import httpx
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -11,6 +17,7 @@ from app.models.suprimento import Suprimento
 from app.models.estabelecimento import Estabelecimento
 from app.models.segmento import Segmento
 from app.models.unidade import Unidade
+from app.models.ia_sugestao_log import IaSugestaoLog
 from app.auth import get_viewer, require_admin
 
 router = APIRouter(prefix="/api", tags=["dashboard"])
@@ -40,6 +47,11 @@ def dashboard(db: Session = Depends(get_db), _=Depends(get_viewer)):
         .filter(*month_filter)
         .group_by(Suprimento.status)
         .all()
+    )
+    # Uma entrega também conclui o fluxo, mas preservamos "entregue" para que
+    # os dois indicadores do dashboard continuem representando seus conceitos.
+    por_status["concluido"] = (
+        por_status.get("concluido", 0) + por_status.get("entregue", 0)
     )
     por_prioridade = dict(
         db.query(Suprimento.prioridade, func.count(Suprimento.id))
@@ -154,6 +166,166 @@ class SegmentoCreate(BaseModel):
 def listar_segmentos(db: Session = Depends(get_db), _=Depends(get_viewer)):
     rows = db.query(Segmento).filter(Segmento.ativo == True).order_by(Segmento.nome).all()
     return [{"id": r.id, "nome": r.nome} for r in rows]
+
+
+_HF_MODEL = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+_FUZZY_THRESHOLD = 0.70
+_AI_THRESHOLD = 0.72
+
+
+class SimilarityCheckRequest(BaseModel):
+    nome: str
+    candidates: list[str]
+
+
+@router.post("/check-similar")
+async def check_similar(data: SimilarityCheckRequest):
+    nome = data.nome.strip().lower()
+    candidates = [c.strip() for c in data.candidates if c.strip()]
+    if not nome or not candidates:
+        return {"conflict": False, "similar_to": None, "score": None, "method": None}
+
+    # Step 1: fuzzy ratio via difflib (handles prefixes, plurals, derivations)
+    for cand in candidates:
+        ratio = difflib.SequenceMatcher(None, nome, cand.lower()).ratio()
+        if ratio >= _FUZZY_THRESHOLD:
+            return {"conflict": True, "similar_to": cand, "score": round(ratio, 3), "method": "fuzzy"}
+
+    # Step 2: semantic similarity via Hugging Face free inference API
+    try:
+        async with httpx.AsyncClient(timeout=12.0) as client:
+            resp = await client.post(
+                f"https://api-inference.huggingface.co/models/{_HF_MODEL}",
+                json={"inputs": {"source_sentence": nome, "sentences": [c.lower() for c in candidates]}},
+            )
+            if resp.status_code == 200:
+                scores = resp.json()
+                if isinstance(scores, list) and scores:
+                    max_score = max(scores)
+                    max_idx = scores.index(max_score)
+                    if max_score >= _AI_THRESHOLD:
+                        return {"conflict": True, "similar_to": candidates[max_idx], "score": round(max_score, 3), "method": "ai"}
+    except Exception:
+        pass
+
+    return {"conflict": False, "similar_to": None, "score": None, "method": None}
+
+
+# ── Validação avançada de segmentos (4 casos) ──────────────────────────────
+
+def _normalize_term(text: str) -> str:
+    """Remove acentos e converte para minúsculas."""
+    return "".join(
+        c for c in unicodedata.normalize("NFD", text.lower().strip())
+        if unicodedata.category(c) != "Mn"
+    )
+
+
+class SimilarSegmentoRequest(BaseModel):
+    nome: str
+    candidates: list[str]
+    stakeholder_id: int | None = None
+
+
+@router.post("/check-similar-segmento")
+async def check_similar_segmento(data: SimilarSegmentoRequest):
+    nome = data.nome.strip()
+    nome_norm = _normalize_term(nome)
+    pairs = [(c.strip(), _normalize_term(c)) for c in data.candidates if c.strip()]
+
+    if not nome_norm or not pairs:
+        return {"conflict_type": None}
+
+    # Caso 1 — correspondência exata (ignorando acentos e capitalização)
+    for cand, cand_norm in pairs:
+        if nome_norm == cand_norm:
+            return {"conflict_type": "exact", "similar_to": cand}
+
+    # Caso 2 — palavra composta: candidato aparece como palavra inteira dentro do novo termo
+    for cand, cand_norm in pairs:
+        pattern = r"(?<![a-z])" + re.escape(cand_norm) + r"(?![a-z])"
+        if re.search(pattern, nome_norm) and nome_norm != cand_norm:
+            return {"conflict_type": "composed", "similar_to": cand}
+
+    # Caso 3 — variação morfológica (fuzzy >= 0.72 na forma normalizada)
+    best_ratio, best_cand = 0.0, None
+    for cand, cand_norm in pairs:
+        ratio = difflib.SequenceMatcher(None, nome_norm, cand_norm).ratio()
+        if ratio > best_ratio:
+            best_ratio, best_cand = ratio, cand
+    if best_ratio >= 0.72:
+        return {"conflict_type": "variation", "similar_to": best_cand, "score": round(best_ratio, 3)}
+
+    # Caso 4 — verificação semântica via IA (Claude)
+    anthropic_key = os.getenv("ANTHROPIC_API_KEY", "")
+    if anthropic_key:
+        cand_list = [c for c, _ in pairs]
+        prompt = (
+            "Você é especialista em categorização de produtos para um sistema de gestão de suprimentos brasileiro.\n"
+            "Dado uma lista de termos já cadastrados e um novo termo digitado pelo usuário, determine se o novo termo "
+            "representa o mesmo conceito que algum termo existente.\n\n"
+            "Considere: erros ortográficos/digitação, gírias e dialetos de qualquer região do Brasil, termos em outros "
+            "idiomas (inglês, espanhol etc.) com mesmo significado, variações de plural/diminutivo/aumentativo, siglas.\n\n"
+            f"Termos existentes: {_json.dumps(cand_list, ensure_ascii=False)}\n"
+            f'Novo termo: "{nome}"\n\n'
+            'Se o novo termo É coberto por algum existente, responda com JSON: '
+            '{"match": true, "matched_term": "...", "explanation": "explicação curta em português (max 120 chars)"}\n'
+            'Se NÃO for coberto, responda com JSON: {"match": false}\n'
+            "Responda SOMENTE com JSON, sem texto adicional."
+        )
+        try:
+            async with httpx.AsyncClient(timeout=15.0) as client:
+                resp = await client.post(
+                    "https://api.anthropic.com/v1/messages",
+                    headers={
+                        "x-api-key": anthropic_key,
+                        "anthropic-version": "2023-06-01",
+                        "content-type": "application/json",
+                    },
+                    json={
+                        "model": "claude-haiku-4-5-20251001",
+                        "max_tokens": 200,
+                        "messages": [{"role": "user", "content": prompt}],
+                    },
+                )
+                if resp.status_code == 200:
+                    text = resp.json()["content"][0]["text"].strip()
+                    ai_data = _json.loads(text)
+                    if ai_data.get("match"):
+                        return {
+                            "conflict_type": "ai",
+                            "similar_to": ai_data.get("matched_term"),
+                            "explanation": ai_data.get("explanation"),
+                        }
+        except Exception:
+            pass
+
+    return {"conflict_type": None}
+
+
+class IaSugestaoLogCreate(BaseModel):
+    tipo: str
+    stakeholder_id: int | None = None
+    termo_stakeholder: str
+    sugestao_ia: str | None = None
+    aprovacao_stakeholder: bool | None = None
+    termo_final: str | None = None
+
+
+@router.post("/ia-sugestao-log", status_code=201)
+def registrar_ia_sugestao(data: IaSugestaoLogCreate, db: Session = Depends(get_db), _=Depends(get_viewer)):
+    log = IaSugestaoLog(
+        tipo=data.tipo,
+        stakeholder_id=data.stakeholder_id,
+        termo_stakeholder=data.termo_stakeholder,
+        sugestao_ia=data.sugestao_ia,
+        aprovacao_stakeholder=data.aprovacao_stakeholder,
+        termo_final=data.termo_final,
+        data_hora=datetime.now(timezone.utc),
+    )
+    db.add(log)
+    db.commit()
+    return {"ok": True}
 
 
 @router.post("/segmentos", status_code=201)
