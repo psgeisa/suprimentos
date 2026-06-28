@@ -11,7 +11,7 @@ from app.database import Base, engine, SessionLocal
 import app.models  # noqa — garante registro de todos os modelos antes do create_all
 from app.routers import suprimentos, dashboard
 from app.routers import auth as routers_auth
-from app.routers import usuarios, anexos, lugares, estabelecimentos, itens, compras, entregas, aprovacoes
+from app.routers import usuarios, anexos, lugares, estabelecimentos, itens, compras, entregas, aprovacoes, custos_bi
 from sqlalchemy import inspect, text
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -159,6 +159,14 @@ def migrate_schema():
     if "valor_compra" not in sup_columns3:
         with engine.begin() as connection:
             connection.execute(text("ALTER TABLE suprimentos ADD COLUMN valor_compra FLOAT"))
+    if "teto_gasto" not in sup_columns3:
+        with engine.begin() as connection:
+            connection.execute(text("ALTER TABLE suprimentos ADD COLUMN teto_gasto FLOAT"))
+            connection.execute(text(
+                "UPDATE suprimentos "
+                "SET teto_gasto = valor_compra, valor_compra = NULL "
+                "WHERE status IN ('pendente', 'aprovado') AND valor_compra IS NOT NULL"
+            ))
     if "responsavel_entrega" not in sup_columns3:
         with engine.begin() as connection:
             connection.execute(text("ALTER TABLE suprimentos ADD COLUMN responsavel_entrega VARCHAR(200)"))
@@ -202,6 +210,7 @@ def create_app() -> FastAPI:
     app.include_router(compras.router)
     app.include_router(entregas.router)
     app.include_router(aprovacoes.router)
+    app.include_router(custos_bi.router)
 
     app.mount(
         "/static",

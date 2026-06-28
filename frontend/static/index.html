@@ -10,6 +10,7 @@
     }
   </script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     * { font-family: 'Inter', sans-serif; }
@@ -431,6 +432,30 @@
     .dark #page-compras input::placeholder { color:rgba(255,255,255,0.4) !important; }
     .dark #page-compras .ms-trigger { background:#0d0d0d !important; border-color:rgba(212,165,32,0.3) !important; color:#fff !important; }
 
+    /* ── Custos BI ─── */
+    .bi-card { background:#fff; border-radius:16px; box-shadow:0 1px 4px rgba(0,0,0,.06); border:1px solid #f1f5f9; padding:20px; }
+    .dark .bi-card { background:#1e2330; border-color:#2d3748; }
+    .bi-title { font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:#64748b; margin-bottom:14px; }
+    .dark .bi-title { color:#94a3b8; }
+    .bi-chart-wrap { position:relative; height:220px; }
+    .bi-donut-layout { display:flex; align-items:center; gap:12px; }
+    .bi-donut-canvas { position:relative; width:140px; height:140px; flex-shrink:0; }
+    .bi-donut-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; pointer-events:none; }
+    .bi-donut-center .bi-total { font-size:.65rem; color:#94a3b8; font-weight:600; }
+    .bi-donut-center .bi-value { font-size:.85rem; font-weight:800; color:#1e293b; line-height:1.1; }
+    .dark .bi-donut-center .bi-value { color:#f1f5f9; }
+    .bi-legend { list-style:none; padding:0; margin:0; flex:1; display:flex; flex-direction:column; gap:5px; overflow:hidden; }
+    .bi-legend li { display:flex; align-items:center; gap:7px; font-size:.68rem; color:#475569; min-width:0; }
+    .dark .bi-legend li { color:#94a3b8; }
+    .bi-legend li .bi-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+    .bi-legend li .bi-leg-line { flex:1; height:1px; background:#e2e8f0; }
+    .dark .bi-legend li .bi-leg-line { background:#334155; }
+    .bi-legend li .bi-leg-val { font-weight:700; color:#1e293b; white-space:nowrap; flex-shrink:0; font-size:.68rem; }
+    .dark .bi-legend li .bi-leg-val { color:#f1f5f9; }
+    .bi-drop-opt { display:flex; align-items:center; gap:7px; padding:5px 6px; border-radius:6px; cursor:pointer; font-size:.72rem; color:#475569; }
+    .bi-drop-opt:hover { background:#f8fafc; }
+    .bi-drop-opt input { accent-color:#C8780A; }
+
     /* ── Dark mode — divisórias de tabela ─── */
     .dark .divide-y > * + * { border-color: rgba(255,255,255,0.12) !important; }
 
@@ -849,6 +874,14 @@
       </svg>
       <span class="sidebar-label">Entregas</span>
     </a>
+    <a onclick="showPage('custos-bi')" data-tip="Custos BI"
+      class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-yellow-200 hover:text-white text-sm font-medium cursor-pointer transition-all">
+      <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+      </svg>
+      <span class="sidebar-label">Custos BI</span>
+    </a>
+
     <!-- ── Grupo Informações ── -->
     <div id="sidebarInfoGroup">
       <button type="button" onclick="toggleInfoMenu()" data-tip="Informações"
@@ -1419,6 +1452,112 @@
         <p class="font-medium">Nenhum estabelecimento cadastrado</p>
       </div>
       <div id="estPagination" class="px-5 py-4 border-t border-slate-100"></div>
+    </div>
+  </section>
+
+  <!-- ── Custos BI ── -->
+  <section id="page-custos-bi" class="p-6 hidden" style="min-height:calc(100vh - 73px)">
+    <!-- Filtros -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 mb-6 dark:bg-slate-800 dark:border-slate-700">
+      <div class="flex flex-wrap gap-3 items-end">
+        <div class="flex-1 min-w-48">
+          <label class="block text-xs font-semibold text-slate-500 mb-1">Busca</label>
+          <input id="biSearch" type="text" placeholder="Buscar por item, solicitante…"
+            class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 mb-1">De</label>
+          <input id="biDateFrom" type="date" class="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-500 mb-1">Até</label>
+          <input id="biDateTo" type="date" class="border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+        </div>
+        <div class="relative" id="biSegmentoWrap">
+          <label class="block text-xs font-semibold text-slate-500 mb-1">Segmento</label>
+          <button onclick="toggleBiDrop('biSegmentoDrop')" class="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white flex items-center gap-2 min-w-36 dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+            <span id="biSegmentoLabel">Todos</span><svg class="w-3 h-3 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          <div id="biSegmentoDrop" class="hidden absolute z-30 top-full left-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg p-2 min-w-48 max-h-56 overflow-y-auto dark:bg-slate-800 dark:border-slate-600"></div>
+        </div>
+        <div class="relative" id="biEstWrap">
+          <label class="block text-xs font-semibold text-slate-500 mb-1">Estabelecimento</label>
+          <button onclick="toggleBiDrop('biEstDrop')" class="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white flex items-center gap-2 min-w-44 dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+            <span id="biEstLabel">Todos</span><svg class="w-3 h-3 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          <div id="biEstDrop" class="hidden absolute z-30 top-full left-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg p-2 min-w-48 max-h-56 overflow-y-auto dark:bg-slate-800 dark:border-slate-600"></div>
+        </div>
+        <div class="relative" id="biTimeWrap">
+          <label class="block text-xs font-semibold text-slate-500 mb-1">Time</label>
+          <button onclick="toggleBiDrop('biTimeDrop')" class="border border-slate-200 rounded-lg px-3 py-2 text-sm bg-white flex items-center gap-2 min-w-36 dark:bg-slate-700 dark:border-slate-600 dark:text-white">
+            <span id="biTimeLabel">Todos</span><svg class="w-3 h-3 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          <div id="biTimeDrop" class="hidden absolute z-30 top-full left-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-lg p-2 min-w-40 max-h-56 overflow-y-auto dark:bg-slate-800 dark:border-slate-600"></div>
+        </div>
+        <button onclick="loadCustosBi()" class="btn-primary px-4 py-2 rounded-lg text-sm font-semibold shadow">Aplicar</button>
+        <button onclick="resetBiFilters()" class="px-4 py-2 rounded-lg border border-slate-200 text-sm text-slate-500 hover:bg-slate-50">Limpar</button>
+      </div>
+    </div>
+
+    <!-- Row 1: Custo total por mês | Custo médio por dia da semana -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div class="bi-card">
+        <p class="bi-title">Custo total por mês</p>
+        <div class="bi-chart-wrap"><canvas id="biChartMes"></canvas></div>
+      </div>
+      <div class="bi-card">
+        <p class="bi-title">Custo médio por dia da semana</p>
+        <div class="bi-chart-wrap"><canvas id="biChartDia"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Row 2: Por segmento por mês | Por estabelecimento por mês -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      <div class="bi-card">
+        <p class="bi-title">Custo por segmento por mês</p>
+        <div class="bi-chart-wrap"><canvas id="biChartSegmento"></canvas></div>
+      </div>
+      <div class="bi-card">
+        <p class="bi-title">Custo por estabelecimento por mês</p>
+        <div class="bi-chart-wrap"><canvas id="biChartEst"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Row 3: Donuts -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+      <div class="bi-card">
+        <p class="bi-title">Custo por time</p>
+        <div class="bi-donut-layout">
+          <div class="bi-donut-canvas"><canvas id="biChartTime"></canvas><div id="biChartTimeCenter" class="bi-donut-center"></div></div>
+          <ul id="biChartTimeLegend" class="bi-legend"></ul>
+        </div>
+      </div>
+      <div class="bi-card">
+        <p class="bi-title">Custo por Responsável</p>
+        <div class="bi-donut-layout">
+          <div class="bi-donut-canvas"><canvas id="biChartResp"></canvas><div id="biChartRespCenter" class="bi-donut-center"></div></div>
+          <ul id="biChartRespLegend" class="bi-legend"></ul>
+        </div>
+      </div>
+      <div class="bi-card">
+        <p class="bi-title">Custo por Solicitante</p>
+        <div class="bi-donut-layout">
+          <div class="bi-donut-canvas"><canvas id="biChartSol"></canvas><div id="biChartSolCenter" class="bi-donut-center"></div></div>
+          <ul id="biChartSolLegend" class="bi-legend"></ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 4: Comparativo full width -->
+    <div class="bi-card mb-6">
+      <p class="bi-title">Valor estimado × Teto de gasto × Valor real por mês</p>
+      <div class="bi-chart-wrap" style="height:260px"><canvas id="biChartComp"></canvas></div>
+    </div>
+
+    <!-- Row 5: Projeção full width -->
+    <div class="bi-card mb-6">
+      <p class="bi-title">Custo futuro projetado por estabelecimento</p>
+      <div class="bi-chart-wrap" style="height:260px"><canvas id="biChartProj"></canvas></div>
     </div>
   </section>
 
@@ -3356,8 +3495,9 @@ function showPage(page) {
   document.getElementById('page-'+page).classList.remove('hidden');
 
   const headerNovaBtn = document.getElementById('headerNovaBtn');
-  const mgmtPages = ['segmentos','areas','unidades','fornecedores','usuarios','estabelecimentos','itens'];
+  const mgmtPages = ['segmentos','areas','unidades','fornecedores','usuarios','estabelecimentos','itens','custos-bi'];
   const titles = {
+    'custos-bi':  ['Custos BI',          'Análise interativa de custos'],
     dashboard:    ['Dashboard',         'Visão geral do sistema'],
     suprimentos:  ['Solicitações',      'Gerenciar todas as solicitações'],
     aprovacoes:   ['Aprovações',       'Revisar e aprovar solicitações de suprimentos'],
@@ -3405,6 +3545,7 @@ function showPage(page) {
   if (page === 'fornecedores') { fornPage=1; renderFornecedores(); }
   if (page === 'estabelecimentos') { estPage=1; renderEstabelecimentos(); }
   if (page === 'itens')        { itemPage=1; loadItensCache().then(renderItens); }
+  if (page === 'custos-bi')   { initCustosBi(); }
 }
 
 // ── Dashboard ─────────────────────────────────────────────────────────────
@@ -6243,6 +6384,276 @@ function showToast(msg, type = 'success') {
   }
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ── Custos BI ─────────────────────────────────────────────────────────────
+const biFilterState = { segmentos: new Set(), ests: new Set(), times: new Set() };
+let biCharts = {};
+let biFiltrosCache = null;
+
+const BI_COLORS = [
+  '#6366F1','#F59E0B','#10B981','#3B82F6','#EF4444','#8B5CF6','#EC4899',
+  '#14B8A6','#F97316','#84CC16','#06B6D4','#A855F7','#F43F5E','#22D3EE',
+];
+
+function biColor(i) { return BI_COLORS[i % BI_COLORS.length]; }
+
+function fmtBRL(v) {
+  if (!v && v !== 0) return 'R$ 0';
+  return 'R$ ' + Number(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function toggleBiDrop(id) {
+  document.querySelectorAll('[id$="Drop"]').forEach(d => { if (d.id !== id) d.classList.add('hidden'); });
+  document.getElementById(id).classList.toggle('hidden');
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('[id$="Wrap"]') && !e.target.closest('[id$="Drop"]')) {
+    document.querySelectorAll('[id$="Drop"]').forEach(d => d.classList.add('hidden'));
+  }
+});
+
+function buildBiDrop(dropId, labelId, items, state, labelFn) {
+  const drop = document.getElementById(dropId);
+  drop.innerHTML = items.map(item => `
+    <label class="bi-drop-opt">
+      <input type="checkbox" value="${item}" ${state.has(item) ? 'checked' : ''}
+        onchange="biToggleFilter('${dropId}','${labelId}','${item}',this.checked)">
+      <span>${labelFn ? labelFn(item) : item}</span>
+    </label>`).join('');
+}
+
+function biToggleFilter(dropId, labelId, val, checked) {
+  const map = { biSegmentoDrop: biFilterState.segmentos, biEstDrop: biFilterState.ests, biTimeDrop: biFilterState.times };
+  const state = map[dropId];
+  if (!state) return;
+  checked ? state.add(val) : state.delete(val);
+  const count = state.size;
+  document.getElementById(labelId).textContent = count ? `${count} selecionado${count > 1 ? 's' : ''}` : 'Todos';
+}
+
+function resetBiFilters() {
+  document.getElementById('biSearch').value = '';
+  document.getElementById('biDateFrom').value = '';
+  document.getElementById('biDateTo').value = '';
+  biFilterState.segmentos.clear();
+  biFilterState.ests.clear();
+  biFilterState.times.clear();
+  ['biSegmentoLabel','biEstLabel','biTimeLabel'].forEach(id => { document.getElementById(id).textContent = 'Todos'; });
+  if (biFiltrosCache) {
+    buildBiDrop('biSegmentoDrop','biSegmentoLabel', biFiltrosCache.segmentos, biFilterState.segmentos);
+    buildBiDrop('biEstDrop','biEstLabel', biFiltrosCache.estabelecimentos.map(e => e.value), biFilterState.ests, v => biFiltrosCache.estabelecimentos.find(e => e.value === v)?.label || v);
+    buildBiDrop('biTimeDrop','biTimeLabel', biFiltrosCache.times, biFilterState.times);
+  }
+  loadCustosBi();
+}
+
+async function initCustosBi() {
+  if (!biFiltrosCache) {
+    const res = await apiFetch('/api/custos-bi/filtros');
+    if (res && res.ok) {
+      biFiltrosCache = await res.json();
+      buildBiDrop('biSegmentoDrop','biSegmentoLabel', biFiltrosCache.segmentos, biFilterState.segmentos);
+      buildBiDrop('biEstDrop','biEstLabel', biFiltrosCache.estabelecimentos.map(e => e.value), biFilterState.ests, v => biFiltrosCache.estabelecimentos.find(e => e.value === v)?.label || v);
+      buildBiDrop('biTimeDrop','biTimeLabel', biFiltrosCache.times, biFilterState.times);
+    }
+  }
+  loadCustosBi();
+}
+
+async function loadCustosBi() {
+  const params = new URLSearchParams();
+  const busca = document.getElementById('biSearch')?.value.trim();
+  const df = document.getElementById('biDateFrom')?.value;
+  const dt = document.getElementById('biDateTo')?.value;
+  if (busca) params.set('busca', busca);
+  if (df) params.set('data_inicio', df);
+  if (dt) params.set('data_fim', dt);
+  if (biFilterState.segmentos.size) params.set('segmento', [...biFilterState.segmentos].join(','));
+  if (biFilterState.ests.size) params.set('estabelecimento', [...biFilterState.ests].join(','));
+  if (biFilterState.times.size) params.set('time', [...biFilterState.times].join(','));
+
+  const res = await apiFetch(`/api/custos-bi/dados?${params}`);
+  if (!res || !res.ok) return;
+  const d = await res.json();
+  renderBiCharts(d);
+}
+
+function destroyBiChart(id) {
+  if (biCharts[id]) { biCharts[id].destroy(); delete biCharts[id]; }
+}
+
+function biBarOptions(title) {
+  const dark = document.documentElement.classList.contains('dark');
+  const gridColor = dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+  const tickColor = dark ? '#94a3b8' : '#64748b';
+  return {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', align: 'start', labels: { boxWidth: 10, font: { size: 10 }, color: tickColor } },
+      tooltip: { callbacks: { label: ctx => ` ${fmtBRL(ctx.parsed.y)}` } },
+    },
+    scales: {
+      x: { stacked: true, ticks: { color: tickColor, font: { size: 10 } }, grid: { display: false } },
+      y: { stacked: true, ticks: { color: tickColor, font: { size: 10 }, callback: v => fmtBRL(v) }, grid: { color: gridColor } },
+    },
+  };
+}
+
+function biLineOptions() {
+  const dark = document.documentElement.classList.contains('dark');
+  const gridColor = dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+  const tickColor = dark ? '#94a3b8' : '#64748b';
+  return {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top', align: 'start', labels: { boxWidth: 10, font: { size: 10 }, color: tickColor } },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${fmtBRL(ctx.parsed.y)}` } },
+    },
+    scales: {
+      x: { ticks: { color: tickColor, font: { size: 10 } }, grid: { display: false } },
+      y: { ticks: { color: tickColor, font: { size: 10 }, callback: v => fmtBRL(v) }, grid: { color: gridColor } },
+    },
+  };
+}
+
+function renderBiCharts(d) {
+  const dark = document.documentElement.classList.contains('dark');
+  const tickColor = dark ? '#94a3b8' : '#64748b';
+  const gridColor = dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+
+  // ── 1. Custo total por mês ──────────────────────────────────────────────
+  destroyBiChart('mes');
+  biCharts['mes'] = new Chart(document.getElementById('biChartMes'), {
+    type: 'bar',
+    data: {
+      labels: d.por_mes.map(r => r.mes),
+      datasets: [{ label: 'Custo total', data: d.por_mes.map(r => r.custo), backgroundColor: '#6366F1', borderRadius: 4 }],
+    },
+    options: { ...biBarOptions(), plugins: { ...biBarOptions().plugins }, scales: { x: { stacked: false, ticks: { color: tickColor, font: { size: 10 } }, grid: { display: false } }, y: { stacked: false, ticks: { color: tickColor, font: { size: 10 }, callback: v => fmtBRL(v) }, grid: { color: gridColor } } } },
+  });
+
+  // ── 2. Custo médio por dia da semana ────────────────────────────────────
+  destroyBiChart('dia');
+  biCharts['dia'] = new Chart(document.getElementById('biChartDia'), {
+    type: 'bar',
+    data: {
+      labels: d.por_dia_semana.map(r => r.label),
+      datasets: [{ label: 'Custo médio', data: d.por_dia_semana.map(r => r.media), backgroundColor: '#F59E0B', borderRadius: 4 }],
+    },
+    options: { ...biBarOptions(), plugins: { ...biBarOptions().plugins }, scales: { x: { stacked: false, ticks: { color: tickColor, font: { size: 10 } }, grid: { display: false } }, y: { stacked: false, ticks: { color: tickColor, font: { size: 10 }, callback: v => fmtBRL(v) }, grid: { color: gridColor } } } },
+  });
+
+  // ── 3. Custo por segmento por mês (stacked) ─────────────────────────────
+  destroyBiChart('seg');
+  const mesesSeg = [...new Set(d.por_segmento_mes.map(r => r.mes))].sort();
+  const segsList = [...new Set(d.por_segmento_mes.map(r => r.segmento))].sort();
+  biCharts['seg'] = new Chart(document.getElementById('biChartSegmento'), {
+    type: 'bar',
+    data: {
+      labels: mesesSeg,
+      datasets: segsList.map((seg, i) => ({
+        label: seg,
+        data: mesesSeg.map(m => d.por_segmento_mes.find(r => r.mes === m && r.segmento === seg)?.custo || 0),
+        backgroundColor: biColor(i), borderRadius: 2,
+      })),
+    },
+    options: biBarOptions(),
+  });
+
+  // ── 4. Custo por estabelecimento por mês (stacked) ──────────────────────
+  destroyBiChart('est');
+  const mesesEst = [...new Set(d.por_estabelecimento_mes.map(r => r.mes))].sort();
+  const estsList = [...new Set(d.por_estabelecimento_mes.map(r => r.estabelecimento))].sort();
+  biCharts['est'] = new Chart(document.getElementById('biChartEst'), {
+    type: 'bar',
+    data: {
+      labels: mesesEst,
+      datasets: estsList.map((est, i) => ({
+        label: est,
+        data: mesesEst.map(m => d.por_estabelecimento_mes.find(r => r.mes === m && r.estabelecimento === est)?.custo || 0),
+        backgroundColor: biColor(i + 4), borderRadius: 2,
+      })),
+    },
+    options: biBarOptions(),
+  });
+
+  // ── 5-7. Donuts ──────────────────────────────────────────────────────────
+  function renderDonut(canvasId, centerId, legendId, rows, keyField, valueField) {
+    destroyBiChart(canvasId);
+    const total = rows.reduce((s, r) => s + r[valueField], 0);
+    const ctr = document.getElementById(centerId);
+    ctr.innerHTML = `<span class="bi-total">Total</span><span class="bi-value">${fmtBRL(total)}</span>`;
+
+    const centerPlugin = {
+      id: 'centerText_' + canvasId,
+      beforeDraw(chart) {
+        const { width, height, ctx } = chart;
+        ctx.restore();
+        ctx.save();
+      },
+    };
+    biCharts[canvasId] = new Chart(document.getElementById(canvasId), {
+      type: 'doughnut',
+      data: {
+        labels: rows.map(r => r[keyField]),
+        datasets: [{ data: rows.map(r => r[valueField]), backgroundColor: rows.map((_, i) => biColor(i)), borderWidth: 2, borderColor: dark ? '#1e2330' : '#fff' }],
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '65%',
+        plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${fmtBRL(ctx.parsed)}` } } },
+      },
+      plugins: [centerPlugin],
+    });
+
+    const legend = document.getElementById(legendId);
+    legend.innerHTML = rows.slice(0, 8).map((r, i) => {
+      const pct = total > 0 ? Math.round(r[valueField] / total * 100) : 0;
+      return `<li>
+        <span class="bi-dot" style="background:${biColor(i)}"></span>
+        <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r[keyField]}</span>
+        <span class="bi-leg-line"></span>
+        <span class="bi-leg-val">${pct}%</span>
+      </li>`;
+    }).join('');
+  }
+
+  renderDonut('biChartTime', 'biChartTimeCenter', 'biChartTimeLegend', d.por_time, 'time', 'custo');
+  renderDonut('biChartResp', 'biChartRespCenter', 'biChartRespLegend', d.por_responsavel, 'responsavel', 'custo');
+  renderDonut('biChartSol', 'biChartSolCenter', 'biChartSolLegend', d.por_solicitante, 'solicitante', 'custo');
+
+  // ── 8. Comparativo de linhas ─────────────────────────────────────────────
+  destroyBiChart('comp');
+  biCharts['comp'] = new Chart(document.getElementById('biChartComp'), {
+    type: 'line',
+    data: {
+      labels: d.comparativo.map(r => r.mes),
+      datasets: [
+        { label: 'Estimado', data: d.comparativo.map(r => r.estimado), borderColor: '#6366F1', backgroundColor: 'rgba(99,102,241,.08)', tension: .35, fill: true, pointRadius: 4 },
+        { label: 'Teto de gasto', data: d.comparativo.map(r => r.teto), borderColor: '#F59E0B', backgroundColor: 'transparent', tension: .35, borderDash: [5,3], pointRadius: 4 },
+        { label: 'Valor real', data: d.comparativo.map(r => r.real), borderColor: '#10B981', backgroundColor: 'rgba(16,185,129,.08)', tension: .35, fill: true, pointRadius: 4 },
+      ],
+    },
+    options: biLineOptions(),
+  });
+
+  // ── 9. Projeção futura (linha pontilhada) ────────────────────────────────
+  destroyBiChart('proj');
+  const projLabels = d.projecao.map(r => r.estabelecimento);
+  let accEst = 0, accTeto = 0;
+  const projAccEst = d.projecao.map(r => { accEst += r.estimado; return Math.round(accEst * 100) / 100; });
+  const projAccTeto = d.projecao.map(r => { accTeto += r.teto; return Math.round(accTeto * 100) / 100; });
+  biCharts['proj'] = new Chart(document.getElementById('biChartProj'), {
+    type: 'line',
+    data: {
+      labels: projLabels,
+      datasets: [
+        { label: 'Custo estimado acum.', data: projAccEst, borderColor: '#6366F1', backgroundColor: 'rgba(99,102,241,.06)', borderDash: [6,4], tension: .3, fill: true, pointRadius: 4 },
+        { label: 'Teto de gasto acum.', data: projAccTeto, borderColor: '#F59E0B', backgroundColor: 'rgba(245,158,11,.06)', borderDash: [6,4], tension: .3, fill: true, pointRadius: 4 },
+      ],
+    },
+    options: biLineOptions(),
+  });
 }
 </script>
 </body>
