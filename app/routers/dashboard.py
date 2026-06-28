@@ -382,6 +382,34 @@ async def check_similar_segmento(data: SimilarSegmentoRequest):
         except Exception as e:
             print(f"[IA] Mistral erro: {e}")
 
+    # Tentativa 5: OpenRouter — agrega múltiplos modelos gratuitos
+    openrouter_key = os.getenv("OPENROUTER_API_KEY", "")
+    if openrouter_key:
+        try:
+            async with httpx.AsyncClient(timeout=15.0) as client:
+                resp = await client.post(
+                    "https://openrouter.ai/api/v1/chat/completions",
+                    headers={
+                        "Authorization": f"Bearer {openrouter_key}",
+                        "content-type": "application/json",
+                        "HTTP-Referer": "https://gestao-suprimentos.onrender.com",
+                    },
+                    json={
+                        "model": "meta-llama/llama-3.3-70b-instruct:free",
+                        "messages": [{"role": "user", "content": prompt}],
+                        "max_tokens": 200,
+                        "temperature": 0,
+                    },
+                )
+                print(f"[IA] OpenRouter status: {resp.status_code} | body: {resp.text[:300]}")
+                if resp.status_code == 200:
+                    text = resp.json()["choices"][0]["message"]["content"]
+                    result = _ai_result(_parse_ai_json(text), "OpenRouter Llama 3.3 70B")
+                    if result:
+                        return result
+        except Exception as e:
+            print(f"[IA] OpenRouter erro: {e}")
+
     return {"conflict_type": None}
 
 
