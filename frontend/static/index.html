@@ -69,10 +69,12 @@
     .card-glass { background: rgba(255,255,255,0.35) !important; backdrop-filter: blur(4px); }
     .recent-request-item {
       border:1px solid #CBD5E1;
-      background:transparent;
+      background:rgba(241,245,249,0.72);
+      backdrop-filter:blur(6px);
+      -webkit-backdrop-filter:blur(6px);
       transition:background-color .2s, border-color .2s;
     }
-    .recent-request-item:hover { background:#fff; border-color:#9CA3AF; }
+    .recent-request-item:hover { background:rgba(255,255,255,0.9); border-color:#9CA3AF; }
     .btn-primary { background:linear-gradient(135deg,#D4A520,#9A7010); color:white; transition:opacity .2s; }
     .btn-primary:hover { opacity:.9; }
 
@@ -155,8 +157,8 @@
     .dark table thead tr { background:rgba(0,0,0,0.5) !important; border-color:rgba(212,165,32,0.15) !important; }
     .dark tbody tr { border-color:rgba(255,255,255,0.05) !important; }
     .dark .row-hover:hover { background:rgba(212,165,32,0.06) !important; }
-    .dark .recent-request-item { border-color:#6B7280; }
-    .dark .recent-request-item:hover { background:#30343B !important; border-color:#9CA3AF; }
+    .dark .recent-request-item { border-color:#6B7280; background:rgba(30,35,45,0.6); }
+    .dark .recent-request-item:hover { background:rgba(48,52,59,0.85) !important; border-color:#9CA3AF; }
     .dark .bg-slate-50, .dark .bg-white { background:rgba(0,0,0,0.3) !important; }
     .dark #pageTitle, .dark .font-bold.text-slate-800, .dark .text-slate-800 { color:#fff !important; }
     .dark #pageSubtitle, .dark .text-slate-500, .dark .text-slate-400 { color:rgba(255,255,255,0.55) !important; }
@@ -2196,7 +2198,7 @@ async function loadItensCache() {
   if (res && res.ok) itensCache = await res.json();
 }
 
-const STATUS_LABEL = { pendente:'Pendente', aprovado:'Aprovado', em_andamento:'Em Andamento', concluido:'Concluído', cancelado:'Cancelado' };
+const STATUS_LABEL = { pendente:'Pendente', aprovado:'Aprovado', em_andamento:'Em Andamento', entregue:'Concluído', cancelado:'Cancelado' };
 const PRIO_LABEL   = { baixa:'Baixa', media:'Média', alta:'Alta', urgente:'Urgente' };
 const ROLE_LABEL   = { admin:'Administrador', compras:'Compras', solicitante:'Solicitante' };
 
