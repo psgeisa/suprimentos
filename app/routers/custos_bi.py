@@ -101,7 +101,7 @@ def dados_custos_bi(
         return (i.valor_compra or 0) if i.valor_compra is not None else (i.valor_estimado or 0)
 
     # --- por_mes ---
-    por_mes: dict[str, float] = {}
+    por_mes = {}
     for i in items:
         if not i.created_at:
             continue
@@ -110,13 +110,11 @@ def dados_custos_bi(
     por_mes_list = [{"mes": m, "custo": round(v, 2)} for m, v in sorted(por_mes.items())]
 
     # --- por_dia_semana (0=domingo) ---
-    dia_soma: dict[int, float] = {}
-    dia_count: dict[int, int] = {}
+    dia_soma = {}
+    dia_count = {}
     for i in items:
         if not i.created_at:
             continue
-        # Python's weekday(): 0=Monday. isoweekday(): 1=Monday,7=Sunday
-        # Convert to 0=Sunday: isoweekday() % 7
         dia = i.created_at.isoweekday() % 7
         dia_soma[dia] = dia_soma.get(dia, 0) + custo_item(i)
         dia_count[dia] = dia_count.get(dia, 0) + 1
@@ -126,7 +124,7 @@ def dados_custos_bi(
     ]
 
     # --- por_segmento_mes ---
-    seg_mes: dict[tuple, float] = {}
+    seg_mes = {}
     for i in items:
         if not i.created_at or not i.categoria:
             continue
@@ -139,11 +137,11 @@ def dados_custos_bi(
 
     # --- por_estabelecimento_mes ---
     est_ids_found = {i.estabelecimento_id for i in items if i.estabelecimento_id}
-    est_map: dict[int, str] = {}
+    est_map = {}
     if est_ids_found:
         ests = db.query(Estabelecimento).filter(Estabelecimento.id.in_(est_ids_found)).all()
         est_map = {e.id: e.tipo for e in ests}
-    est_mes: dict[tuple, float] = {}
+    est_mes = {}
     for i in items:
         if not i.created_at or not i.estabelecimento_id:
             continue
@@ -156,32 +154,32 @@ def dados_custos_bi(
     ]
 
     # --- por_time ---
-    user_time_map: dict[str, str] = {
+    user_time_map = {
         u.nome: (u.time or "Sem time")
         for u in db.query(User).all()
     }
-    time_tot: dict[str, float] = {}
+    time_tot = {}
     for i in items:
         t = user_time_map.get(i.solicitante or "", "Sem time")
         time_tot[t] = time_tot.get(t, 0) + custo_item(i)
     por_time = [{"time": k, "custo": round(v, 2)} for k, v in sorted(time_tot.items())]
 
     # --- por_responsavel ---
-    resp_tot: dict[str, float] = {}
+    resp_tot = {}
     for i in items:
         r = (i.solicitante_responsavel or "Não informado").strip() or "Não informado"
         resp_tot[r] = resp_tot.get(r, 0) + custo_item(i)
     por_responsavel = [{"responsavel": k, "custo": round(v, 2)} for k, v in sorted(resp_tot.items())]
 
     # --- por_solicitante ---
-    sol_tot: dict[str, float] = {}
+    sol_tot = {}
     for i in items:
         s = (i.solicitante or "Não informado").strip() or "Não informado"
         sol_tot[s] = sol_tot.get(s, 0) + custo_item(i)
     por_solicitante = [{"solicitante": k, "custo": round(v, 2)} for k, v in sorted(sol_tot.items())]
 
     # --- comparativo_mes (estimado x teto x real) ---
-    comp_mes: dict[str, dict] = {}
+    comp_mes = {}
     for i in items:
         if not i.created_at:
             continue
