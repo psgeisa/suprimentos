@@ -99,17 +99,23 @@
     .flip-card-inner { position:relative; width:100%; height:100%; transition:transform 1s cubic-bezier(.45,0,.2,1); transform-style:preserve-3d; }
     .flip-card.flipped .flip-card-inner { transform:rotateY(-180deg); }
     .flip-card-front, .flip-card-back { position:absolute; inset:0; backface-visibility:hidden; border-radius:1rem; padding:1.25rem; display:flex; flex-direction:column; }
-    .flip-card-front { background:#4B5563; border:1px solid #374151; box-shadow:0 2px 10px rgba(0,0,0,.22); }
-    .flip-card-back { background:#374151; border:1px solid #1F2937; transform:rotateY(-180deg); overflow-y:auto; }
+    .flip-card-front { background:#fff; border:1px solid #e2e8f0; box-shadow:0 1px 6px rgba(0,0,0,.06); }
+    .flip-card-back { background:#f8fafc; border:1px solid #e2e8f0; transform:rotateY(-180deg); overflow-y:auto; }
     .flip-card-back::-webkit-scrollbar { width:4px; }
-    .flip-card-back::-webkit-scrollbar-thumb { background:#6B7280; border-radius:4px; }
-    .flip-card-front h3 { color:#F9FAFB !important; }
-    .flip-card-front p { color:#D1D5DB !important; }
-    .flip-open-label { position:absolute; bottom:.85rem; right:1rem; font-size:.67rem; font-weight:600; color:#9CA3AF; letter-spacing:.03em; pointer-events:none; }
-    .flip-back-title { font-size:.65rem; font-weight:700; color:#9CA3AF; text-transform:uppercase; letter-spacing:.1em; margin-bottom:.6rem; }
-    .flip-back-list { list-style:disc; padding-left:1.1rem; color:#E5E7EB; font-size:.8rem; line-height:1.75; margin:0; }
-    .dark .flip-card-front { background:#374151; border-color:#1F2937; }
-    .dark .flip-card-back { background:#1F2937; border-color:#111827; }
+    .flip-card-back::-webkit-scrollbar-thumb { background:#cbd5e1; border-radius:4px; }
+    .flip-card-front h3 { color:#1e293b !important; }
+    .flip-card-front p { color:#64748b !important; }
+    .flip-open-label { position:absolute; bottom:.85rem; right:1rem; font-size:.67rem; font-weight:600; color:#94a3b8; letter-spacing:.03em; pointer-events:none; }
+    .flip-back-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:.6rem; }
+    .flip-back-title { font-size:.65rem; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:.1em; margin:0; }
+    .flip-back-list { list-style:disc; padding-left:1.1rem; color:#334155; font-size:.7rem; line-height:1.6; margin:0; }
+    .dark .flip-card-front { background:#4B5563; border-color:#374151; box-shadow:0 2px 10px rgba(0,0,0,.22); }
+    .dark .flip-card-back { background:#374151; border-color:#1F2937; }
+    .dark .flip-card-front h3 { color:#F9FAFB !important; }
+    .dark .flip-card-front p { color:#D1D5DB !important; }
+    .dark .flip-open-label { color:#9CA3AF; }
+    .dark .flip-back-title { color:#9CA3AF; }
+    .dark .flip-back-list { color:#E5E7EB; }
     .dark .strategy-native-icon { background:rgba(245,158,11,.16) !important; color:#F59E0B !important; }
     .dark #page-estrategia .card-glass {
       background-color:#282B30 !important;
@@ -1142,7 +1148,7 @@
           <div class="flip-card-front">
             <div>
               <div class="flex items-center gap-2 mb-2">
-                <div class="strategy-native-icon bg-indigo-100 text-indigo-500">⌨</div>
+                <div class="strategy-native-icon bg-indigo-100 text-indigo-500">⚙️</div>
                 <h3 class="font-bold">Desenvolvimento</h3>
               </div>
               <p class="text-sm leading-relaxed">Arquitetura modular baseada em APIs REST, priorizando escalabilidade, separação de responsabilidades e facilidade de evolução contínua da plataforma.</p>
@@ -1150,7 +1156,10 @@
             <span class="flip-open-label">Abrir Staks →</span>
           </div>
           <div class="flip-card-back">
-            <p class="flip-back-title">Stacks</p>
+            <div class="flip-back-header">
+              <p class="flip-back-title">Staks | Desenvolvimento</p>
+              <div class="strategy-native-icon bg-indigo-100 text-indigo-500">⚙️</div>
+            </div>
             <ul class="flip-back-list">
               <li>Python</li><li>FastAPI</li><li>JavaScript</li><li>Tailwind CSS</li><li>HTML</li><li>REST API</li><li>Uvicorn</li><li>Pydantic</li>
             </ul>
@@ -1164,7 +1173,7 @@
           <div class="flip-card-front">
             <div>
               <div class="flex items-center gap-2 mb-2">
-                <div class="strategy-native-icon bg-blue-100 text-blue-500">▤</div>
+                <div class="strategy-native-icon bg-blue-100 text-blue-500">🎲</div>
                 <h3 class="font-bold">Dados</h3>
               </div>
               <p class="text-sm leading-relaxed">Modelagem relacional voltada à consistência das informações, reutilização de cadastros e rastreabilidade completa das operações.</p>
@@ -1172,7 +1181,10 @@
             <span class="flip-open-label">Abrir Staks →</span>
           </div>
           <div class="flip-card-back">
-            <p class="flip-back-title">Stacks</p>
+            <div class="flip-back-header">
+              <p class="flip-back-title">Staks | Dados</p>
+              <div class="strategy-native-icon bg-blue-100 text-blue-500">🎲</div>
+            </div>
             <ul class="flip-back-list">
               <li>PostgreSQL</li><li>SQLite</li><li>SQLAlchemy</li><li>Supabase Storage</li><li>Migrações</li>
             </ul>
@@ -1186,7 +1198,7 @@
           <div class="flip-card-front">
             <div>
               <div class="flex items-center gap-2 mb-2">
-                <div class="strategy-native-icon bg-violet-100 text-violet-500">✦</div>
+                <div class="strategy-native-icon bg-violet-100 text-violet-500">🤖</div>
                 <h3 class="font-bold">IA Aplicada</h3>
               </div>
               <p class="text-sm leading-relaxed">Validação inteligente de cadastros utilizando um pipeline híbrido de regras de negócio e modelos de linguagem, reduzindo duplicidades sem comprometer desempenho ou custos operacionais.</p>
@@ -1194,7 +1206,10 @@
             <span class="flip-open-label">Abrir Staks →</span>
           </div>
           <div class="flip-card-back">
-            <p class="flip-back-title">Stacks</p>
+            <div class="flip-back-header">
+              <p class="flip-back-title">Staks | IA Aplicada</p>
+              <div class="strategy-native-icon bg-violet-100 text-violet-500">🤖</div>
+            </div>
             <ul class="flip-back-list">
               <li>Gemini 2.0 Flash</li><li>Groq Llama 3.3</li><li>Cerebras Llama 3.3</li><li>Mistral Small</li><li>OpenRouter</li><li>Sentence Transformers</li><li>HTTPX</li>
             </ul>
@@ -1208,7 +1223,7 @@
           <div class="flip-card-front">
             <div>
               <div class="flex items-center gap-2 mb-2">
-                <div class="strategy-native-icon bg-purple-100 text-purple-500">↗</div>
+                <div class="strategy-native-icon bg-purple-100 text-purple-500">🧠</div>
                 <h3 class="font-bold">Business Intelligence</h3>
               </div>
               <p class="text-sm leading-relaxed">Transformação de dados operacionais em indicadores gerenciais para acompanhamento de custos, desempenho e tomada de decisão.</p>
@@ -1216,7 +1231,10 @@
             <span class="flip-open-label">Abrir Staks →</span>
           </div>
           <div class="flip-card-back">
-            <p class="flip-back-title">Stacks</p>
+            <div class="flip-back-header">
+              <p class="flip-back-title">Staks | Business Intelligence</p>
+              <div class="strategy-native-icon bg-purple-100 text-purple-500">🧠</div>
+            </div>
             <ul class="flip-back-list">
               <li>Chart.js</li><li>Dashboards</li><li>Indicadores</li><li>APIs Analíticas</li><li>Filtros Dinâmicos</li>
             </ul>
@@ -1230,7 +1248,7 @@
           <div class="flip-card-front">
             <div>
               <div class="flex items-center gap-2 mb-2">
-                <div class="strategy-native-icon bg-emerald-100 text-emerald-500">◆</div>
+                <div class="strategy-native-icon bg-emerald-100 text-emerald-500">🛡️</div>
                 <h3 class="font-bold">Segurança</h3>
               </div>
               <p class="text-sm leading-relaxed">Controle de acesso baseado em papéis, autenticação segura e proteção das operações críticas da plataforma.</p>
@@ -1238,7 +1256,10 @@
             <span class="flip-open-label">Abrir Staks →</span>
           </div>
           <div class="flip-card-back">
-            <p class="flip-back-title">Stacks</p>
+            <div class="flip-back-header">
+              <p class="flip-back-title">Staks | Segurança</p>
+              <div class="strategy-native-icon bg-emerald-100 text-emerald-500">🛡️</div>
+            </div>
             <ul class="flip-back-list">
               <li>JWT</li><li>OAuth2</li><li>RBAC</li><li>bcrypt</li><li>Passlib</li><li>python-jose</li>
             </ul>
@@ -1252,7 +1273,7 @@
           <div class="flip-card-front">
             <div>
               <div class="flex items-center gap-2 mb-2">
-                <div class="strategy-native-icon bg-orange-100 text-orange-500">◎</div>
+                <div class="strategy-native-icon bg-orange-100 text-orange-500">🏅</div>
                 <h3 class="font-bold">Governança</h3>
               </div>
               <p class="text-sm leading-relaxed">Mecanismos de padronização de cadastros, auditoria de decisões e qualidade dos dados para manter a base consistente ao longo do tempo.</p>
@@ -1260,7 +1281,10 @@
             <span class="flip-open-label">Abrir Staks →</span>
           </div>
           <div class="flip-card-back">
-            <p class="flip-back-title">Stacks</p>
+            <div class="flip-back-header">
+              <p class="flip-back-title">Staks | Governança</p>
+              <div class="strategy-native-icon bg-orange-100 text-orange-500">🏅</div>
+            </div>
             <ul class="flip-back-list">
               <li>Auditoria</li><li>Logs</li><li>Validações</li><li>Fluxos</li><li>Normalização</li>
             </ul>
@@ -1274,7 +1298,7 @@
           <div class="flip-card-front">
             <div>
               <div class="flex items-center gap-2 mb-2">
-                <div class="strategy-native-icon bg-amber-100 text-amber-600">⚙</div>
+                <div class="strategy-native-icon bg-amber-100 text-amber-600">💻</div>
                 <h3 class="font-bold">Engenharia</h3>
               </div>
               <p class="text-sm leading-relaxed">Fluxos desenhados para refletir processos reais de suprimentos, mantendo rastreabilidade desde a solicitação até a entrega.</p>
@@ -1282,7 +1306,10 @@
             <span class="flip-open-label">Abrir Staks →</span>
           </div>
           <div class="flip-card-back">
-            <p class="flip-back-title">Stacks</p>
+            <div class="flip-back-header">
+              <p class="flip-back-title">Staks | Engenharia</p>
+              <div class="strategy-native-icon bg-amber-100 text-amber-600">💻</div>
+            </div>
             <ul class="flip-back-list">
               <li>Workflow</li><li>Uploads</li><li>Anexos</li><li>Status</li><li>Histórico</li><li>Logs</li>
             </ul>
@@ -1296,7 +1323,7 @@
           <div class="flip-card-front">
             <div>
               <div class="flex items-center gap-2 mb-2">
-                <div class="strategy-native-icon bg-cyan-100 text-cyan-600">☁</div>
+                <div class="strategy-native-icon bg-cyan-100 text-cyan-600"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M23.546 10.93L13.067.452c-.604-.603-1.582-.603-2.188 0L8.708 2.627l2.76 2.76c.645-.215 1.379-.07 1.889.441.516.515.658 1.258.438 1.9l2.658 2.66c.645-.223 1.387-.078 1.9.435.721.72.721 1.884 0 2.604-.719.719-1.881.719-2.6 0-.539-.541-.674-1.337-.404-1.996L12.86 8.955v6.525c.176.086.342.203.488.348.713.721.713 1.883 0 2.6-.719.719-1.884.719-2.602 0-.719-.719-.719-1.879 0-2.598.182-.18.387-.316.605-.406V8.835c-.217-.091-.424-.222-.6-.401-.545-.545-.676-1.342-.396-2.009L7.636 3.7.45 10.881c-.6.605-.6 1.584 0 2.189l10.48 10.477c.604.604 1.582.604 2.186 0l10.43-10.43c.605-.603.605-1.582 0-2.187"/></svg></div>
                 <h3 class="font-bold">Deploy</h3>
               </div>
               <p class="text-sm leading-relaxed">Aplicação preparada para execução em nuvem, com configuração por ambiente e integração contínua para facilitar novas versões.</p>
@@ -1304,7 +1331,10 @@
             <span class="flip-open-label">Abrir Staks →</span>
           </div>
           <div class="flip-card-back">
-            <p class="flip-back-title">Stacks</p>
+            <div class="flip-back-header">
+              <p class="flip-back-title">Staks | Deploy</p>
+              <div class="strategy-native-icon bg-cyan-100 text-cyan-600"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M23.546 10.93L13.067.452c-.604-.603-1.582-.603-2.188 0L8.708 2.627l2.76 2.76c.645-.215 1.379-.07 1.889.441.516.515.658 1.258.438 1.9l2.658 2.66c.645-.223 1.387-.078 1.9.435.721.72.721 1.884 0 2.604-.719.719-1.881.719-2.6 0-.539-.541-.674-1.337-.404-1.996L12.86 8.955v6.525c.176.086.342.203.488.348.713.721.713 1.883 0 2.6-.719.719-1.884.719-2.602 0-.719-.719-.719-1.879 0-2.598.182-.18.387-.316.605-.406V8.835c-.217-.091-.424-.222-.6-.401-.545-.545-.676-1.342-.396-2.009L7.636 3.7.45 10.881c-.6.605-.6 1.584 0 2.189l10.48 10.477c.604.604 1.582.604 2.186 0l10.43-10.43c.605-.603.605-1.582 0-2.187"/></svg></div>
+            </div>
             <ul class="flip-back-list">
               <li>Render</li><li>Git</li><li>GitHub</li><li>Procfile</li><li>Environment Variables</li>
             </ul>
@@ -1318,7 +1348,7 @@
           <div class="flip-card-front">
             <div>
               <div class="flex items-center gap-2 mb-2">
-                <div class="strategy-native-icon bg-rose-100 text-rose-500">⬡</div>
+                <div class="strategy-native-icon bg-rose-100 text-rose-500">💎</div>
                 <h3 class="font-bold">Arquitetura de IA</h3>
               </div>
               <p class="text-sm leading-relaxed">Pipeline resiliente que combina validações determinísticas, análise linguística e múltiplos modelos de IA executados sob demanda, garantindo alta disponibilidade e menor custo de processamento.</p>
@@ -1326,7 +1356,10 @@
             <span class="flip-open-label">Abrir Staks →</span>
           </div>
           <div class="flip-card-back">
-            <p class="flip-back-title">Stacks</p>
+            <div class="flip-back-header">
+              <p class="flip-back-title">Staks | Arquitetura de IA</p>
+              <div class="strategy-native-icon bg-rose-100 text-rose-500">💎</div>
+            </div>
             <ul class="flip-back-list">
               <li>Regras determinísticas</li><li>Normalização</li><li>Fuzzy Matching</li><li>Fallback entre provedores</li><li>LLMs</li><li>Logs de Auditoria</li>
             </ul>
