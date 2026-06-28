@@ -418,6 +418,15 @@
     .btn-eliminar:hover { background: #FEE2E2; color: #DC2626; }
     .dark .btn-eliminar { border-color: rgba(255,255,255,0.2); color: #fff; }
     .dark .btn-eliminar:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    .btn-cancelar {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 34px; height: 34px; border-radius: 8px;
+      border: 1px solid #FDE68A; background: transparent;
+      color: #D97706; cursor: pointer; transition: background .15s, color .15s;
+    }
+    .btn-cancelar:hover { background: #FEF3C7; color: #B45309; }
+    .dark .btn-cancelar { border-color: rgba(245,158,11,0.35); color: #FCD34D; }
+    .dark .btn-cancelar:hover { background: rgba(245,158,11,0.12); color: #FCD34D; }
     .compra-valor-header { background:linear-gradient(135deg,#F59E0B,#D97706); color:#fff !important; min-width:150px; }
     .compra-valor-input { min-width:110px; text-align:right; font-variant-numeric:tabular-nums; }
     .compra-valor-input.over-limit { border-color:#DC2626 !important; box-shadow:0 0 0 2px rgba(220,38,38,.12); background:#FEF2F2 !important; }
@@ -466,9 +475,9 @@
     .group-by-chip:hover { border-color: #D97706; color: #B45309; background: rgba(217,119,6,0.06); }
     .group-by-chip.active { background: #FEF3C7; color: #92400E; border-color: #FCD34D; }
     .dark #page-suprimentos .solicitacao-group-by,
-    .dark #page-suprimentos .group-by-chip { color: #94A3B8 !important; }
-    .dark #page-suprimentos .group-by-chip { border-color: rgba(148,163,184,0.35); }
-    .dark #page-suprimentos .group-by-chip.active { background: rgba(148,163,184,0.12); color: #94A3B8 !important; border-color: rgba(148,163,184,0.45); }
+    .dark #page-suprimentos .group-by-chip { color: #fff !important; background: #111827; border-color: #374151; }
+    .dark #page-suprimentos .group-by-chip:hover { background: #1F2937; border-color: #4B5563; }
+    .dark #page-suprimentos .group-by-chip.active { background: #000 !important; color: #fff !important; border-color: #000; }
     /* ── group header row ── */
     .group-header-row td { background: rgba(254,243,199,0.6); font-size: 11px; font-weight: 700; color: #92400E; letter-spacing: 0.04em; }
     .group-header-toggle { width:100%; display:flex; align-items:center; gap:8px; text-align:left; cursor:pointer; }
@@ -542,7 +551,7 @@
     .dark #page-aprovacoes select { color:#fff !important; background:rgba(0,0,0,0.45) !important; border-color:rgba(212,165,32,0.3) !important; }
     .dark #page-aprovacoes input::placeholder { color:rgba(255,255,255,0.4) !important; }
     .dark #page-aprovacoes .ms-trigger { background:#0d0d0d !important; border-color:rgba(212,165,32,0.3) !important; color:#fff !important; }
-    .dark #page-aprovacoes .aprov-teto-header { color: rgba(255,255,255,0.87) !important; }
+    .dark #page-aprovacoes .aprov-teto-header { background: rgba(180,120,0,0.25) !important; color: #FCD34D !important; }
 
     /* ── Modal Finalizar Compra ── */
     #modalFinalizarCompra .itens-pendentes-list { max-height: 220px; overflow-y: auto; }
@@ -1449,8 +1458,8 @@
           <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none" onclick="setAprovacoesSort('segmento')"><div class="flex flex-col items-start gap-0.5"><span>Segmento</span><span class="text-amber-400 text-[10px] font-normal normal-case" data-aprov-sort="segmento">↕</span></div></th>
           <th class="text-center px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none" onclick="setAprovacoesSort('prioridade')"><div class="flex flex-col items-center gap-0.5"><span>Prioridade</span><span class="text-amber-400 text-[10px] font-normal normal-case" data-aprov-sort="prioridade">↕</span></div></th>
           <th class="text-center px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none" onclick="setAprovacoesSort('aprovado')"><div class="flex flex-col items-center gap-0.5"><span>Aprovado</span><span class="text-amber-400 text-[10px] font-normal normal-case" data-aprov-sort="aprovado">↕</span></div></th>
-          <th class="text-center px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide w-20">Eliminar</th>
-          <th class="aprov-teto-header text-center px-5 py-3 font-semibold text-xs uppercase tracking-wide">
+          <th class="text-center px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide w-20"><div class="flex flex-col items-center gap-0.5"><span>Eliminar</span><span class="text-amber-400 text-[10px] font-normal normal-case">↕</span></div></th>
+          <th class="aprov-teto-header text-center px-5 py-3 font-semibold text-xs uppercase tracking-wide bg-amber-100 text-amber-800">
             <div class="flex flex-col items-center gap-0.5">
               <span class="flex items-center gap-1">
                 Teto de Gasto
@@ -4515,11 +4524,29 @@ async function editItem(id) {
 }
 
 async function deleteItem(id) {
-  if (!await showConfirm({ title: 'Excluir solicitação', msg: 'Esta ação não pode ser desfeita. Deseja continuar?' })) return;
+  if (!await showConfirm({
+    title: 'Eliminar solicitação?',
+    msg: 'O pedido será excluído permanentemente da base de dados. Esta ação não pode ser desfeita.',
+    okLabel: 'Confirmar exclusão',
+    danger: true,
+  })) return;
   const res = await apiFetch(`/api/suprimentos/${id}`, { method: 'DELETE' });
   if (!res) return;
-  if (res.ok || res.status === 204) { showToast('Excluído com sucesso.', 'success'); loadSuprimentos(); }
+  if (res.ok || res.status === 204) { showToast('Solicitação excluída com sucesso.', 'success'); loadSuprimentos(); }
   else showToast('Erro ao excluir.', 'error');
+}
+
+async function cancelarSolicitacao(id) {
+  if (!await showConfirm({
+    title: 'Cancelar solicitação aprovada?',
+    msg: 'O pedido será cancelado e todos os envolvidos no processo de compra serão notificados sobre o cancelamento.',
+    okLabel: 'Confirmar cancelamento',
+    danger: true,
+  })) return;
+  const res = await apiFetch(`/api/suprimentos/${id}/cancelar`, { method: 'POST' });
+  if (!res) return;
+  if (res.ok) { showToast('Solicitação cancelada. Todos os envolvidos foram notificados.', 'success'); loadSuprimentos(); }
+  else showToast('Erro ao cancelar solicitação.', 'error');
 }
 
 // ── Anexos ────────────────────────────────────────────────────────────────
@@ -5524,7 +5551,12 @@ function openActionMenu(button, event, type, id, ativo = true) {
   ` : type === 'solicitacao' ? `
     <button type="button" class="action-item" onclick="runActionMenuItem('view-request',${id},event)">Visualizar</button>
     <button type="button" class="action-item" onclick="runActionMenuItem('edit-request',${id},event)">Editar</button>
-    <button type="button" class="action-item danger" onclick="runActionMenuItem('delete-request',${id},event)">Descartar</button>
+    ${ativo === 'aprovado'
+      ? `<button type="button" class="action-item danger" onclick="runActionMenuItem('cancel-request',${id},event)">Cancelar</button>`
+      : ativo === 'pendente'
+        ? `<button type="button" class="action-item danger" onclick="runActionMenuItem('delete-request',${id},event)">Eliminar</button>`
+        : ''
+    }
   ` : `
     <button type="button" class="action-item" onclick="runActionMenuItem('edit-user',${id},event)">Editar</button>
     <button type="button" class="action-item" onclick="runActionMenuItem('view-user',${id},event)">Visualizar</button>
@@ -5564,6 +5596,7 @@ function runActionMenuItem(action, id, event) {
   if (action === 'view-request') showDetail(Number(id));
   if (action === 'edit-request') editItem(Number(id));
   if (action === 'delete-request') deleteItem(Number(id));
+  if (action === 'cancel-request') cancelarSolicitacao(Number(id));
 }
 
 document.addEventListener('click', closeActionMenus);
@@ -5592,7 +5625,7 @@ const USUARIO_MENU = (usuario) => `
 
 const SOLICITACAO_MENU = item => `
   <div class="action-menu">
-    <button type="button" class="action-menu-btn" onclick="openActionMenu(this,event,'solicitacao',${item.id})" title="Opções" aria-label="Opções da solicitação" aria-haspopup="menu">
+    <button type="button" class="action-menu-btn" onclick="openActionMenu(this,event,'solicitacao',${item.id},'${item.status}')" title="Opções" aria-label="Opções da solicitação" aria-haspopup="menu">
       <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-1 2-2s-1-2-2-2-2 1-2 2 1 2 2 2zm0 2c-1.1 0-2 1-2 2s1 2 2 2 2-1 2-2-1-2-2-2zm0 6c-1.1 0-2 1-2 2s1 2 2 2 2-1 2-2-1-2-2-2z"/></svg>
     </button>
   </div>`;
@@ -6552,13 +6585,22 @@ async function loadAprovacoes() {
             onchange="toggleAprovacaoCheck(${s.id}, this.checked)" />
         </td>
         <td class="px-5 py-3.5 text-center" onclick="event.stopPropagation()">
-          <button class="btn-eliminar" title="Eliminar item"
-            onclick="eliminarItemAprovacao(${s.id}, '${(itemLabel).replace(/'/g,"&#39;")}', '${(s.solicitante||'').replace(/'/g,"&#39;")}')">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M4 7h16m-4 0V5a1 1 0 00-1-1h-4a1 1 0 00-1 1v2"/>
-            </svg>
-          </button>
+          ${s.status === 'aprovado'
+            ? `<button class="btn-cancelar" title="Cancelar item aprovado"
+                onclick="cancelarItemAprovacao(${s.id}, '${(itemLabel).replace(/'/g,"&#39;")}')">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M18.364 5.636L5.636 18.364M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+              </button>`
+            : `<button class="btn-eliminar" title="Eliminar item"
+                onclick="eliminarItemAprovacao(${s.id}, '${(itemLabel).replace(/'/g,"&#39;")}', '${(s.solicitante||'').replace(/'/g,"&#39;")}')">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M4 7h16m-4 0V5a1 1 0 00-1-1h-4a1 1 0 00-1 1v2"/>
+                </svg>
+              </button>`
+          }
         </td>
         <td class="px-4 py-3.5 bg-amber-50/60" onclick="event.stopPropagation()">
           <input type="text" inputmode="decimal" placeholder="0,00"
@@ -6582,11 +6624,39 @@ function toggleAprovacaoCheck(id, checked) {
   updateAprovacoesTotal();
 }
 
+async function cancelarItemAprovacao(id, nome) {
+  const ok = await showConfirm({
+    title: 'Cancelar pedido aprovado?',
+    msg: `O pedido "${nome}" será cancelado e todos os envolvidos no processo de compra serão notificados sobre o cancelamento.`,
+    okLabel: 'Confirmar cancelamento',
+    danger: true,
+  });
+  if (!ok) return;
+  const res = await apiFetch('/api/aprovacoes/cancelar', {
+    method: 'POST',
+    body: JSON.stringify({ suprimento_id: id }),
+  });
+  if (res && res.ok) {
+    showToast('Pedido cancelado. Todos os envolvidos foram notificados.', 'success');
+    aprovacoesItensCache = aprovacoesItensCache.filter(i => i.id !== id);
+    delete aprovacoesCheckMap[id];
+    delete aprovacoesTetoMap[id];
+    const row = document.getElementById(`aprov-row-${id}`);
+    if (row) row.remove();
+    if (!document.getElementById('aprovacoesBody').querySelectorAll('tr').length) {
+      document.getElementById('aprovacoesEmpty').classList.remove('hidden');
+    }
+    updateAprovacoesTotal();
+  } else {
+    showToast('Erro ao cancelar pedido.', 'error');
+  }
+}
+
 async function eliminarItemAprovacao(id, nome, solicitante) {
   const ok = await showConfirm({
-    title: 'Eliminar item?',
-    msg: `"${nome}" será cancelado. Esta ação ficará registrada no log com seu nome e horário.`,
-    okLabel: 'Eliminar item',
+    title: 'Eliminar pedido?',
+    msg: `O pedido "${nome}" será excluído da base de dados. Esta ação ficará registrada no log com seu nome e horário.`,
+    okLabel: 'Confirmar exclusão',
     danger: true,
   });
   if (!ok) return;

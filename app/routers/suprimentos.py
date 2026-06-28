@@ -158,5 +158,20 @@ def deletar(id: int, db: Session = Depends(get_db), _=Depends(get_current_user))
     item = db.query(Suprimento).filter(Suprimento.id == id).first()
     if not item:
         raise HTTPException(404, "Suprimento não encontrado")
+    if item.status != "pendente":
+        raise HTTPException(409, "Somente solicitações pendentes podem ser excluídas")
     db.delete(item)
     db.commit()
+
+
+@router.post("/{id}/cancelar")
+def cancelar(id: int, db: Session = Depends(get_db), _=Depends(get_current_user)):
+    item = db.query(Suprimento).filter(Suprimento.id == id).first()
+    if not item:
+        raise HTTPException(404, "Suprimento não encontrado")
+    if item.status != "aprovado":
+        raise HTTPException(409, "Somente solicitações aprovadas podem ser canceladas por esta ação")
+    item.status = "cancelado"
+    item.updated_at = datetime.utcnow()
+    db.commit()
+    return {"ok": True}

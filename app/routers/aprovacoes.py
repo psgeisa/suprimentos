@@ -24,7 +24,7 @@ def listar_filtros(
     """Opções dos filtros de aprovação derivadas somente de solicitações pendentes."""
     items = (
         db.query(Suprimento)
-        .filter(Suprimento.status == "pendente")
+        .filter(Suprimento.status.in_(["pendente", "aprovado"]))
         .order_by(Suprimento.id.desc())
         .limit(5000)
         .all()
@@ -95,7 +95,7 @@ def listar_itens_aprovacao(
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user),
 ):
-    q = db.query(Suprimento).filter(Suprimento.status == "pendente")
+    q = db.query(Suprimento).filter(Suprimento.status.in_(["pendente", "aprovado"]))
 
     if ids:
         id_list = [int(v) for v in ids.split(",") if v.strip().isdigit()]
@@ -270,6 +270,8 @@ def eliminar_item(
     sup = db.query(Suprimento).filter(Suprimento.id == data.suprimento_id).first()
     if not sup:
         raise HTTPException(404, "Suprimento não encontrado")
+    if sup.status != "pendente":
+        raise HTTPException(409, "Somente itens pendentes podem ser eliminados")
 
     log = ItemEliminadoLog(
         suprimento_id=sup.id,
@@ -289,6 +291,28 @@ def eliminar_item(
     db.commit()
 
     return {"ok": True, "log_id": log.id}
+
+
+class CancelarRequest(BaseModel):
+    suprimento_id: int
+
+
+@router.post("/cancelar")
+def cancelar_item(
+    data: CancelarRequest,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user),
+):
+    sup = db.query(Suprimento).filter(Suprimento.id == data.suprimento_id).first()
+    if not sup:
+        raise HTTPException(404, "Suprimento não encontrado")
+    if sup.status != "aprovado":
+        raise HTTPException(409, "Somente itens aprovados podem ser cancelados por esta ação")
+
+    sup.status = "cancelado"
+    sup.updated_at = datetime.utcnow()
+    db.commit()
+    return {"ok": True}
 
 
 class FinalizarAprovacaoItem(BaseModel):
