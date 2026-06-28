@@ -362,6 +362,7 @@ def registrar_ia_sugestao(data: IaSugestaoLogCreate, db: Session = Depends(get_d
 
 @router.post("/segmentos", status_code=201)
 def criar_segmento(data: SegmentoCreate, db: Session = Depends(get_db), _=Depends(require_admin)):
+    from sqlalchemy.exc import IntegrityError
     nome = data.nome.strip()
     if not nome:
         raise HTTPException(400, "Informe o nome do segmento")
@@ -369,7 +370,11 @@ def criar_segmento(data: SegmentoCreate, db: Session = Depends(get_db), _=Depend
         raise HTTPException(400, "Segmento já cadastrado")
     seg = Segmento(nome=nome)
     db.add(seg)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(400, "Segmento já cadastrado")
     db.refresh(seg)
     return {"id": seg.id, "nome": seg.nome}
 

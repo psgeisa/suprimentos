@@ -20,3 +20,7 @@ services:
         scope: build
       - key: SUPABASE_KEY
         scope: build
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
