@@ -1826,11 +1826,11 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
       <div class="bi-card">
         <div class="bi-card-hdr"><p class="bi-title">Custo total por mês</p><button class="bi-expand-btn" onclick="expandBiChart('biChartMes','Custo total por mês')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
-        <div class="bi-chart-wrap"><canvas id="biChartMes"></canvas></div>
+        <div class="bi-chart-wrap"><div id="biChartMes" style="width:100%;height:100%"></div></div>
       </div>
       <div class="bi-card">
         <div class="bi-card-hdr"><p class="bi-title">Custo médio por dia da semana</p><button class="bi-expand-btn" onclick="expandBiChart('biChartDia','Custo médio por dia da semana')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
-        <div class="bi-chart-wrap"><canvas id="biChartDia"></canvas></div>
+        <div class="bi-chart-wrap"><div id="biChartDia" style="width:100%;height:100%"></div></div>
       </div>
     </div>
 
@@ -1838,11 +1838,11 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
       <div class="bi-card">
         <div class="bi-card-hdr"><p class="bi-title">Custo por segmento por mês</p><button class="bi-expand-btn" onclick="expandBiChart('biChartSegmento','Custo por segmento por mês')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
-        <div class="bi-chart-wrap"><canvas id="biChartSegmento"></canvas></div>
+        <div class="bi-chart-wrap"><div id="biChartSegmento" style="width:100%;height:100%"></div></div>
       </div>
       <div class="bi-card">
         <div class="bi-card-hdr"><p class="bi-title">Custo por estabelecimento por mês</p><button class="bi-expand-btn" onclick="expandBiChart('biChartEst','Custo por estabelecimento por mês')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
-        <div class="bi-chart-wrap"><canvas id="biChartEst"></canvas></div>
+        <div class="bi-chart-wrap"><div id="biChartEst" style="width:100%;height:100%"></div></div>
       </div>
     </div>
 
@@ -1865,13 +1865,13 @@
     <!-- Row 4: Comparativo full width -->
     <div class="bi-card mb-6">
       <div class="bi-card-hdr"><p class="bi-title">Valor estimado × Teto de gasto × Valor real por mês</p><button class="bi-expand-btn" onclick="expandBiChart('biChartComp','Valor estimado × Teto de gasto × Valor real por mês')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
-      <div class="bi-chart-wrap" style="height:260px"><canvas id="biChartComp"></canvas></div>
+      <div class="bi-chart-wrap" style="height:260px"><div id="biChartComp" style="width:100%;height:100%"></div></div>
     </div>
 
     <!-- Row 5: Projeção full width -->
     <div class="bi-card mb-6">
       <div class="bi-card-hdr"><p class="bi-title">Custo futuro projetado por estabelecimento</p><button class="bi-expand-btn" onclick="expandBiChart('biChartProj','Custo futuro projetado por estabelecimento')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
-      <div class="bi-chart-wrap" style="height:260px"><canvas id="biChartProj"></canvas></div>
+      <div class="bi-chart-wrap" style="height:260px"><div id="biChartProj" style="width:100%;height:100%"></div></div>
     </div>
   </section>
 
@@ -7290,44 +7290,83 @@ function renderBiCharts(d) {
   const tickColor = dark ? '#94a3b8' : '#64748b';
   const gridColor = dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
 
-  function registerChartJsExpand(id, cfg) {
+  function echartsAxis(isDark) {
+    const tc = isDark ? '#94a3b8' : '#64748b';
+    const gc = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
+    return { tc, gc };
+  }
+
+  function initEchart(id, optFn) {
+    destroyBiChart(id);
+    const { tc, gc } = echartsAxis(dark);
+    const chart = echarts.init(document.getElementById(id), dark ? 'dark' : null, { renderer: 'canvas' });
+    chart.setOption(optFn(tc, gc));
+    biCharts[id] = chart;
     biExpandStore[id] = {
       initFn(container) {
-        const canvas = document.createElement('canvas');
-        canvas.style.cssText = 'width:100%;height:100%';
-        container.appendChild(canvas);
-        window._biExpandInst = new Chart(canvas, cfg);
+        const div = document.createElement('div');
+        div.style.cssText = 'width:100%;height:100%;min-height:460px';
+        container.appendChild(div);
+        const c = echarts.init(div, dark ? 'dark' : null);
+        c.setOption(optFn(tc, gc));
+        window._biExpandInst = c;
       }
     };
   }
 
-  // ── 1. Custo total por mês ──────────────────────────────────────────────
-  destroyBiChart('mes');
-  const cfgMes = { type: 'bar', data: { labels: d.por_mes.map(r => r.mes), datasets: [{ label: 'Custo total', data: d.por_mes.map(r => r.custo), backgroundColor: 'rgba(212,165,32,0.85)', borderRadius: 8, borderSkipped: false }] }, options: { ...biBarOptions(), scales: { x: { stacked: false, ticks: { color: tickColor, font: { size: 10 } }, grid: { display: false } }, y: { stacked: false, ticks: { color: tickColor, font: { size: 10 }, callback: v => fmtBRL(v) }, grid: { color: gridColor } } } } };
-  biCharts['mes'] = new Chart(document.getElementById('biChartMes'), cfgMes);
-  registerChartJsExpand('biChartMes', cfgMes);
+  // ── 1. Custo total por mês (bar + background) ───────────────────────────
+  initEchart('biChartMes', (tc, gc) => ({
+    backgroundColor: 'transparent',
+    tooltip: { trigger: 'axis', formatter: p => `${p[0].name}<br/><b>${fmtBRL(p[0].value)}</b>` },
+    grid: { left: 16, right: 16, top: 16, bottom: 8, containLabel: true },
+    xAxis: { type: 'category', data: d.por_mes.map(r => r.mes), axisTick: { show: false }, axisLine: { show: false }, axisLabel: { color: tc, fontSize: 11 } },
+    yAxis: { type: 'value', axisLabel: { color: tc, fontSize: 10, formatter: v => fmtBRL(v) }, splitLine: { lineStyle: { color: gc } }, axisLine: { show: false }, axisTick: { show: false } },
+    series: [{ type: 'bar', data: d.por_mes.map(r => r.custo), showBackground: true, backgroundStyle: { color: dark ? 'rgba(255,255,255,0.04)' : 'rgba(180,180,180,0.15)', borderRadius: [10,10,0,0] }, itemStyle: { color: '#D4A520', borderRadius: [10,10,0,0] }, barMaxWidth: 52 }],
+  }));
 
-  // ── 2. Custo médio por dia da semana ────────────────────────────────────
-  destroyBiChart('dia');
-  const cfgDia = { type: 'bar', data: { labels: d.por_dia_semana.map(r => r.label), datasets: [{ label: 'Custo médio', data: d.por_dia_semana.map(r => r.media), backgroundColor: 'rgba(245,158,11,0.85)', borderRadius: 8, borderSkipped: false }] }, options: { ...biBarOptions(), scales: { x: { stacked: false, ticks: { color: tickColor, font: { size: 10 } }, grid: { display: false } }, y: { stacked: false, ticks: { color: tickColor, font: { size: 10 }, callback: v => fmtBRL(v) }, grid: { color: gridColor } } } } };
-  biCharts['dia'] = new Chart(document.getElementById('biChartDia'), cfgDia);
-  registerChartJsExpand('biChartDia', cfgDia);
+  // ── 2. Custo médio por dia da semana (bar + background) ─────────────────
+  initEchart('biChartDia', (tc, gc) => ({
+    backgroundColor: 'transparent',
+    tooltip: { trigger: 'axis', formatter: p => `${p[0].name}<br/><b>${fmtBRL(p[0].value)}</b>` },
+    grid: { left: 16, right: 16, top: 16, bottom: 8, containLabel: true },
+    xAxis: { type: 'category', data: d.por_dia_semana.map(r => r.label), axisTick: { show: false }, axisLine: { show: false }, axisLabel: { color: tc, fontSize: 11 } },
+    yAxis: { type: 'value', axisLabel: { color: tc, fontSize: 10, formatter: v => fmtBRL(v) }, splitLine: { lineStyle: { color: gc } }, axisLine: { show: false }, axisTick: { show: false } },
+    series: [{ type: 'bar', data: d.por_dia_semana.map(r => r.media), showBackground: true, backgroundStyle: { color: dark ? 'rgba(255,255,255,0.04)' : 'rgba(180,180,180,0.15)', borderRadius: [10,10,0,0] }, itemStyle: { color: '#F59E0B', borderRadius: [10,10,0,0] }, barMaxWidth: 52 }],
+  }));
 
-  // ── 3. Custo por segmento por mês (stacked) ─────────────────────────────
-  destroyBiChart('seg');
+  // ── 3. Custo por segmento por mês (gradient stacked area) ───────────────
   const mesesSeg = [...new Set(d.por_segmento_mes.map(r => r.mes))].sort();
   const segsList = [...new Set(d.por_segmento_mes.map(r => r.segmento))].sort();
-  const cfgSeg = { type: 'bar', data: { labels: mesesSeg, datasets: segsList.map((seg, i) => ({ label: seg, data: mesesSeg.map(m => d.por_segmento_mes.find(r => r.mes === m && r.segmento === seg)?.custo || 0), backgroundColor: biColor(i), borderRadius: 2 })) }, options: biBarOptions() };
-  biCharts['seg'] = new Chart(document.getElementById('biChartSegmento'), cfgSeg);
-  registerChartJsExpand('biChartSegmento', cfgSeg);
+  initEchart('biChartSegmento', (tc, gc) => ({
+    backgroundColor: 'transparent',
+    tooltip: { trigger: 'axis', axisPointer: { type: 'cross', label: { backgroundColor: '#6a7985' } } },
+    legend: { bottom: 0, textStyle: { color: tc }, icon: 'circle', itemWidth: 8, itemHeight: 8 },
+    grid: { left: 16, right: 16, top: 8, bottom: 36, containLabel: true },
+    xAxis: [{ type: 'category', boundaryGap: false, data: mesesSeg, axisLabel: { color: tc, fontSize: 10 }, axisLine: { lineStyle: { color: gc } }, axisTick: { show: false } }],
+    yAxis: [{ type: 'value', axisLabel: { color: tc, fontSize: 10, formatter: v => fmtBRL(v) }, splitLine: { lineStyle: { color: gc } }, axisLine: { show: false }, axisTick: { show: false } }],
+    series: segsList.map((seg, i) => {
+      const c = biColor(i);
+      const c2 = biColor(i + 1);
+      return { name: seg, type: 'line', stack: 'Total', smooth: true, lineStyle: { width: 0 }, showSymbol: false, emphasis: { focus: 'series' }, areaStyle: { opacity: 0.85, color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: c }, { offset: 1, color: c2 + '55' }]) }, data: mesesSeg.map(m => d.por_segmento_mes.find(r => r.mes === m && r.segmento === seg)?.custo || 0) };
+    }),
+  }));
 
-  // ── 4. Custo por estabelecimento por mês (stacked) ──────────────────────
-  destroyBiChart('est');
+  // ── 4. Custo por estabelecimento por mês (gradient stacked area) ─────────
   const mesesEst = [...new Set(d.por_estabelecimento_mes.map(r => r.mes))].sort();
   const estsList = [...new Set(d.por_estabelecimento_mes.map(r => r.estabelecimento))].sort();
-  const cfgEst = { type: 'bar', data: { labels: mesesEst, datasets: estsList.map((est, i) => ({ label: est, data: mesesEst.map(m => d.por_estabelecimento_mes.find(r => r.mes === m && r.estabelecimento === est)?.custo || 0), backgroundColor: biColor(i + 4), borderRadius: 2 })) }, options: biBarOptions() };
-  biCharts['est'] = new Chart(document.getElementById('biChartEst'), cfgEst);
-  registerChartJsExpand('biChartEst', cfgEst);
+  initEchart('biChartEst', (tc, gc) => ({
+    backgroundColor: 'transparent',
+    tooltip: { trigger: 'axis', axisPointer: { type: 'cross', label: { backgroundColor: '#6a7985' } } },
+    legend: { bottom: 0, textStyle: { color: tc }, icon: 'circle', itemWidth: 8, itemHeight: 8 },
+    grid: { left: 16, right: 16, top: 8, bottom: 36, containLabel: true },
+    xAxis: [{ type: 'category', boundaryGap: false, data: mesesEst, axisLabel: { color: tc, fontSize: 10 }, axisLine: { lineStyle: { color: gc } }, axisTick: { show: false } }],
+    yAxis: [{ type: 'value', axisLabel: { color: tc, fontSize: 10, formatter: v => fmtBRL(v) }, splitLine: { lineStyle: { color: gc } }, axisLine: { show: false }, axisTick: { show: false } }],
+    series: estsList.map((est, i) => {
+      const c = biColor(i + 2);
+      const c2 = biColor(i + 3);
+      return { name: est, type: 'line', stack: 'Total', smooth: true, lineStyle: { width: 0 }, showSymbol: false, emphasis: { focus: 'series' }, areaStyle: { opacity: 0.85, color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: c }, { offset: 1, color: c2 + '55' }]) }, data: mesesEst.map(m => d.por_estabelecimento_mes.find(r => r.mes === m && r.estabelecimento === est)?.custo || 0) };
+    }),
+  }));
 
   // ── 5-7. Rose (Nightingale / ECharts) ───────────────────────────────────
   function makeRoseOption(rows, keyField, valueField, isDark) {
@@ -7381,21 +7420,38 @@ function renderBiCharts(d) {
   renderDonut('biChartResp', d.por_responsavel, 'responsavel', 'custo');
   renderDonut('biChartSol', d.por_solicitante, 'solicitante', 'custo');
 
-  // ── 8. Comparativo de linhas ─────────────────────────────────────────────
-  destroyBiChart('comp');
-  const cfgComp = { type: 'line', data: { labels: d.comparativo.map(r => r.mes), datasets: [ { label: 'Estimado', data: d.comparativo.map(r => r.estimado), borderColor: '#D4A520', backgroundColor: 'rgba(212,165,32,.10)', tension: .4, fill: true, borderWidth: 2.5, pointRadius: 5, pointHoverRadius: 7, pointBackgroundColor: '#D4A520' }, { label: 'Teto de gasto', data: d.comparativo.map(r => r.teto), borderColor: '#EF4444', backgroundColor: 'transparent', tension: .4, borderDash: [6,4], borderWidth: 2, pointRadius: 4, pointHoverRadius: 6, pointBackgroundColor: '#EF4444' }, { label: 'Valor real', data: d.comparativo.map(r => r.real), borderColor: '#10B981', backgroundColor: 'rgba(16,185,129,.10)', tension: .4, fill: true, borderWidth: 2.5, pointRadius: 5, pointHoverRadius: 7, pointBackgroundColor: '#10B981' } ] }, options: biLineOptions() };
-  biCharts['comp'] = new Chart(document.getElementById('biChartComp'), cfgComp);
-  registerChartJsExpand('biChartComp', cfgComp);
+  // ── 8. Comparativo (mix bar + line) ─────────────────────────────────────
+  initEchart('biChartComp', (tc, gc) => ({
+    backgroundColor: 'transparent',
+    tooltip: { trigger: 'axis', axisPointer: { type: 'cross', crossStyle: { color: '#999' } } },
+    legend: { bottom: 0, textStyle: { color: tc }, icon: 'circle', itemWidth: 8, itemHeight: 8 },
+    grid: { left: 16, right: 16, top: 8, bottom: 36, containLabel: true },
+    xAxis: [{ type: 'category', data: d.comparativo.map(r => r.mes), axisPointer: { type: 'shadow' }, axisTick: { show: false }, axisLine: { show: false }, axisLabel: { color: tc, fontSize: 10 } }],
+    yAxis: [{ type: 'value', axisLabel: { color: tc, fontSize: 10, formatter: v => fmtBRL(v) }, splitLine: { lineStyle: { color: gc } }, axisLine: { show: false }, axisTick: { show: false } }],
+    series: [
+      { name: 'Estimado', type: 'bar', data: d.comparativo.map(r => r.estimado), itemStyle: { color: '#D4A520', borderRadius: [6,6,0,0] }, barMaxWidth: 36 },
+      { name: 'Valor real', type: 'bar', data: d.comparativo.map(r => r.real), itemStyle: { color: '#10B981', borderRadius: [6,6,0,0] }, barMaxWidth: 36 },
+      { name: 'Teto de gasto', type: 'line', data: d.comparativo.map(r => r.teto), smooth: true, lineStyle: { color: '#EF4444', width: 2, type: 'dashed' }, itemStyle: { color: '#EF4444' }, symbol: 'circle', symbolSize: 6 },
+    ],
+  }));
 
-  // ── 9. Projeção futura (linha pontilhada) ────────────────────────────────
-  destroyBiChart('proj');
+  // ── 9. Projeção futura (mix bar + line) ─────────────────────────────────
   const projLabels = d.projecao.map(r => r.estabelecimento);
   let accEst = 0, accTeto = 0;
   const projAccEst = d.projecao.map(r => { accEst += r.estimado; return Math.round(accEst * 100) / 100; });
   const projAccTeto = d.projecao.map(r => { accTeto += r.teto; return Math.round(accTeto * 100) / 100; });
-  const cfgProj = { type: 'line', data: { labels: projLabels, datasets: [ { label: 'Custo estimado acum.', data: projAccEst, borderColor: '#D4A520', backgroundColor: 'rgba(212,165,32,.10)', borderDash: [6,4], tension: .4, fill: true, borderWidth: 2.5, pointRadius: 5, pointHoverRadius: 7, pointBackgroundColor: '#D4A520' }, { label: 'Teto de gasto acum.', data: projAccTeto, borderColor: '#EF4444', backgroundColor: 'rgba(239,68,68,.08)', borderDash: [6,4], tension: .4, fill: true, borderWidth: 2, pointRadius: 4, pointHoverRadius: 6, pointBackgroundColor: '#EF4444' } ] }, options: biLineOptions() };
-  biCharts['proj'] = new Chart(document.getElementById('biChartProj'), cfgProj);
-  registerChartJsExpand('biChartProj', cfgProj);
+  initEchart('biChartProj', (tc, gc) => ({
+    backgroundColor: 'transparent',
+    tooltip: { trigger: 'axis', axisPointer: { type: 'cross', crossStyle: { color: '#999' } } },
+    legend: { bottom: 0, textStyle: { color: tc }, icon: 'circle', itemWidth: 8, itemHeight: 8 },
+    grid: { left: 16, right: 16, top: 8, bottom: 36, containLabel: true },
+    xAxis: [{ type: 'category', data: projLabels, axisPointer: { type: 'shadow' }, axisTick: { show: false }, axisLine: { show: false }, axisLabel: { color: tc, fontSize: 10, rotate: 30 } }],
+    yAxis: [{ type: 'value', axisLabel: { color: tc, fontSize: 10, formatter: v => fmtBRL(v) }, splitLine: { lineStyle: { color: gc } }, axisLine: { show: false }, axisTick: { show: false } }],
+    series: [
+      { name: 'Custo estimado acum.', type: 'bar', data: projAccEst, itemStyle: { color: '#D4A520', borderRadius: [6,6,0,0] }, barMaxWidth: 36 },
+      { name: 'Teto de gasto acum.', type: 'line', data: projAccTeto, smooth: true, lineStyle: { color: '#EF4444', width: 2, type: 'dashed' }, itemStyle: { color: '#EF4444' }, symbol: 'circle', symbolSize: 6 },
+    ],
+  }));
 }
 </script>
 </body>
