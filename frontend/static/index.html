@@ -6493,8 +6493,15 @@ async function loadCustosBi() {
   if (biFilterState.times.size) params.set('time', [...biFilterState.times].join(','));
 
   const res = await apiFetch(`/api/custos-bi/dados?${params}`);
-  if (!res || !res.ok) { showToast('Erro ao carregar dados de Custos BI.', 'error'); return; }
+  if (!res || !res.ok) {
+    let errMsg = `HTTP ${res?.status}`;
+    try { const t = await res.clone().text(); errMsg += ' — ' + t.slice(0, 200); } catch(_) {}
+    showToast('Erro BI: ' + errMsg, 'error');
+    console.error('[CustosBi]', errMsg);
+    return;
+  }
   const d = await res.json();
+  console.log('[CustosBi] dados:', d);
   renderBiCharts(d);
 }
 
