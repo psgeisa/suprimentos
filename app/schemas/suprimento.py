@@ -13,6 +13,7 @@ class SuprimentoCreate(BaseModel):
     quantidade: float
     unidade: str = "un"
     valor_estimado: Optional[float] = None
+    teto_gasto: Optional[float] = None
     valor_compra: Optional[float] = None
     fornecedor_sugerido: Optional[str] = None
     estabelecimento_id: Optional[int] = None
@@ -39,6 +40,7 @@ class SuprimentoUpdate(BaseModel):
     quantidade: Optional[float] = None
     unidade: Optional[str] = None
     valor_estimado: Optional[float] = None
+    teto_gasto: Optional[float] = None
     valor_compra: Optional[float] = None
     fornecedor_sugerido: Optional[str] = None
     estabelecimento_id: Optional[int] = None
@@ -66,6 +68,7 @@ class SuprimentoOut(BaseModel):
     quantidade: float
     unidade: str
     valor_estimado: Optional[float]
+    teto_gasto: Optional[float] = None
     valor_compra: Optional[float] = None
     fornecedor_sugerido: Optional[str]
     estabelecimento_id: Optional[int]
