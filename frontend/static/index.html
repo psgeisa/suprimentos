@@ -428,6 +428,19 @@
     .dark .btn-cancelar { border-color: rgba(245,158,11,0.35); color: #FCD34D; }
     .dark .btn-cancelar:hover { background: rgba(245,158,11,0.12); color: #FCD34D; }
     .compra-valor-header { background:linear-gradient(135deg,#F59E0B,#D97706); color:#fff !important; min-width:150px; }
+    /* ── Cards de gestão (segmentos, áreas, unidades, itens, fornecedores, estabelecimentos) ── */
+    .mgmt-card-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:0.6rem; padding:1.25rem; }
+    .mgmt-card { display:flex; align-items:center; justify-content:space-between; gap:0.5rem; padding:0.6rem 0.85rem; background:#fff; border:1px solid #e2e8f0; border-radius:0.75rem; transition:box-shadow .15s, border-color .15s; }
+    .mgmt-card:hover { box-shadow:0 2px 8px rgba(0,0,0,.07); border-color:#cbd5e1; }
+    .mgmt-card-body { display:flex; flex-direction:column; gap:0.1rem; min-width:0; }
+    .mgmt-card-name { font-size:.8rem; font-weight:600; color:#1e293b; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .mgmt-card-sub { font-size:.68rem; color:#94a3b8; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .mgmt-card-sigla { display:inline-block; font-family:monospace; font-weight:700; font-size:.7rem; background:#EFF6FF; color:#1D4ED8; border-radius:4px; padding:1px 6px; margin-bottom:2px; }
+    .dark .mgmt-card { background:#1F2937; border-color:#374151; }
+    .dark .mgmt-card:hover { border-color:#4B5563; box-shadow:0 2px 8px rgba(0,0,0,.25); }
+    .dark .mgmt-card-name { color:#F9FAFB; }
+    .dark .mgmt-card-sub { color:#6B7280; }
+    .dark .mgmt-card-sigla { background:rgba(29,78,216,.2); color:#93C5FD; }
     .compra-valor-input { min-width:110px; text-align:right; font-variant-numeric:tabular-nums; }
     .compra-valor-input.over-limit { border-color:#DC2626 !important; box-shadow:0 0 0 2px rgba(220,38,38,.12); background:#FEF2F2 !important; }
     .compra-limit-message { color:#DC2626; font-size:10px; line-height:1.2; margin-top:4px; font-weight:600; }
@@ -496,6 +509,7 @@
     .prio-pill-m { background: #FEF3C7; color: #92400E; border-color: #FDE68A; }
     .prio-pill-a { background: #FFEDD5; color: #9A3412; border-color: #FED7AA; }
     .prio-pill-u { background: #FEE2E2; color: #991B1B; border-color: #FECACA; }
+    #page-compras table { font-size: 0.72rem; }
     .dark #page-compras table { color: rgba(255,255,255,0.87); }
     .dark #page-compras input,
     .dark #page-compras select { color:#fff !important; background:rgba(0,0,0,0.45) !important; border-color:rgba(212,165,32,0.3) !important; }
@@ -536,6 +550,7 @@
     .dark .recent-request-item .text-amber-700 { color: #F97316 !important; }
 
     /* ── Dark mode — Entregas ─── */
+    #page-entregas table { font-size: 0.72rem; }
     .dark #page-entregas table { color: rgba(255,255,255,0.87); }
     .dark #page-entregas input,
     .dark #page-entregas select { color:#fff !important; background:rgba(0,0,0,0.45) !important; border-color:rgba(212,165,32,0.3) !important; }
@@ -1626,15 +1641,7 @@
       </div>
     </div>
     <div class="card-glass bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-      <table class="w-full text-sm">
-        <thead>
-          <tr class="bg-slate-50 border-b border-slate-100">
-            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Nome</th>
-            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide w-24">Excluir</th>
-          </tr>
-        </thead>
-        <tbody id="segmentosBody" class="divide-y divide-slate-50"></tbody>
-      </table>
+      <div id="segmentosBody" class="mgmt-card-grid"></div>
       <div id="segmentosEmpty" class="hidden flex flex-col items-center py-16 text-slate-400">
         <svg class="w-10 h-10 mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/></svg>
         <p class="font-medium">Nenhum segmento cadastrado</p>
@@ -1657,15 +1664,7 @@
       </div>
     </div>
     <div class="card-glass bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-      <table class="w-full text-sm">
-        <thead>
-          <tr class="bg-slate-50 border-b border-slate-100">
-            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Nome da Área</th>
-            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide w-24">Excluir</th>
-          </tr>
-        </thead>
-        <tbody id="areasBody" class="divide-y divide-slate-50"></tbody>
-      </table>
+      <div id="areasBody" class="mgmt-card-grid"></div>
       <div id="areasEmpty" class="hidden flex flex-col items-center py-16 text-slate-400">
         <svg class="w-10 h-10 mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
         <p class="font-medium">Nenhuma área cadastrada</p>
@@ -1688,16 +1687,7 @@
       </div>
     </div>
     <div class="card-glass bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-      <table class="w-full text-sm">
-        <thead>
-          <tr class="bg-slate-50 border-b border-slate-100">
-            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Sigla</th>
-            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Nome</th>
-            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide w-24">Excluir</th>
-          </tr>
-        </thead>
-        <tbody id="unidadesBody" class="divide-y divide-slate-50"></tbody>
-      </table>
+      <div id="unidadesBody" class="mgmt-card-grid"></div>
       <div id="unidadesEmpty" class="hidden flex flex-col items-center py-16 text-slate-400">
         <svg class="w-10 h-10 mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2 9a1 1 0 011-1h18a1 1 0 011 1v6a1 1 0 01-1 1H3a1 1 0 01-1-1V9z"/></svg>
         <p class="font-medium">Nenhuma unidade cadastrada</p>
@@ -1720,16 +1710,7 @@
       </div>
     </div>
     <div class="card-glass bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-      <table class="w-full text-sm">
-        <thead>
-          <tr class="bg-slate-50 border-b border-slate-100">
-            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Item</th>
-            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Segmento</th>
-            <th class="px-5 py-3 w-12"></th>
-          </tr>
-        </thead>
-        <tbody id="itensBody" class="divide-y divide-slate-50"></tbody>
-      </table>
+      <div id="itensBody" class="mgmt-card-grid"></div>
       <div id="itensEmpty" class="hidden flex flex-col items-center py-16 text-slate-400">
         <svg class="w-10 h-10 mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
         <p class="font-medium">Nenhum item cadastrado</p>
@@ -1752,16 +1733,7 @@
       </div>
     </div>
     <div class="card-glass bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-      <table class="w-full text-sm">
-        <thead>
-          <tr class="bg-slate-50 border-b border-slate-100">
-            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Nome / Contato</th>
-            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Segmento</th>
-            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide w-24">Excluir</th>
-          </tr>
-        </thead>
-        <tbody id="fornecedoresBody" class="divide-y divide-slate-50"></tbody>
-      </table>
+      <div id="fornecedoresBody" class="mgmt-card-grid"></div>
       <div id="fornecedoresEmpty" class="hidden flex flex-col items-center py-16 text-slate-400">
         <svg class="w-10 h-10 mb-3 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
         <p class="font-medium">Nenhum fornecedor cadastrado</p>
@@ -1784,14 +1756,7 @@
       </div>
     </div>
     <div class="card-glass bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-      <table class="w-full text-sm">
-        <thead><tr class="bg-slate-50 border-b border-slate-100">
-          <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Tipo</th>
-          <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Segmentos</th>
-          <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide w-24">Ações</th>
-        </tr></thead>
-        <tbody id="estabelecimentosBody" class="divide-y divide-slate-50"></tbody>
-      </table>
+      <div id="estabelecimentosBody" class="mgmt-card-grid"></div>
       <div id="estabelecimentosEmpty" class="hidden flex flex-col items-center py-16 text-slate-400">
         <p class="font-medium">Nenhum estabelecimento cadastrado</p>
       </div>
@@ -5633,20 +5598,18 @@ const SOLICITACAO_MENU = item => `
 function renderSegmentos() {
   const search = (document.getElementById('segSearch')?.value || '').toLowerCase();
   const all    = segmentosCache.filter(i => !search || i.nome.toLowerCase().includes(search));
-  const tbody  = document.getElementById('segmentosBody');
+  const grid   = document.getElementById('segmentosBody');
   const empty  = document.getElementById('segmentosEmpty');
-  if (!all.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); document.getElementById('segmentosPagination').innerHTML=''; return; }
+  if (!all.length) { grid.innerHTML = ''; empty.classList.remove('hidden'); document.getElementById('segmentosPagination').innerHTML=''; return; }
   empty.classList.add('hidden');
   const pages = Math.ceil(all.length / MGMT_PER_PAGE);
   segPage = Math.min(segPage, pages);
   const data = all.slice((segPage-1)*MGMT_PER_PAGE, segPage*MGMT_PER_PAGE);
-  tbody.innerHTML = data.map(item => `
-    <tr class="row-hover transition-colors">
-      <td class="px-5 py-3.5 text-sm">${item.nome}</td>
-      <td class="px-5 py-3.5">
-        <div class="flex gap-1">${DEL_BTN('segmento', item.id)}</div>
-      </td>
-    </tr>`).join('');
+  grid.innerHTML = data.map(item => `
+    <div class="mgmt-card">
+      <div class="mgmt-card-body"><span class="mgmt-card-name" title="${item.nome}">${item.nome}</span></div>
+      ${DEL_BTN('segmento', item.id)}
+    </div>`).join('');
   renderMgmtPagination('segmentosPagination', all.length, segPage, pages, 'goPageSeg');
 }
 function goPageSeg(p) { segPage=p; renderSegmentos(); }
@@ -5720,20 +5683,18 @@ function _clearSegSearch() {
 function renderAreas() {
   const search = (document.getElementById('areaSearch')?.value || '').toLowerCase();
   const all    = getMgmtData('area').filter(i => !search || i.nome.toLowerCase().includes(search));
-  const tbody  = document.getElementById('areasBody');
+  const grid   = document.getElementById('areasBody');
   const empty  = document.getElementById('areasEmpty');
-  if (!all.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); document.getElementById('areaPagination').innerHTML=''; return; }
+  if (!all.length) { grid.innerHTML = ''; empty.classList.remove('hidden'); document.getElementById('areaPagination').innerHTML=''; return; }
   empty.classList.add('hidden');
   const pages = Math.ceil(all.length / MGMT_PER_PAGE);
   areaPage = Math.min(areaPage, pages);
   const data = all.slice((areaPage-1)*MGMT_PER_PAGE, areaPage*MGMT_PER_PAGE);
-  tbody.innerHTML = data.map(item => `
-    <tr class="row-hover transition-colors">
-      <td class="px-5 py-3.5 text-sm">${item.nome}</td>
-      <td class="px-5 py-3.5">
-        <div class="flex gap-1">${DEL_BTN('area', item.id)}</div>
-      </td>
-    </tr>`).join('');
+  grid.innerHTML = data.map(item => `
+    <div class="mgmt-card">
+      <div class="mgmt-card-body"><span class="mgmt-card-name" title="${item.nome}">${item.nome}</span></div>
+      ${DEL_BTN('area', item.id)}
+    </div>`).join('');
   renderMgmtPagination('areaPagination', all.length, areaPage, pages, 'goPageArea');
 }
 function goPageArea(p) { areaPage=p; renderAreas(); }
@@ -5741,23 +5702,21 @@ function goPageArea(p) { areaPage=p; renderAreas(); }
 function renderUnidades() {
   const search = (document.getElementById('unidadeSearch')?.value || '').toLowerCase();
   const all    = unidadesCache.filter(i => !search || i.nome.toLowerCase().includes(search) || i.sigla.toLowerCase().includes(search));
-  const tbody  = document.getElementById('unidadesBody');
+  const grid   = document.getElementById('unidadesBody');
   const empty  = document.getElementById('unidadesEmpty');
-  if (!all.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); document.getElementById('unidadePagination').innerHTML=''; return; }
+  if (!all.length) { grid.innerHTML = ''; empty.classList.remove('hidden'); document.getElementById('unidadePagination').innerHTML=''; return; }
   empty.classList.add('hidden');
   const pages = Math.ceil(all.length / MGMT_PER_PAGE);
   unidadePage = Math.min(unidadePage, pages);
   const data = all.slice((unidadePage-1)*MGMT_PER_PAGE, unidadePage*MGMT_PER_PAGE);
-  tbody.innerHTML = data.map(item => `
-    <tr class="row-hover transition-colors">
-      <td class="px-5 py-3.5">
-        <span class="unidade-sigla-tag font-mono font-bold text-sm px-2 py-0.5 rounded">${item.sigla}</span>
-      </td>
-      <td class="px-5 py-3.5 text-sm">${item.nome}</td>
-      <td class="px-5 py-3.5">
-        <div class="flex gap-1">${DEL_BTN('unidade', item.id)}</div>
-      </td>
-    </tr>`).join('');
+  grid.innerHTML = data.map(item => `
+    <div class="mgmt-card">
+      <div class="mgmt-card-body">
+        <span class="mgmt-card-sigla">${item.sigla}</span>
+        <span class="mgmt-card-name" title="${item.nome}">${item.nome}</span>
+      </div>
+      ${DEL_BTN('unidade', item.id)}
+    </div>`).join('');
   renderMgmtPagination('unidadePagination', all.length, unidadePage, pages, 'goPageUnidade');
 }
 function goPageUnidade(p) { unidadePage=p; renderUnidades(); }
@@ -5765,25 +5724,25 @@ function goPageUnidade(p) { unidadePage=p; renderUnidades(); }
 function renderItens() {
   const search = (document.getElementById('itemSearch')?.value || '').toLowerCase();
   const all    = itensCache.filter(i => !search || i.nome.toLowerCase().includes(search) || i.segmento.toLowerCase().includes(search));
-  const tbody  = document.getElementById('itensBody');
+  const grid   = document.getElementById('itensBody');
   const empty  = document.getElementById('itensEmpty');
-  if (!all.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); document.getElementById('itemPagination').innerHTML=''; return; }
+  if (!all.length) { grid.innerHTML = ''; empty.classList.remove('hidden'); document.getElementById('itemPagination').innerHTML=''; return; }
   empty.classList.add('hidden');
   const pages = Math.ceil(all.length / MGMT_PER_PAGE);
   itemPage = Math.min(itemPage, pages);
   const data = all.slice((itemPage-1)*MGMT_PER_PAGE, itemPage*MGMT_PER_PAGE);
-  tbody.innerHTML = data.map(item => `
-    <tr class="row-hover transition-colors">
-      <td class="px-5 py-3.5 text-sm font-medium text-slate-800">${item.nome}</td>
-      <td class="px-5 py-3.5 text-sm text-slate-600">${item.segmento}</td>
-      <td class="px-5 py-3.5" onclick="event.stopPropagation()">
-        <div class="action-menu">
-          <button type="button" class="action-menu-btn" onclick="openActionMenu(this,event,'item',${item.id})" title="Opções" aria-label="Opções do item" aria-haspopup="menu">
-            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-1 2-2s-1-2-2-2-2 1-2 2 1 2 2 2zm0 2c-1.1 0-2 1-2 2s1 2 2 2 2-1 2-2-1-2-2-2zm0 6c-1.1 0-2 1-2 2s1 2 2 2 2-1 2-2-1-2-2-2z"/></svg>
-          </button>
-        </div>
-      </td>
-    </tr>`).join('');
+  grid.innerHTML = data.map(item => `
+    <div class="mgmt-card">
+      <div class="mgmt-card-body">
+        <span class="mgmt-card-name" title="${item.nome}">${item.nome}</span>
+        <span class="mgmt-card-sub">${item.segmento}</span>
+      </div>
+      <div class="action-menu">
+        <button type="button" class="action-menu-btn" onclick="openActionMenu(this,event,'item',${item.id})" title="Opções" aria-label="Opções do item" aria-haspopup="menu">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 8c1.1 0 2-1 2-2s-1-2-2-2-2 1-2 2 1 2 2 2zm0 2c-1.1 0-2 1-2 2s1 2 2 2 2-1 2-2-1-2-2-2zm0 6c-1.1 0-2 1-2 2s1 2 2 2 2-1 2-2-1-2-2-2z"/></svg>
+        </button>
+      </div>
+    </div>`).join('');
   renderMgmtPagination('itemPagination', all.length, itemPage, pages, 'goPageItem');
 }
 function goPageItem(p) { itemPage=p; renderItens(); }
@@ -5791,24 +5750,22 @@ function goPageItem(p) { itemPage=p; renderItens(); }
 function renderFornecedores() {
   const search = (document.getElementById('fornecedorSearch')?.value || '').toLowerCase();
   const all    = getMgmtData('fornecedor').filter(i => !search || i.nome.toLowerCase().includes(search) || (i.contato||'').toLowerCase().includes(search));
-  const tbody  = document.getElementById('fornecedoresBody');
+  const grid   = document.getElementById('fornecedoresBody');
   const empty  = document.getElementById('fornecedoresEmpty');
-  if (!all.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); document.getElementById('fornPagination').innerHTML=''; return; }
+  if (!all.length) { grid.innerHTML = ''; empty.classList.remove('hidden'); document.getElementById('fornPagination').innerHTML=''; return; }
   empty.classList.add('hidden');
   const pages = Math.ceil(all.length / MGMT_PER_PAGE);
   fornPage = Math.min(fornPage, pages);
   const data = all.slice((fornPage-1)*MGMT_PER_PAGE, fornPage*MGMT_PER_PAGE);
-  tbody.innerHTML = data.map(item => `
-    <tr class="row-hover transition-colors">
-      <td class="px-5 py-3.5">
-        <p class="font-semibold text-slate-700 text-sm">${item.nome}</p>
-        ${item.contato ? `<p class="text-xs text-slate-400">${item.contato}</p>` : ''}
-      </td>
-      <td class="px-5 py-3.5 text-sm text-slate-500">${item.segmento || '—'}</td>
-      <td class="px-5 py-3.5">
-        ${FORNECEDOR_MENU(item)}
-      </td>
-    </tr>`).join('');
+  grid.innerHTML = data.map(item => `
+    <div class="mgmt-card">
+      <div class="mgmt-card-body">
+        <span class="mgmt-card-name" title="${item.nome}">${item.nome}</span>
+        ${item.contato ? `<span class="mgmt-card-sub">${item.contato}</span>` : ''}
+        ${item.segmento ? `<span class="mgmt-card-sub">${item.segmento}</span>` : ''}
+      </div>
+      ${FORNECEDOR_MENU(item)}
+    </div>`).join('');
   renderMgmtPagination('fornPagination', all.length, fornPage, pages, 'goPageForn');
 }
 function goPageForn(p) { fornPage=p; renderFornecedores(); }
@@ -5826,20 +5783,22 @@ async function renderEstabelecimentos() {
   await loadEstabelecimentos();
   const search = (document.getElementById('estabelecimentoSearch')?.value || '').toLowerCase();
   const all = estabelecimentosCache.filter(item => item.ativo && (!search || item.tipo.toLowerCase().includes(search) || (item.segmentos || '').toLowerCase().includes(search)));
-  const tbody = document.getElementById('estabelecimentosBody');
+  const grid = document.getElementById('estabelecimentosBody');
   const empty = document.getElementById('estabelecimentosEmpty');
-  if (!tbody || !empty) return;
-  if (!all.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); document.getElementById('estPagination').innerHTML=''; return; }
+  if (!grid || !empty) return;
+  if (!all.length) { grid.innerHTML = ''; empty.classList.remove('hidden'); document.getElementById('estPagination').innerHTML=''; return; }
   empty.classList.add('hidden');
   const pages = Math.ceil(all.length / MGMT_PER_PAGE);
   estPage = Math.min(estPage, pages);
   const data = all.slice((estPage-1)*MGMT_PER_PAGE, estPage*MGMT_PER_PAGE);
-  tbody.innerHTML = data.map(item => `
-    <tr class="row-hover transition-colors">
-      <td class="px-5 py-3.5 font-semibold">${item.tipo}</td>
-      <td class="px-5 py-3.5">${item.segmentos || '—'}</td>
-      <td class="px-5 py-3.5">${ESTABELECIMENTO_MENU(item)}</td>
-    </tr>`).join('');
+  grid.innerHTML = data.map(item => `
+    <div class="mgmt-card">
+      <div class="mgmt-card-body">
+        <span class="mgmt-card-name" title="${item.tipo}">${item.tipo}</span>
+        ${item.segmentos ? `<span class="mgmt-card-sub">${item.segmentos}</span>` : ''}
+      </div>
+      ${ESTABELECIMENTO_MENU(item)}
+    </div>`).join('');
   renderMgmtPagination('estPagination', all.length, estPage, pages, 'goPageEst');
 }
 function goPageEst(p) { estPage=p; renderEstabelecimentos(); }
