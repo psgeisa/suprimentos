@@ -283,7 +283,7 @@ async def check_similar_segmento(data: SimilarSegmentoRequest):
         try:
             async with httpx.AsyncClient(timeout=15.0) as client:
                 resp = await client.post(
-                    f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={gemini_key}",
+                    f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={gemini_key}",
                     headers={"content-type": "application/json"},
                     json={"contents": [{"parts": [{"text": prompt}]}]},
                 )
@@ -313,7 +313,7 @@ async def check_similar_segmento(data: SimilarSegmentoRequest):
                         "content-type": "application/json",
                     },
                     json={
-                        "model": "llama3-8b-8192",
+                        "model": "llama3-70b-8192",
                         "messages": [{"role": "user", "content": prompt}],
                         "max_tokens": 200,
                         "temperature": 0,
