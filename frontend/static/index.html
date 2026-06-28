@@ -3389,7 +3389,7 @@ async function loadDashboard() {
     { label:'Pendentes',             value: data.por_status.pendente || 0, icon:'⏳', color:'from-amber-400 to-orange-500' },
     { label:'Aprovados',             value: data.por_status.aprovado || 0, icon:'✓', color:'from-emerald-400 to-green-600' },
     { label:'Em andamento',          value: data.por_status.em_andamento || 0, icon:'🔄', color:'from-blue-400 to-blue-600' },
-    { label:'Valor total estimado',  value: 'R$ '+(data.valor_total_estimado||0).toLocaleString('pt-BR',{minimumFractionDigits:2}), icon:'💰', color:'from-teal-400 to-emerald-600' },
+    { label:'Entregues',             value: data.por_status.entregue || 0, icon:'✅', color:'from-teal-400 to-emerald-600' },
   ];
   document.getElementById('kpiCards').innerHTML = kpis.map(k => `
     <div class="kpi-card bg-white rounded-2xl shadow-sm border border-slate-100 p-5 overflow-hidden relative">
