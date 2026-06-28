@@ -107,9 +107,21 @@
     .filter-ms { position:relative; }
     .filter-ms-menu { position:absolute; z-index:30; top:calc(100% + 5px); left:0; right:0; min-width:210px; max-height:300px; overflow:hidden; background:#fff; border:1px solid #CBD5E1; border-radius:10px; box-shadow:0 10px 28px rgba(0,0,0,.14); padding:8px; }
     .filter-ms-menu > div[id$="Options"] { max-height:220px; overflow-y:auto; overscroll-behavior:contain; }
-    .filter-ms-option { display:flex; align-items:center; gap:8px; padding:7px 6px; border-radius:7px; cursor:pointer; font-size:.8rem; color:#475569; }
+    .filter-ms-option { display:flex; align-items:center; gap:8px; padding:6px 6px; border-radius:7px; cursor:pointer; font-size:.72rem; color:#475569; }
     .filter-ms-option:hover { background:#F8FAFC; }
     .filter-ms-option input { accent-color:#C8780A; }
+
+    /* ── Fonte reduzida — entries e listas de seleção ─── */
+    .ms-option { font-size:.75rem; padding:6px 10px; }
+    .ms-option p.text-sm { font-size:.72rem; }
+    .ms-option p.text-xs { font-size:.67rem; }
+    .ss-option { font-size:.75rem; padding:6px 10px; }
+    .ms-dropdown { font-size:.75rem; }
+    .ms-search { font-size:.72rem; }
+    .ms-search-wrap input { font-size:.72rem; }
+    .ms-trigger { font-size:.8rem; }
+    .ss-trigger { font-size:.8rem; }
+    .filter-bar input, .filter-bar select { font-size:.8rem; }
 
     /* ── Toggle ─── */
     .toggle-track { width:42px; height:24px; background:#CBD5E1; border-radius:99px; position:relative; cursor:pointer; transition:background .2s; flex-shrink:0; }
@@ -418,7 +430,8 @@
     .dark #page-compras .ms-trigger { background:#0d0d0d !important; border-color:rgba(212,165,32,0.3) !important; color:#fff !important; }
 
     /* ── Dark mode — Conclusão necessária ─── */
-    .dark .recent-request-item .text-red-500 { color: #C0607A !important; }
+    .dark .recent-request-item .text-red-500 { color: #F97316 !important; }
+    .dark .recent-request-item .text-amber-700 { color: #F97316 !important; }
 
     /* ── Dark mode — Entregas ─── */
     .dark #page-entregas table { color: rgba(255,255,255,0.87); }
@@ -3366,7 +3379,7 @@ async function loadDashboard() {
     ? `${new Date(referenceYear, referenceMonth - 1, 1)
         .toLocaleDateString('pt-BR', { month: 'short' })
         .replace('.', '')
-        .toLowerCase()}/${String(referenceYear).slice(-2)}`
+        .replace(/^\w/, c => c.toUpperCase())}/${String(referenceYear).slice(-2)}`
     : '';
   document.getElementById('pageSubtitle').textContent =
     `Visão geral do sistema${referenceLabel ? ` | ${referenceLabel}` : ''}`;
@@ -5414,34 +5427,44 @@ async function finalizarCompra() {
     return;
   }
 
+  const totalCompra = comprados.reduce((sum, i) => sum + (comprasValorMap[i.id] || 0), 0);
+  const totalTeto   = comprados.reduce((sum, i) => sum + tetoCompraItem(i), 0);
+
   const excessos = comprados
     .map(item => {
       const valor = comprasValorMap[item.id] || 0;
       const teto = tetoCompraItem(item);
       return { item, valor, teto, excesso: valor - teto };
     })
-    .filter(entry => entry.excesso > 0);
-  if (excessos.length) {
-    const detalhes = excessos.map(entry =>
-      `${entry.item.item_nome || entry.item.titulo}: R$ ${formatCompraValor(entry.valor)} — R$ ${formatCompraValor(entry.excesso)} acima do teto`
-    ).join('; ');
-    await showNotice({
-      title: 'Valor acima do teto de gasto',
-      msg: `A compra não pode ser finalizada com esse valor. ${detalhes}. Revise os valores para continuar.`,
-      okLabel: 'Revisar valores',
-    });
-    return;
-  }
+    .filter(e => e.excesso > 0);
 
-  const totalCompra = comprados.reduce((sum, item) => sum + (comprasValorMap[item.id] || 0), 0);
-  const totalTeto = comprados.reduce((sum, item) => sum + tetoCompraItem(item), 0);
-  const confirmado = await showConfirm({
-    title: 'Compra alinhada com o teto',
-    msg: `O valor final da compra, R$ ${formatCompraValor(totalCompra)}, está alinhado com o teto total de R$ ${formatCompraValor(totalTeto)}. Deseja confirmar a compra?`,
-    okLabel: 'Confirmar compra',
-    danger: false,
-  });
-  if (!confirmado) return;
+  if (excessos.length) {
+    const lista = excessos.map(e =>
+      `• ${e.item.item_nome || e.item.titulo}: R$ ${formatCompraValor(e.valor)} (R$ ${formatCompraValor(e.excesso)} acima do teto)`
+    ).join('\n');
+    const totalAlinhado = totalCompra <= totalTeto;
+    const titulo = totalAlinhado
+      ? 'Itens acima do teto individual — total alinhado'
+      : 'Atenção: valor total acima do teto de gasto';
+    const msg = totalAlinhado
+      ? `Alguns itens ultrapassam o teto individual, mas o valor total da compra (R$ ${formatCompraValor(totalCompra)}) está dentro do teto total (R$ ${formatCompraValor(totalTeto)}).\n\n${lista}\n\nDeseja confirmar a compra?`
+      : `O valor total da compra (R$ ${formatCompraValor(totalCompra)}) excede o teto total (R$ ${formatCompraValor(totalTeto)}) em R$ ${formatCompraValor(totalCompra - totalTeto)}.\n\n${lista}\n\nDeseja confirmar assim mesmo?`;
+    const confirmado = await showConfirm({
+      title: titulo,
+      msg,
+      okLabel: totalAlinhado ? 'Confirmar compra' : 'Confirmar assim mesmo',
+      danger: !totalAlinhado,
+    });
+    if (!confirmado) return;
+  } else {
+    const confirmado = await showConfirm({
+      title: 'Compra alinhada com o teto',
+      msg: `O valor total da compra (R$ ${formatCompraValor(totalCompra)}) está alinhado com o teto total (R$ ${formatCompraValor(totalTeto)}). Deseja confirmar?`,
+      okLabel: 'Confirmar compra',
+      danger: false,
+    });
+    if (!confirmado) return;
+  }
 
   const naoMarcados = comprasItensCache.filter(i => !comprasCheckMap[i.id]);
 
