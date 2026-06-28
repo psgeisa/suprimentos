@@ -7201,8 +7201,9 @@ function biBarOptions() {
   return {
     responsive: true, maintainAspectRatio: false,
     animation: { duration: 600, easing: 'easeInOutQuart' },
+    layout: { padding: { bottom: 8 } },
     plugins: {
-      legend: { position: 'top', align: 'start', labels: { boxWidth: 10, boxHeight: 10, useBorderRadius: true, borderRadius: 3, padding: 14, font: { size: 11, weight: '500' }, color: tickColor } },
+      legend: { position: 'bottom', align: 'start', labels: { boxWidth: 10, boxHeight: 10, useBorderRadius: true, borderRadius: 3, padding: 14, font: { size: 11, weight: '500' }, color: tickColor } },
       tooltip: {
         backgroundColor: ttBg, titleColor: ttTitle, bodyColor: ttBody,
         borderColor: ttBorder, borderWidth: 1, padding: 10, cornerRadius: 10,
@@ -7227,8 +7228,9 @@ function biLineOptions() {
   return {
     responsive: true, maintainAspectRatio: false,
     animation: { duration: 600, easing: 'easeInOutQuart' },
+    layout: { padding: { bottom: 8 } },
     plugins: {
-      legend: { position: 'top', align: 'start', labels: { boxWidth: 24, boxHeight: 3, padding: 14, font: { size: 11, weight: '500' }, color: tickColor } },
+      legend: { position: 'bottom', align: 'start', labels: { boxWidth: 24, boxHeight: 3, padding: 14, font: { size: 11, weight: '500' }, color: tickColor } },
       tooltip: {
         backgroundColor: ttBg, titleColor: ttTitle, bodyColor: ttBody,
         borderColor: ttBorder, borderWidth: 1, padding: 10, cornerRadius: 10,
