@@ -256,9 +256,9 @@ async def check_similar_segmento(data: SimilarSegmentoRequest):
     if best_ratio >= 0.72:
         return {"conflict_type": "variation", "similar_to": best_cand, "score": round(best_ratio, 3)}
 
-    # Caso 4 — verificação semântica via IA (Claude)
-    anthropic_key = os.getenv("ANTHROPIC_API_KEY", "")
-    if anthropic_key:
+    # Caso 4 — verificação semântica via IA (Google Gemini — gratuito)
+    gemini_key = os.getenv("GEMINI_API_KEY", "")
+    if gemini_key:
         cand_list = [c for c, _ in pairs]
         prompt = (
             "Você é especialista em categorização de produtos para um sistema de gestão de suprimentos brasileiro.\n"
@@ -276,20 +276,14 @@ async def check_similar_segmento(data: SimilarSegmentoRequest):
         try:
             async with httpx.AsyncClient(timeout=15.0) as client:
                 resp = await client.post(
-                    "https://api.anthropic.com/v1/messages",
-                    headers={
-                        "x-api-key": anthropic_key,
-                        "anthropic-version": "2023-06-01",
-                        "content-type": "application/json",
-                    },
-                    json={
-                        "model": "claude-haiku-4-5-20251001",
-                        "max_tokens": 200,
-                        "messages": [{"role": "user", "content": prompt}],
-                    },
+                    f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={gemini_key}",
+                    headers={"content-type": "application/json"},
+                    json={"contents": [{"parts": [{"text": prompt}]}]},
                 )
                 if resp.status_code == 200:
-                    text = resp.json()["content"][0]["text"].strip()
+                    text = resp.json()["candidates"][0]["content"]["parts"][0]["text"].strip()
+                    # remove blocos de markdown se o modelo os incluir
+                    text = re.sub(r"^```[a-z]*\n?", "", text).rstrip("` \n")
                     ai_data = _json.loads(text)
                     if ai_data.get("match"):
                         return {
