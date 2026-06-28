@@ -140,6 +140,11 @@ def atualizar(id: int, data: SuprimentoUpdate, db: Session = Depends(get_db), _=
     item = db.query(Suprimento).filter(Suprimento.id == id).first()
     if not item:
         raise HTTPException(404, "Suprimento não encontrado")
+    if item.status != "pendente":
+        raise HTTPException(
+            409,
+            f"Solicitação com status '{item.status}' não pode ser alterada",
+        )
     for field, value in data.model_dump(exclude_none=True).items():
         setattr(item, field, value)
     item.updated_at = datetime.utcnow()

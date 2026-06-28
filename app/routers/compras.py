@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy import case, func
 from sqlalchemy.orm import Session
 
@@ -279,6 +279,7 @@ class FinalizarItemSchema(BaseModel):
     quantidade: Optional[float] = None
     unidade: Optional[str] = None
     valor_estimado: Optional[float] = None
+    valor_compra: Optional[float] = Field(default=None, gt=0)
     estabelecimento_tipo: Optional[str] = None
     solicitante: Optional[str] = None
     prioridade: Optional[str] = None
@@ -304,7 +305,10 @@ def finalizar_compra(
             synchronize_session=False,
         )
 
-    total_estimado = sum((i.valor_estimado or 0) for i in data.comprados) or None
+    total_estimado = sum(
+        i.valor_compra if i.valor_compra is not None else (i.valor_estimado or 0)
+        for i in data.comprados
+    ) or None
 
     log = CompraLog(
         usuario=current_user.nome,

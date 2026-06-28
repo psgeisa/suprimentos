@@ -331,6 +331,9 @@
     .btn-eliminar:hover { background: #FEE2E2; color: #DC2626; }
     .dark .btn-eliminar { border-color: rgba(255,255,255,0.2); color: #fff; }
     .dark .btn-eliminar:hover { background: rgba(255,255,255,0.1); color: #fff; }
+    .compra-valor-header { background:linear-gradient(135deg,#F59E0B,#D97706); color:#fff !important; min-width:150px; }
+    .compra-valor-input { min-width:110px; text-align:right; font-variant-numeric:tabular-nums; }
+    .dark .compra-valor-input { background:#0d0d0d; border-color:rgba(212,165,32,0.3); color:#fff; }
     /* ── info-tip tooltip ── */
     .info-tip {
       display: inline-flex; align-items: center; justify-content: center;
@@ -974,6 +977,10 @@
             <th class="text-center px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none" onclick="setComprasSort('prioridade')">Prioridade <span data-compras-sort="prioridade"></span></th>
             <th class="text-center px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide cursor-pointer select-none" onclick="setComprasSort('comprado')">Comprado <span data-compras-sort="comprado"></span></th>
             <th class="text-center px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide w-20">Eliminar</th>
+            <th class="compra-valor-header text-center px-5 py-3 font-semibold text-xs uppercase tracking-wide">
+              <span class="block">Valor da Compra</span>
+              <span id="comprasTotalHeader" class="block text-sm mt-1 normal-case">R$ 0,00</span>
+            </th>
           </tr>
         </thead>
         <tbody id="comprasBody" class="divide-y divide-slate-50"></tbody>
@@ -1841,7 +1848,7 @@
       </div>
     </div>
     <div class="flex gap-3 justify-end">
-      <button onclick="resolveConfirm(false)" class="px-4 py-2 rounded-lg border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors">Cancelar</button>
+      <button id="confirmCancelBtn" onclick="resolveConfirm(false)" class="px-4 py-2 rounded-lg border border-slate-200 text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors">Cancelar</button>
       <button id="confirmOkBtn" onclick="resolveConfirm(true)" class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition-colors">Confirmar</button>
     </div>
   </div>
@@ -1922,6 +1929,7 @@ function showConfirm({ title = 'Confirmar ação', msg, okLabel = 'Confirmar', d
   document.getElementById('confirmTitle').textContent = title;
   document.getElementById('confirmMsg').textContent   = msg;
   const okBtn = document.getElementById('confirmOkBtn');
+  document.getElementById('confirmCancelBtn').classList.remove('hidden');
   okBtn.textContent = okLabel;
   okBtn.className = `px-4 py-2 rounded-lg text-white text-sm font-semibold transition-colors ${danger ? 'bg-red-600 hover:bg-red-700' : 'bg-amber-600 hover:bg-amber-700'}`;
   document.getElementById('confirmIconWrap').className = `w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 ${danger ? 'bg-red-100' : 'bg-amber-100'}`;
@@ -1929,6 +1937,12 @@ function showConfirm({ title = 'Confirmar ação', msg, okLabel = 'Confirmar', d
   document.getElementById('confirmIconWrap').querySelector('svg').classList.toggle('text-amber-600', !danger);
   document.getElementById('confirmModal').classList.add('open');
   return new Promise(resolve => { _confirmResolve = resolve; });
+}
+
+function showNotice({ title, msg, okLabel = 'Entendi' }) {
+  const promise = showConfirm({ title, msg, okLabel, danger: false });
+  document.getElementById('confirmCancelBtn').classList.add('hidden');
+  return promise;
 }
 
 function resolveConfirm(result) {
@@ -3186,18 +3200,27 @@ async function loadDashboard() {
 
 // ── Suprimentos ───────────────────────────────────────────────────────────
 const solicitacaoFilterState = { status:new Set(), prioridade:new Set(), segmento:new Set(), estabelecimento:new Set() };
+let solicitacaoFiltersInitialized = false;
 const fixedFilterOptions = {
   status:[['pendente','Pendente'],['aprovado','Aprovado'],['em_andamento','Em Andamento'],['concluido','Concluído'],['cancelado','Cancelado']],
   prioridade:[['baixa','Baixa'],['media','Média'],['alta','Alta'],['urgente','Urgente']]
 };
 
 async function initializeSolicitacaoFilters() {
+  if (!solicitacaoFiltersInitialized) {
+    solicitacaoFilterState.status.add('pendente');
+    solicitacaoFiltersInitialized = true;
+  }
   const segmentos = segmentosCache.map(c => [c.nome, c.nome]);
   const estabelecimentos = (await loadEstabelecimentosOptions()).map(item => [String(item.id),item.tipo]);
   renderFilterOptions('status', fixedFilterOptions.status);
   renderFilterOptions('prioridade', fixedFilterOptions.prioridade);
   renderFilterOptions('segmento', segmentos);
   renderFilterOptions('estabelecimento', estabelecimentos);
+  const statusLabel = document.getElementById('filterStatusLabel');
+  if (statusLabel) statusLabel.textContent = solicitacaoFilterState.status.size
+    ? `Status (${solicitacaoFilterState.status.size})`
+    : 'Status';
 }
 
 function filterElementId(type, suffix) { return `filter${type[0].toUpperCase()+type.slice(1)}${suffix}`; }
@@ -3288,7 +3311,7 @@ async function loadSuprimentos() {
       <td class="px-5 py-3.5"><p class="text-sm">${s.solicitante}</p></td>
       <td class="px-5 py-3.5 text-sm">${s.categoria}</td>
       <td class="px-5 py-3.5">${priorityIcon(s.prioridade, s.emergencia)}</td>
-      <td class="px-5 py-3.5">${statusIcon(s.status)}</td>
+      <td class="px-5 py-3.5">${statusIcon(s.status, s.updated_at)}</td>
       <td class="px-5 py-3.5" onclick="event.stopPropagation()">${SOLICITACAO_MENU(s)}</td>
     </tr>`;
   }).join('');
@@ -3302,9 +3325,13 @@ function priorityIcon(priority, emergency) {
   return `<span title="${PRIO_LABEL[priority]||priority}${emergency?' - Emergência':''}" class="inline-flex w-8 h-8 items-center justify-center rounded-full font-bold ${classes}">${emergency?'🚨':icon}</span>`;
 }
 
-function statusIcon(status) {
+function statusIcon(status, updatedAt = null) {
   const icons = { pendente:'⏳', aprovado:'✓', em_andamento:'↻', concluido:'★', cancelado:'×' };
-  return `<span title="${STATUS_LABEL[status]||status}" class="badge-${status} inline-flex w-8 h-8 items-center justify-center rounded-full font-bold">${icons[status]||'•'}</span>`;
+  let title = STATUS_LABEL[status] || status;
+  if (status === 'concluido' && updatedAt) {
+    title = `Concluído em ${new Date(updatedAt).toLocaleString('pt-BR')}`;
+  }
+  return `<span title="${title}" class="badge-${status} inline-flex w-8 h-8 items-center justify-center rounded-full font-bold">${icons[status]||'•'}</span>`;
 }
 
 function renderPagination(total, page, pages) {
@@ -3542,6 +3569,13 @@ async function editItem(id) {
   const res = await apiFetch(`/api/suprimentos/${id}`);
   if (!res) return;
   const item = await res.json();
+  if (item.status !== 'pendente') {
+    await showNotice({
+      title: 'Solicitação não pode ser alterada',
+      msg: `Este item já está com status "${STATUS_LABEL[item.status] || item.status}" e, por isso, não pode ser editado.`,
+    });
+    return;
+  }
   openDrawer(item);
 }
 
@@ -4746,6 +4780,8 @@ const comprasFilterState = {
 
 // Mapa de checkboxes: suprimento_id → boolean (true = comprado)
 let comprasCheckMap = {};
+// Valores informados por suprimento durante a compra
+let comprasValorMap = {};
 
 // Cache dos itens carregados (para finalizar)
 let comprasItensCache = [];
@@ -4841,12 +4877,63 @@ function updateComprasSortIndicators() {
   });
 }
 
+function parseCompraValor(value) {
+  const normalized = String(value || '').replace(/\./g, '').replace(',', '.');
+  const amount = Number(normalized);
+  return Number.isFinite(amount) && amount > 0 ? amount : 0;
+}
+
+function formatCompraValor(amount) {
+  return Number(amount || 0).toLocaleString('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+
+function updateComprasTotal() {
+  const total = comprasItensCache.reduce(
+    (sum, item) => sum + (comprasValorMap[item.id] || 0),
+    0,
+  );
+  const header = document.getElementById('comprasTotalHeader');
+  if (header) header.textContent = `R$ ${formatCompraValor(total)}`;
+}
+
+function onCompraValorInput(id, input) {
+  const raw = input.value.replace(/[^\d,.]/g, '');
+  const commaIndex = raw.indexOf(',');
+  let integerPart = (commaIndex >= 0 ? raw.slice(0, commaIndex) : raw).replace(/\D/g, '');
+  const decimalPart = commaIndex >= 0
+    ? raw.slice(commaIndex + 1).replace(/\D/g, '').slice(0, 2)
+    : '';
+  integerPart = integerPart.replace(/^0+(?=\d)/, '') || '0';
+  const grouped = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  input.value = commaIndex >= 0 ? `${grouped},${decimalPart}` : grouped;
+  const amount = parseCompraValor(input.value);
+  if (amount > 0) comprasValorMap[id] = amount;
+  else delete comprasValorMap[id];
+  updateComprasTotal();
+}
+
+function onCompraValorBlur(id, input) {
+  const amount = parseCompraValor(input.value);
+  if (amount > 0) {
+    comprasValorMap[id] = amount;
+    input.value = formatCompraValor(amount);
+  } else {
+    delete comprasValorMap[id];
+    input.value = '';
+  }
+  updateComprasTotal();
+}
+
 function showComprasEmpty(title, hint = '') {
   document.getElementById('comprasBody').innerHTML = '';
   document.getElementById('comprasEmpty').classList.remove('hidden');
   document.getElementById('comprasEmptyTitle').textContent = title;
   document.getElementById('comprasEmptyHint').textContent = hint;
   document.getElementById('comprasPagination').innerHTML = '';
+  updateComprasTotal();
 }
 
 // ── Carrega itens para a tela de Compras ─────────────────────────────────
@@ -4928,9 +5015,18 @@ async function loadCompras() {
             </svg>
           </button>
         </td>
+        <td class="px-4 py-3.5 bg-amber-50/60" onclick="event.stopPropagation()">
+          <input type="text" inputmode="decimal" placeholder="0,00"
+            value="${comprasValorMap[s.id] ? formatCompraValor(comprasValorMap[s.id]) : ''}"
+            oninput="onCompraValorInput(${s.id},this)"
+            onblur="onCompraValorBlur(${s.id},this)"
+            class="compra-valor-input w-full border border-amber-200 rounded-lg px-3 py-2 text-sm"
+            aria-label="Valor da compra de ${String(itemLabel).replace(/"/g, '&quot;')}" />
+        </td>
       </tr>`;
   }).join('');
 
+  updateComprasTotal();
   // Paginação reutilizando helper existente adaptado
   renderComprasPagination(data.total, data.page, data.pages);
 }
@@ -4978,12 +5074,14 @@ async function eliminarItemCompra(id, nome, solicitante) {
     // Remove do cache local e do mapa de checks
     comprasItensCache = comprasItensCache.filter(i => i.id !== id);
     delete comprasCheckMap[id];
+    delete comprasValorMap[id];
     const row = document.getElementById(`compra-row-${id}`);
     if (row) row.remove();
     // Se ficou vazio, mostra estado vazio
     if (!document.getElementById('comprasBody').querySelectorAll('tr').length) {
       document.getElementById('comprasEmpty').classList.remove('hidden');
     }
+    updateComprasTotal();
   } else {
     showToast('Erro ao eliminar item.', 'error');
   }
@@ -5038,6 +5136,7 @@ async function confirmarFinalizarCompra() {
       quantidade: i.quantidade,
       unidade: i.unidade,
       valor_estimado: i.valor_estimado,
+      valor_compra: comprasValorMap[i.id] || null,
       estabelecimento_tipo: i.estabelecimento_tipo,
       solicitante: i.solicitante,
       prioridade: i.prioridade,
@@ -5055,6 +5154,7 @@ async function confirmarFinalizarCompra() {
     showToast(`Compra finalizada! ${data.total_comprados} item(ns) concluído(s). Log #${data.log_id} registrado.`, 'success');
     // Limpa state e recarrega
     comprasCheckMap = {};
+    comprasValorMap = {};
     comprasItensCache = [];
     comprasPage = 1;
     await loadCompras();
