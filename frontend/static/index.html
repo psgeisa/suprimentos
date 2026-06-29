@@ -7420,8 +7420,8 @@ function renderBiCharts(d) {
   initEchart('biChartSegmento', (tc, gc) => ({
     backgroundColor: 'transparent',
     tooltip: { trigger: 'axis', axisPointer: { type: 'cross', label: { backgroundColor: '#6a7985' } } },
-    legend: { bottom: 0, textStyle: { color: tc }, icon: 'circle', itemWidth: 8, itemHeight: 8 },
-    grid: { left: 16, right: 16, top: 8, bottom: 36, containLabel: true },
+    legend: { type: 'scroll', bottom: 6, width: '92%', height: 58, textStyle: { color: tc, fontSize: 11 }, icon: 'circle', itemWidth: 8, itemHeight: 8, itemGap: 14, pageTextStyle: { color: tc, fontSize: 10 }, pageIconColor: '#D4A520', pageIconInactiveColor: gc },
+    grid: { left: 16, right: 16, top: 8, bottom: 96, containLabel: true },
     xAxis: [{ type: 'category', boundaryGap: false, data: mesesSeg, axisLabel: { color: tc, fontSize: 10 }, axisLine: { lineStyle: { color: gc } }, axisTick: { show: false } }],
     yAxis: [{ type: 'value', axisLabel: { color: tc, fontSize: 10, formatter: v => fmtBRL(v) }, splitLine: { lineStyle: { color: gc } }, axisLine: { show: false }, axisTick: { show: false } }],
     series: segsList.map((seg, i) => {
@@ -7437,8 +7437,8 @@ function renderBiCharts(d) {
   initEchart('biChartEst', (tc, gc) => ({
     backgroundColor: 'transparent',
     tooltip: { trigger: 'axis', axisPointer: { type: 'cross', label: { backgroundColor: '#6a7985' } } },
-    legend: { bottom: 0, textStyle: { color: tc }, icon: 'circle', itemWidth: 8, itemHeight: 8 },
-    grid: { left: 16, right: 16, top: 8, bottom: 36, containLabel: true },
+    legend: { type: 'scroll', bottom: 6, width: '92%', height: 58, textStyle: { color: tc, fontSize: 11 }, icon: 'circle', itemWidth: 8, itemHeight: 8, itemGap: 14, pageTextStyle: { color: tc, fontSize: 10 }, pageIconColor: '#D4A520', pageIconInactiveColor: gc },
+    grid: { left: 16, right: 16, top: 8, bottom: 96, containLabel: true },
     xAxis: [{ type: 'category', boundaryGap: false, data: mesesEst, axisLabel: { color: tc, fontSize: 10 }, axisLine: { lineStyle: { color: gc } }, axisTick: { show: false } }],
     yAxis: [{ type: 'value', axisLabel: { color: tc, fontSize: 10, formatter: v => fmtBRL(v) }, splitLine: { lineStyle: { color: gc } }, axisLine: { show: false }, axisTick: { show: false } }],
     series: estsList.map((est, i) => {
