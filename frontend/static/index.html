@@ -7628,34 +7628,6 @@ function renderBiCharts(d) {
 
 let agendaData = []; // preenchido via API
 
-const AGENDA_MOCK_REMOVED = [
-  // Concluídas
-  { id:1,  nome:'Licenças Microsoft 365',    categoria:'Software',       fornecedor:'Microsoft Brasil',     centroCusto:'TI',             responsavel:'Ana Silva',    status:'concluido',   valorPrevisto:42000, valorRealizado:41800, dataInicio:'2026-05-15', dataPagamento:'2026-06-10', dataEntrega:'2026-06-10', leadTime:26, obs:'Renovação anual. 150 licenças.' },
-  { id:2,  nome:'Notebook Dell XPS 15',      categoria:'Informática',    fornecedor:'Dell Brasil',          centroCusto:'TI',             responsavel:'Carlos Matos', status:'concluido',   valorPrevisto:85000, valorRealizado:82500, dataInicio:'2026-05-20', dataPagamento:'2026-06-25', dataEntrega:'2026-06-22', leadTime:35, obs:'10 unidades para equipe de campo.' },
-  { id:3,  nome:'Material de Limpeza',       categoria:'Limpeza',        fornecedor:'LimpeJá Dist.',        centroCusto:'Operações',      responsavel:'Maria Souza',  status:'concluido',   valorPrevisto:4800,  valorRealizado:4650,  dataInicio:'2026-06-01', dataPagamento:'2026-06-20', dataEntrega:'2026-06-18', leadTime:19, obs:'Reposição mensal.' },
-  // Atrasadas
-  { id:4,  nome:'Toner HP LaserJet',         categoria:'Informática',    fornecedor:'Suprimentos TI',       centroCusto:'Administrativo', responsavel:'Pedro Lima',   status:'atrasado',    valorPrevisto:4200,  valorRealizado:0,     dataInicio:'2026-06-05', dataPagamento:'2026-06-20', dataEntrega:'2026-06-18', leadTime:15, obs:'Entrega não confirmada. Contato pendente.' },
-  { id:5,  nome:'Uniformes 2026 — 2º sem.',  categoria:'Uniformes',      fornecedor:'Confecções Alfa',      centroCusto:'RH',             responsavel:'Juliana Costa',status:'atrasado',    valorPrevisto:15000, valorRealizado:0,     dataInicio:'2026-06-10', dataPagamento:'2026-06-28', dataEntrega:'2026-06-25', leadTime:18, obs:'Aguardando confirmação de tamanhos.' },
-  // Em andamento
-  { id:6,  nome:'Papel Sulfite A4',          categoria:'Mat. Escritório',fornecedor:'Papelaria Central',    centroCusto:'Administrativo', responsavel:'Ana Silva',    status:'em_andamento',valorPrevisto:3500,  valorRealizado:0,     dataInicio:'2026-06-20', dataPagamento:'2026-07-05', dataEntrega:'2026-07-03', leadTime:15, obs:'5.000 resmas. Pedido confirmado.' },
-  { id:7,  nome:'Café e Suprimentos Copa',   categoria:'Alimentação',    fornecedor:'Distribuidora ABC',    centroCusto:'Copa/Café',      responsavel:'Maria Souza',  status:'em_andamento',valorPrevisto:2800,  valorRealizado:0,     dataInicio:'2026-06-25', dataPagamento:'2026-07-10', dataEntrega:'2026-07-08', leadTime:15, obs:'Reposição mensal copa.' },
-  { id:8,  nome:'Locação de Veículos',       categoria:'Transporte',     fornecedor:'LocalFrota',           centroCusto:'Operações',      responsavel:'Carlos Matos', status:'em_andamento',valorPrevisto:18000, valorRealizado:6000,  dataInicio:'2026-06-01', dataPagamento:'2026-08-31', dataEntrega:'2026-08-31', leadTime:91, obs:'Contrato trimestral. Pagamento parcial.' },
-  { id:9,  nome:'Materiais de Higiene',      categoria:'Higiene',        fornecedor:'Distribuidora HG',     centroCusto:'Operações',      responsavel:'Juliana Costa',status:'em_andamento',valorPrevisto:5400,  valorRealizado:0,     dataInicio:'2026-06-28', dataPagamento:'2026-07-20', dataEntrega:'2026-07-18', leadTime:22, obs:'Kit mensal para 3 unidades.' },
-  { id:10, nome:'Reforma Elétrica Sede',     categoria:'Elétrico',       fornecedor:'Eletrotec Engenharia', centroCusto:'Infraestrutura', responsavel:'Roberto Santos',status:'em_andamento',valorPrevisto:95000, valorRealizado:30000, dataInicio:'2026-06-15', dataPagamento:'2026-09-15', dataEntrega:'2026-09-10', leadTime:92, obs:'Troca de quadros elétricos. 3 parcelas.' },
-  // Programadas — baixo impacto (<10 k, verde)
-  { id:11, nome:'Serv. Limpeza — Julho',     categoria:'Limpeza',        fornecedor:'LimpeJá Dist.',        centroCusto:'Operações',      responsavel:'Maria Souza',  status:'programado',  valorPrevisto:4800,  valorRealizado:0,     dataInicio:'2026-07-01', dataPagamento:'2026-07-31', dataEntrega:'2026-07-31', leadTime:30, obs:'Contrato mensal renovado.' },
-  { id:12, nome:'EPI — Kit Proteção',        categoria:'EPI',            fornecedor:'Segurança Total',      centroCusto:'Operações',      responsavel:'Roberto Santos',status:'programado',  valorPrevisto:8500,  valorRealizado:0,     dataInicio:'2026-07-15', dataPagamento:'2026-08-05', dataEntrega:'2026-08-03', leadTime:21, obs:'Luvas, capacetes e EPIs de campo.' },
-  // Programadas — normal (azul, 10-60 k)
-  { id:13, nome:'Ar-condicionado Split',     categoria:'Climatização',   fornecedor:'ClimaBrasil',          centroCusto:'Infraestrutura', responsavel:'Roberto Santos',status:'programado',  valorPrevisto:22000, valorRealizado:0,     dataInicio:'2026-07-08', dataPagamento:'2026-08-20', dataEntrega:'2026-08-15', leadTime:43, obs:'4 equipamentos 12.000 BTUs.' },
-  { id:14, nome:'Cadeiras Ergonômicas',      categoria:'Mobiliário',     fornecedor:'Ergos Brasil',         centroCusto:'Administrativo', responsavel:'Juliana Costa',status:'programado',  valorPrevisto:28000, valorRealizado:0,     dataInicio:'2026-07-05', dataPagamento:'2026-08-15', dataEntrega:'2026-08-10', leadTime:41, obs:'20 cadeiras linha Premium.' },
-  { id:15, nome:'Adobe Creative Cloud',      categoria:'Software',       fornecedor:'Adobe do Brasil',      centroCusto:'Marketing',      responsavel:'Ana Silva',    status:'programado',  valorPrevisto:36000, valorRealizado:0,     dataInicio:'2026-07-20', dataPagamento:'2026-09-01', dataEntrega:'2026-09-01', leadTime:43, obs:'10 licenças anuais Creative Cloud.' },
-  // Programadas — atenção (amarelo, 60-80 k)
-  { id:16, nome:'Seguro Patrimonial',        categoria:'Jurídico',       fornecedor:'Seguradora XYZ',       centroCusto:'Financeiro',     responsavel:'Carlos Matos', status:'programado',  valorPrevisto:68000, valorRealizado:0,     dataInicio:'2026-08-01', dataPagamento:'2026-09-30', dataEntrega:'2026-09-30', leadTime:60, obs:'Apólice 2026/2027. Em análise jurídica.' },
-  // Programadas — alto impacto (vermelho, >80 k)
-  { id:17, nome:'Servidor Cloud AWS',        categoria:'TI Cloud',       fornecedor:'AWS Brasil',           centroCusto:'TI',             responsavel:'Pedro Lima',   status:'programado',  valorPrevisto:120000,valorRealizado:0,     dataInicio:'2026-07-01', dataPagamento:'2026-08-30', dataEntrega:'2026-08-30', leadTime:60, obs:'Migração infraestrutura. Aprovação CFO pendente.' },
-  { id:18, nome:'Auditoria Externa 2026',    categoria:'Auditoria',      fornecedor:'Audit Partners',       centroCusto:'Financeiro',     responsavel:'Juliana Costa',status:'programado',  valorPrevisto:85000, valorRealizado:0,     dataInicio:'2026-08-15', dataPagamento:'2026-10-30', dataEntrega:'2026-10-30', leadTime:76, obs:'Auditoria independente obrigatória.' },
-];
-
 function agendaItemColor(item) {
   if (item.status === 'concluido')   return '#94A3B8';
   if (item.status === 'atrasado')    return '#EF4444';
@@ -7720,7 +7692,7 @@ function renderAgendaGantt(data) {
   if (!el) return;
 
   const sorted = [...data].sort((a,b) => new Date(a.dataInicio) - new Date(b.dataInicio));
-  const names  = sorted.map(c => c.nome);
+  const names  = sorted.map(c => c.categoria || 'Sem segmento');
   const nowMs  = Date.now();
 
   const seriesData = sorted.map((c, i) => ({
