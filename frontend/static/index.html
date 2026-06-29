@@ -877,6 +877,40 @@
     @media (max-width:1023px) {
       .drawer { left:0 !important; }
     }
+
+    /* ── Agenda Financeira de Compras ─────────────────────────────────── */
+    .agenda-kpi-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(138px,1fr)); gap:10px; margin-bottom:16px; }
+    .agenda-kpi { background:rgba(248,250,252,0.85); border:1px solid #f1f5f9; border-radius:12px; padding:11px 13px; }
+    .dark .agenda-kpi { background:rgba(255,255,255,0.035); border-color:#2d3748; }
+    .agenda-kpi-label { font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:#94a3b8; margin-bottom:3px; }
+    .agenda-kpi-value { font-size:1rem; font-weight:700; color:#1e293b; line-height:1.25; word-break:break-word; }
+    .dark .agenda-kpi-value { color:#f1f5f9; }
+    .agenda-kpi-value.kv-red { color:#EF4444 !important; }
+    .agenda-kpi-value.kv-green { color:#10B981 !important; }
+    .agenda-kpi-value.kv-amber { color:#F59E0B !important; }
+    .agenda-kpi-value.kv-small { font-size:.75rem; }
+    .agenda-filters { display:flex; flex-wrap:wrap; align-items:center; gap:7px; margin-bottom:14px; padding:9px 13px; background:rgba(248,250,252,0.7); border-radius:10px; border:1px solid #f1f5f9; }
+    .dark .agenda-filters { background:rgba(255,255,255,0.03); border-color:#2d3748; }
+    .agenda-filter-label { font-size:.6rem; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:.05em; }
+    .agenda-chip { font-size:.68rem; font-weight:600; padding:3px 10px; border-radius:20px; border:1px solid #e2e8f0; background:transparent; cursor:pointer; color:#64748b; transition:all .15s; white-space:nowrap; }
+    .dark .agenda-chip { border-color:#374151; color:#94a3b8; }
+    .agenda-chip:hover { border-color:#6366F1; color:#6366F1; background:rgba(99,102,241,.06); }
+    .agenda-chip.active { color:#fff; border-color:transparent; }
+    .agenda-chip[data-agenda-status="todos"].active    { background:#1e293b; }
+    .dark .agenda-chip[data-agenda-status="todos"].active { background:#374151; }
+    .agenda-chip[data-agenda-status="em_andamento"].active { background:#6366F1; }
+    .agenda-chip[data-agenda-status="programado"].active   { background:#3B82F6; }
+    .agenda-chip[data-agenda-status="atrasado"].active     { background:#EF4444; }
+    .agenda-chip[data-agenda-status="concluido"].active    { background:#94A3B8; }
+    .agenda-search-input { font-size:.72rem; padding:4px 11px; border-radius:8px; border:1px solid #e2e8f0; background:transparent; color:inherit; outline:none; min-width:175px; }
+    .dark .agenda-search-input { border-color:#374151; color:#f1f5f9; }
+    .agenda-search-input::placeholder { color:#94a3b8; }
+    .agenda-chart-wrap { height:490px; position:relative; }
+    .agenda-legend { display:flex; flex-wrap:wrap; gap:10px; margin-top:10px; align-items:center; }
+    .agenda-leg-item { display:flex; align-items:center; gap:5px; font-size:.67rem; color:#64748b; }
+    .dark .agenda-leg-item { color:#94a3b8; }
+    .agenda-leg-dot { width:10px; height:10px; border-radius:3px; flex-shrink:0; }
+    .agenda-note { font-size:.62rem; color:#94a3b8; font-style:italic; margin-left:auto; }
   </style>
 </head>
 <body class="h-screen flex overflow-hidden" style="background-color:#F8FAFC;">
@@ -1872,6 +1906,52 @@
     <div class="bi-card mb-6">
       <div class="bi-card-hdr"><p class="bi-title">Custo futuro projetado por estabelecimento</p><button class="bi-expand-btn" onclick="expandBiChart('biChartProj','Custo futuro projetado por estabelecimento')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
       <div class="bi-chart-wrap" style="height:260px"><div id="biChartProj" style="width:100%;height:100%"></div></div>
+    </div>
+
+    <!-- ── Agenda Financeira de Compras ─────────────────────────────── -->
+    <div class="bi-card mb-6" id="agendaCard">
+      <div class="bi-card-hdr">
+        <div>
+          <p class="bi-title" style="margin-bottom:2px">Agenda Financeira de Compras</p>
+          <p style="font-size:.68rem;color:#94a3b8;margin:0;font-weight:400">Ciclo completo de aquisição · planejamento de desembolso financeiro</p>
+        </div>
+        <button class="bi-expand-btn" onclick="expandBiChart('biChartAgenda','Agenda Financeira de Compras')" title="Expandir">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+        </button>
+      </div>
+
+      <!-- KPI strip -->
+      <div class="agenda-kpi-grid" id="agendaKpis"></div>
+
+      <!-- Filtros -->
+      <div class="agenda-filters">
+        <span class="agenda-filter-label">Status</span>
+        <button class="agenda-chip active" data-agenda-status="todos"        onclick="agendaSetStatus('todos')">Todos</button>
+        <button class="agenda-chip"        data-agenda-status="em_andamento" onclick="agendaSetStatus('em_andamento')">Em andamento</button>
+        <button class="agenda-chip"        data-agenda-status="programado"   onclick="agendaSetStatus('programado')">Programado</button>
+        <button class="agenda-chip"        data-agenda-status="atrasado"     onclick="agendaSetStatus('atrasado')">Atrasado</button>
+        <button class="agenda-chip"        data-agenda-status="concluido"    onclick="agendaSetStatus('concluido')">Concluído</button>
+        <span style="width:1px;height:16px;background:#e2e8f0;flex-shrink:0;margin:0 4px"></span>
+        <input id="agendaSearch" type="text" class="agenda-search-input"
+          placeholder="Compra, fornecedor ou categoria…"
+          oninput="renderAgendaGanttFiltered()">
+      </div>
+
+      <!-- Gráfico Gantt -->
+      <div class="agenda-chart-wrap">
+        <div id="biChartAgenda" style="width:100%;height:100%"></div>
+      </div>
+
+      <!-- Legenda -->
+      <div class="agenda-legend">
+        <span class="agenda-leg-item"><span class="agenda-leg-dot" style="background:#10B981"></span>Baixo impacto</span>
+        <span class="agenda-leg-item"><span class="agenda-leg-dot" style="background:#3B82F6"></span>Programado</span>
+        <span class="agenda-leg-item"><span class="agenda-leg-dot" style="background:#6366F1"></span>Em andamento</span>
+        <span class="agenda-leg-item"><span class="agenda-leg-dot" style="background:#F59E0B"></span>Atenção</span>
+        <span class="agenda-leg-item"><span class="agenda-leg-dot" style="background:#EF4444"></span>Alto impacto / Atrasado</span>
+        <span class="agenda-leg-item"><span class="agenda-leg-dot" style="background:#94A3B8"></span>Concluído</span>
+        <span class="agenda-note">* Dados demonstrativos — integração com módulo Compras em breve.</span>
+      </div>
     </div>
   </section>
 
@@ -7452,6 +7532,263 @@ function renderBiCharts(d) {
       { name: 'Teto de gasto acum.', type: 'line', data: projAccTeto, smooth: true, lineStyle: { color: '#EF4444', width: 2, type: 'dashed' }, itemStyle: { color: '#EF4444' }, symbol: 'circle', symbolSize: 6 },
     ],
   }));
+
+  initAgendaFinanceira();
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   AGENDA FINANCEIRA DE COMPRAS
+══════════════════════════════════════════════════════════════════════ */
+
+const AGENDA_MOCK = [
+  // Concluídas
+  { id:1,  nome:'Licenças Microsoft 365',    categoria:'Software',       fornecedor:'Microsoft Brasil',     centroCusto:'TI',             responsavel:'Ana Silva',    status:'concluido',   valorPrevisto:42000, valorRealizado:41800, dataInicio:'2026-05-15', dataPagamento:'2026-06-10', dataEntrega:'2026-06-10', leadTime:26, obs:'Renovação anual. 150 licenças.' },
+  { id:2,  nome:'Notebook Dell XPS 15',      categoria:'Informática',    fornecedor:'Dell Brasil',          centroCusto:'TI',             responsavel:'Carlos Matos', status:'concluido',   valorPrevisto:85000, valorRealizado:82500, dataInicio:'2026-05-20', dataPagamento:'2026-06-25', dataEntrega:'2026-06-22', leadTime:35, obs:'10 unidades para equipe de campo.' },
+  { id:3,  nome:'Material de Limpeza',       categoria:'Limpeza',        fornecedor:'LimpeJá Dist.',        centroCusto:'Operações',      responsavel:'Maria Souza',  status:'concluido',   valorPrevisto:4800,  valorRealizado:4650,  dataInicio:'2026-06-01', dataPagamento:'2026-06-20', dataEntrega:'2026-06-18', leadTime:19, obs:'Reposição mensal.' },
+  // Atrasadas
+  { id:4,  nome:'Toner HP LaserJet',         categoria:'Informática',    fornecedor:'Suprimentos TI',       centroCusto:'Administrativo', responsavel:'Pedro Lima',   status:'atrasado',    valorPrevisto:4200,  valorRealizado:0,     dataInicio:'2026-06-05', dataPagamento:'2026-06-20', dataEntrega:'2026-06-18', leadTime:15, obs:'Entrega não confirmada. Contato pendente.' },
+  { id:5,  nome:'Uniformes 2026 — 2º sem.',  categoria:'Uniformes',      fornecedor:'Confecções Alfa',      centroCusto:'RH',             responsavel:'Juliana Costa',status:'atrasado',    valorPrevisto:15000, valorRealizado:0,     dataInicio:'2026-06-10', dataPagamento:'2026-06-28', dataEntrega:'2026-06-25', leadTime:18, obs:'Aguardando confirmação de tamanhos.' },
+  // Em andamento
+  { id:6,  nome:'Papel Sulfite A4',          categoria:'Mat. Escritório',fornecedor:'Papelaria Central',    centroCusto:'Administrativo', responsavel:'Ana Silva',    status:'em_andamento',valorPrevisto:3500,  valorRealizado:0,     dataInicio:'2026-06-20', dataPagamento:'2026-07-05', dataEntrega:'2026-07-03', leadTime:15, obs:'5.000 resmas. Pedido confirmado.' },
+  { id:7,  nome:'Café e Suprimentos Copa',   categoria:'Alimentação',    fornecedor:'Distribuidora ABC',    centroCusto:'Copa/Café',      responsavel:'Maria Souza',  status:'em_andamento',valorPrevisto:2800,  valorRealizado:0,     dataInicio:'2026-06-25', dataPagamento:'2026-07-10', dataEntrega:'2026-07-08', leadTime:15, obs:'Reposição mensal copa.' },
+  { id:8,  nome:'Locação de Veículos',       categoria:'Transporte',     fornecedor:'LocalFrota',           centroCusto:'Operações',      responsavel:'Carlos Matos', status:'em_andamento',valorPrevisto:18000, valorRealizado:6000,  dataInicio:'2026-06-01', dataPagamento:'2026-08-31', dataEntrega:'2026-08-31', leadTime:91, obs:'Contrato trimestral. Pagamento parcial.' },
+  { id:9,  nome:'Materiais de Higiene',      categoria:'Higiene',        fornecedor:'Distribuidora HG',     centroCusto:'Operações',      responsavel:'Juliana Costa',status:'em_andamento',valorPrevisto:5400,  valorRealizado:0,     dataInicio:'2026-06-28', dataPagamento:'2026-07-20', dataEntrega:'2026-07-18', leadTime:22, obs:'Kit mensal para 3 unidades.' },
+  { id:10, nome:'Reforma Elétrica Sede',     categoria:'Elétrico',       fornecedor:'Eletrotec Engenharia', centroCusto:'Infraestrutura', responsavel:'Roberto Santos',status:'em_andamento',valorPrevisto:95000, valorRealizado:30000, dataInicio:'2026-06-15', dataPagamento:'2026-09-15', dataEntrega:'2026-09-10', leadTime:92, obs:'Troca de quadros elétricos. 3 parcelas.' },
+  // Programadas — baixo impacto (<10 k, verde)
+  { id:11, nome:'Serv. Limpeza — Julho',     categoria:'Limpeza',        fornecedor:'LimpeJá Dist.',        centroCusto:'Operações',      responsavel:'Maria Souza',  status:'programado',  valorPrevisto:4800,  valorRealizado:0,     dataInicio:'2026-07-01', dataPagamento:'2026-07-31', dataEntrega:'2026-07-31', leadTime:30, obs:'Contrato mensal renovado.' },
+  { id:12, nome:'EPI — Kit Proteção',        categoria:'EPI',            fornecedor:'Segurança Total',      centroCusto:'Operações',      responsavel:'Roberto Santos',status:'programado',  valorPrevisto:8500,  valorRealizado:0,     dataInicio:'2026-07-15', dataPagamento:'2026-08-05', dataEntrega:'2026-08-03', leadTime:21, obs:'Luvas, capacetes e EPIs de campo.' },
+  // Programadas — normal (azul, 10-60 k)
+  { id:13, nome:'Ar-condicionado Split',     categoria:'Climatização',   fornecedor:'ClimaBrasil',          centroCusto:'Infraestrutura', responsavel:'Roberto Santos',status:'programado',  valorPrevisto:22000, valorRealizado:0,     dataInicio:'2026-07-08', dataPagamento:'2026-08-20', dataEntrega:'2026-08-15', leadTime:43, obs:'4 equipamentos 12.000 BTUs.' },
+  { id:14, nome:'Cadeiras Ergonômicas',      categoria:'Mobiliário',     fornecedor:'Ergos Brasil',         centroCusto:'Administrativo', responsavel:'Juliana Costa',status:'programado',  valorPrevisto:28000, valorRealizado:0,     dataInicio:'2026-07-05', dataPagamento:'2026-08-15', dataEntrega:'2026-08-10', leadTime:41, obs:'20 cadeiras linha Premium.' },
+  { id:15, nome:'Adobe Creative Cloud',      categoria:'Software',       fornecedor:'Adobe do Brasil',      centroCusto:'Marketing',      responsavel:'Ana Silva',    status:'programado',  valorPrevisto:36000, valorRealizado:0,     dataInicio:'2026-07-20', dataPagamento:'2026-09-01', dataEntrega:'2026-09-01', leadTime:43, obs:'10 licenças anuais Creative Cloud.' },
+  // Programadas — atenção (amarelo, 60-80 k)
+  { id:16, nome:'Seguro Patrimonial',        categoria:'Jurídico',       fornecedor:'Seguradora XYZ',       centroCusto:'Financeiro',     responsavel:'Carlos Matos', status:'programado',  valorPrevisto:68000, valorRealizado:0,     dataInicio:'2026-08-01', dataPagamento:'2026-09-30', dataEntrega:'2026-09-30', leadTime:60, obs:'Apólice 2026/2027. Em análise jurídica.' },
+  // Programadas — alto impacto (vermelho, >80 k)
+  { id:17, nome:'Servidor Cloud AWS',        categoria:'TI Cloud',       fornecedor:'AWS Brasil',           centroCusto:'TI',             responsavel:'Pedro Lima',   status:'programado',  valorPrevisto:120000,valorRealizado:0,     dataInicio:'2026-07-01', dataPagamento:'2026-08-30', dataEntrega:'2026-08-30', leadTime:60, obs:'Migração infraestrutura. Aprovação CFO pendente.' },
+  { id:18, nome:'Auditoria Externa 2026',    categoria:'Auditoria',      fornecedor:'Audit Partners',       centroCusto:'Financeiro',     responsavel:'Juliana Costa',status:'programado',  valorPrevisto:85000, valorRealizado:0,     dataInicio:'2026-08-15', dataPagamento:'2026-10-30', dataEntrega:'2026-10-30', leadTime:76, obs:'Auditoria independente obrigatória.' },
+];
+
+function agendaItemColor(item) {
+  if (item.status === 'concluido')   return '#94A3B8';
+  if (item.status === 'atrasado')    return '#EF4444';
+  if (item.status === 'em_andamento') return '#6366F1';
+  // programado — risco por valor
+  if (item.valorPrevisto <  10000)  return '#10B981'; // verde — baixo impacto
+  if (item.valorPrevisto <  60000)  return '#3B82F6'; // azul — programado
+  if (item.valorPrevisto <  80000)  return '#F59E0B'; // amarelo — atenção
+  return '#DC2626';                                    // vermelho — alto impacto
+}
+
+function agendaStatusLabel(s) {
+  return { concluido:'Concluído', em_andamento:'Em andamento', atrasado:'Atrasado', programado:'Programado' }[s] || s;
+}
+
+function renderAgendaKpis(data) {
+  const now = new Date();
+  const in7  = new Date(now); in7.setDate(in7.getDate() + 7);
+  const in30 = new Date(now); in30.setDate(in30.getDate() + 30);
+
+  const totalPrev  = data.reduce((a,c) => a + c.valorPrevisto, 0);
+  const totalReal  = data.reduce((a,c) => a + c.valorRealizado, 0);
+  const des7       = data.filter(c => { const d=new Date(c.dataPagamento); return d>=now && d<=in7;  }).reduce((a,c) => a+c.valorPrevisto,0);
+  const des30      = data.filter(c => { const d=new Date(c.dataPagamento); return d>=now && d<=in30; }).reduce((a,c) => a+c.valorPrevisto,0);
+  const atrasadas  = data.filter(c => c.status === 'atrasado').length;
+  const economia   = data.filter(c => c.valorRealizado > 0).reduce((a,c) => a+(c.valorPrevisto-c.valorRealizado),0);
+  const fornMap = {};
+  data.forEach(c => { fornMap[c.fornecedor] = (fornMap[c.fornecedor]||0) + c.valorPrevisto; });
+  const maiorForn  = Object.entries(fornMap).sort((a,b)=>b[1]-a[1])[0]?.[0] || '—';
+
+  const kpis = [
+    { label:'Total Previsto',      value:fmtBRL(totalPrev),  cls:'' },
+    { label:'Total Realizado',     value:fmtBRL(totalReal),  cls:'' },
+    { label:'Desembolso 7 dias',   value:fmtBRL(des7),       cls: des7>50000?'kv-red':'' },
+    { label:'Desembolso 30 dias',  value:fmtBRL(des30),      cls:'' },
+    { label:'Compras Atrasadas',   value:atrasadas,           cls: atrasadas>0?'kv-red':'kv-green' },
+    { label:'Economia Obtida',     value:fmtBRL(economia),   cls:'kv-green' },
+    { label:'Maior Fornecedor',    value:maiorForn,           cls:'kv-small' },
+  ];
+
+  const el = document.getElementById('agendaKpis');
+  if (!el) return;
+  el.innerHTML = kpis.map(k => `
+    <div class="agenda-kpi">
+      <div class="agenda-kpi-label">${k.label}</div>
+      <div class="agenda-kpi-value ${k.cls}">${k.value}</div>
+    </div>`).join('');
+}
+
+function renderAgendaGantt(data) {
+  const dark = document.documentElement.classList.contains('dark');
+  const tc = dark ? '#94a3b8' : '#64748b';
+  const gc = dark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
+  const ttBg     = dark ? '#1e2330' : '#fff';
+  const ttBorder = dark ? '#374151' : '#e2e8f0';
+  const ttTitle  = dark ? '#f1f5f9' : '#1e293b';
+  const ttSub    = dark ? '#94a3b8' : '#64748b';
+  const ttHr     = dark ? '#374151' : '#f1f5f9';
+
+  destroyBiChart('biChartAgenda');
+  const el = document.getElementById('biChartAgenda');
+  if (!el) return;
+
+  const sorted = [...data].sort((a,b) => new Date(a.dataInicio) - new Date(b.dataInicio));
+  const names  = sorted.map(c => c.nome);
+  const nowMs  = Date.now();
+
+  const seriesData = sorted.map((c, i) => ({
+    value: [i, new Date(c.dataInicio).getTime(), new Date(c.dataPagamento).getTime()],
+    itemStyle: { color: agendaItemColor(c) },
+    _c: c,
+  }));
+
+  const option = {
+    backgroundColor: 'transparent',
+    animation: true,
+    animationDuration: 500,
+    tooltip: {
+      trigger: 'item',
+      backgroundColor: ttBg,
+      borderColor: ttBorder,
+      borderWidth: 1,
+      padding: [12,16],
+      extraCssText: `border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.18);max-width:290px`,
+      textStyle: { color: ttTitle, fontSize: 12 },
+      formatter: function(p) {
+        const c = sorted[p.value[0]];
+        const diff = c.valorRealizado > 0 ? (c.valorPrevisto - c.valorRealizado) : null;
+        const sc = agendaItemColor(c);
+        return `
+          <div style="font-weight:700;font-size:.78rem;margin-bottom:8px;padding-bottom:7px;border-bottom:1px solid ${ttHr}">${c.nome}</div>
+          <div style="font-size:.71rem;line-height:1.85;color:${ttSub}">
+            <div><b style="color:${ttTitle}">Fornecedor:</b> ${c.fornecedor}</div>
+            <div><b style="color:${ttTitle}">Categoria:</b> ${c.categoria}</div>
+            <div><b style="color:${ttTitle}">Centro de custo:</b> ${c.centroCusto}</div>
+            <div><b style="color:${ttTitle}">Responsável:</b> ${c.responsavel}</div>
+            <div style="margin:5px 0;border-top:1px solid ${ttHr}"></div>
+            <div><b style="color:${ttTitle}">Valor previsto:</b> ${fmtBRL(c.valorPrevisto)}</div>
+            <div><b style="color:${ttTitle}">Valor realizado:</b> ${c.valorRealizado>0?fmtBRL(c.valorRealizado):'—'}</div>
+            ${diff!==null?`<div style="color:${diff>=0?'#10B981':'#EF4444'}"><b>Diferença:</b> ${fmtBRL(diff)}</div>`:''}
+            <div style="margin:5px 0;border-top:1px solid ${ttHr}"></div>
+            <div><b style="color:${ttTitle}">Início:</b> ${c.dataInicio}</div>
+            <div><b style="color:${ttTitle}">Pagamento:</b> ${c.dataPagamento}</div>
+            <div><b style="color:${ttTitle}">Entrega:</b> ${c.dataEntrega}</div>
+            <div><b style="color:${ttTitle}">Lead time:</b> ${c.leadTime} dias</div>
+            <div style="margin-top:6px">
+              <span style="background:${sc}22;color:${sc};font-weight:700;padding:2px 9px;border-radius:20px;font-size:.62rem;letter-spacing:.04em">${agendaStatusLabel(c.status).toUpperCase()}</span>
+            </div>
+            ${c.obs?`<div style="margin-top:6px;font-style:italic;opacity:.8">${c.obs}</div>`:''}
+          </div>`;
+      }
+    },
+    dataZoom: [
+      {
+        type: 'slider', xAxisIndex: 0, bottom: 2, height: 18,
+        borderColor: 'transparent',
+        fillerColor: dark ? 'rgba(99,102,241,.18)' : 'rgba(99,102,241,.12)',
+        handleStyle: { color: '#6366F1', borderColor: '#6366F1' },
+        moveHandleStyle: { color: '#6366F1' },
+        textStyle: { color: tc, fontSize: 10 },
+        selectedDataBackground: { lineStyle: { color: '#6366F1' }, areaStyle: { color: '#6366F1' } },
+      },
+      { type: 'inside', xAxisIndex: 0 },
+    ],
+    grid: { left: 16, right: 20, top: 12, bottom: 38, containLabel: true },
+    xAxis: {
+      type: 'time',
+      axisLabel: {
+        color: tc, fontSize: 10,
+        formatter: v => { const d=new Date(v); return `${d.getDate()}/${d.getMonth()+1}`; },
+      },
+      splitLine: { lineStyle: { color: gc } },
+      axisLine: { show: false },
+      axisTick: { show: false },
+    },
+    yAxis: {
+      type: 'category',
+      data: names,
+      inverse: true,
+      axisLabel: { color: tc, fontSize: 10.5, width: 155, overflow: 'truncate' },
+      axisLine: { show: false },
+      axisTick: { show: false },
+      splitLine: { lineStyle: { color: gc, type: 'dashed' } },
+    },
+    series: [{
+      type: 'custom',
+      renderItem: function(params, api) {
+        const yi    = api.value(0);
+        const start = api.coord([api.value(1), yi]);
+        const end   = api.coord([api.value(2), yi]);
+        const bh    = Math.max(api.size([0, 1])[1] * 0.52, 14);
+        const shape = echarts.graphic.clipRectByRect(
+          { x: start[0], y: start[1] - bh/2, width: Math.max(end[0]-start[0], 4), height: bh },
+          { x: params.coordSys.x, y: params.coordSys.y, width: params.coordSys.width, height: params.coordSys.height }
+        );
+        if (!shape) return;
+        return {
+          type: 'rect',
+          transition: ['shape', 'style'],
+          shape: { ...shape, r: 5 },
+          style: { ...api.style(), opacity: 0.88 },
+          emphasis: { style: { opacity: 1, shadowBlur: 14, shadowColor: 'rgba(0,0,0,.22)' } },
+        };
+      },
+      encode: { x: [1, 2], y: 0 },
+      data: seriesData,
+      markLine: {
+        silent: true,
+        symbol: ['none', 'none'],
+        lineStyle: { color: '#EF4444', width: 1.5, type: 'solid', opacity: 0.9 },
+        label: {
+          show: true, formatter: 'Hoje',
+          color: '#EF4444', fontSize: 9.5, fontWeight: 700,
+          position: 'insideEndTop', distance: 4,
+        },
+        data: [{ xAxis: nowMs }],
+      },
+    }],
+  };
+
+  const chart = echarts.init(el, dark ? 'dark' : null, { renderer: 'canvas' });
+  chart.setOption(option);
+  biCharts['biChartAgenda'] = chart;
+
+  biExpandStore['biChartAgenda'] = {
+    initFn(container) {
+      const div = document.createElement('div');
+      div.style.cssText = 'width:100%;height:100%;min-height:540px';
+      container.appendChild(div);
+      const c = echarts.init(div, dark ? 'dark' : null, { renderer: 'canvas' });
+      c.setOption(option);
+      window._biExpandInst = c;
+    }
+  };
+}
+
+let agendaCurrentStatus = 'todos';
+
+function agendaSetStatus(status) {
+  agendaCurrentStatus = status;
+  document.querySelectorAll('[data-agenda-status]').forEach(el => {
+    el.classList.toggle('active', el.dataset.agendaStatus === status);
+  });
+  renderAgendaGanttFiltered();
+}
+
+function renderAgendaGanttFiltered() {
+  const q = (document.getElementById('agendaSearch')?.value || '').toLowerCase().trim();
+  let data = AGENDA_MOCK;
+  if (agendaCurrentStatus !== 'todos') data = data.filter(c => c.status === agendaCurrentStatus);
+  if (q) data = data.filter(c =>
+    c.nome.toLowerCase().includes(q) ||
+    c.fornecedor.toLowerCase().includes(q) ||
+    c.categoria.toLowerCase().includes(q)
+  );
+  renderAgendaGantt(data);
+}
+
+function initAgendaFinanceira() {
+  renderAgendaKpis(AGENDA_MOCK);
+  renderAgendaGanttFiltered();
 }
 </script>
 </body>
