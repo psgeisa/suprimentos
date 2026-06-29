@@ -7314,7 +7314,7 @@ function destroyBiChart(id) {
 
 function biBarOptions() {
   const dark = document.documentElement.classList.contains('dark');
-  const gridColor = dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)';
+  const gridColor = dark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.05)';
   const tickColor = dark ? '#94a3b8' : '#64748b';
   const ttBg   = dark ? '#1e2330' : '#ffffff';
   const ttTitle = dark ? '#e2e8f0' : '#1e293b';
@@ -7341,7 +7341,7 @@ function biBarOptions() {
 
 function biLineOptions() {
   const dark = document.documentElement.classList.contains('dark');
-  const gridColor = dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)';
+  const gridColor = dark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.05)';
   const tickColor = dark ? '#94a3b8' : '#64748b';
   const ttBg    = dark ? '#1e2330' : '#ffffff';
   const ttTitle  = dark ? '#e2e8f0' : '#1e293b';
@@ -7369,11 +7369,11 @@ function biLineOptions() {
 function renderBiCharts(d) {
   const dark = document.documentElement.classList.contains('dark');
   const tickColor = dark ? '#94a3b8' : '#64748b';
-  const gridColor = dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+  const gridColor = dark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.06)';
 
   function echartsAxis(isDark) {
     const tc = isDark ? '#94a3b8' : '#64748b';
-    const gc = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
+    const gc = isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.06)';
     return { tc, gc };
   }
 
@@ -7622,7 +7622,7 @@ function renderAgendaKpis(data) {
 function renderAgendaGantt(data) {
   const dark = document.documentElement.classList.contains('dark');
   const tc = dark ? '#94a3b8' : '#64748b';
-  const gc = dark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)';
+  const gc = dark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.06)';
   const ttBg     = dark ? '#1e2330' : '#fff';
   const ttBorder = dark ? '#374151' : '#e2e8f0';
   const ttTitle  = dark ? '#f1f5f9' : '#1e293b';
