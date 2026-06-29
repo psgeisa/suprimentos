@@ -89,7 +89,12 @@ def _calcular_dados(busca, data_inicio, data_fim, segmento, estabelecimento, tim
     items = base_q.all()
 
     def custo_item(i):
-        return (i.valor_compra or 0) if i.valor_compra is not None else (i.valor_estimado or 0)
+        realizado = i.valor_compra or 0
+        estimado = i.valor_estimado or 0
+        return realizado if realizado > 0 else estimado if estimado > 0 else 0
+
+    # Gráficos e tooltips do BI não devem receber custos nulos ou negativos.
+    items = [i for i in items if custo_item(i) > 0]
 
     # por_mes
     por_mes = {}
@@ -98,20 +103,42 @@ def _calcular_dados(busca, data_inicio, data_fim, segmento, estabelecimento, tim
             continue
         mes = i.created_at.strftime("%Y-%m")
         por_mes[mes] = por_mes.get(mes, 0) + custo_item(i)
-    por_mes_list = [{"mes": m, "custo": round(v, 2)} for m, v in sorted(por_mes.items())]
+    por_mes_list = [
+        {"mes": m, "custo": round(v, 2)}
+        for m, v in sorted(por_mes.items())
+        if v > 0
+    ]
 
     # por_dia_semana
     dia_soma = {}
     dia_count = {}
+    dia_mes_soma = {}
+    dia_mes_count = {}
     for i in items:
         if not i.created_at:
             continue
         dia = i.created_at.isoweekday() % 7
-        dia_soma[dia] = dia_soma.get(dia, 0) + custo_item(i)
+        mes = i.created_at.strftime("%Y-%m")
+        custo = custo_item(i)
+        dia_soma[dia] = dia_soma.get(dia, 0) + custo
         dia_count[dia] = dia_count.get(dia, 0) + 1
+        key = (mes, dia)
+        dia_mes_soma[key] = dia_mes_soma.get(key, 0) + custo
+        dia_mes_count[key] = dia_mes_count.get(key, 0) + 1
     por_dia = [
         {"dia": d, "label": _DIAS[d], "media": round(dia_soma.get(d, 0) / max(dia_count.get(d, 1), 1), 2)}
         for d in range(7)
+        if dia_soma.get(d, 0) > 0
+    ]
+    por_dia_mes = [
+        {
+            "mes": mes,
+            "dia": dia,
+            "label": _DIAS[dia],
+            "media": round(total / dia_mes_count[(mes, dia)], 2),
+        }
+        for (mes, dia), total in sorted(dia_mes_soma.items())
+        if total > 0
     ]
 
     # por_segmento_mes
@@ -124,6 +151,7 @@ def _calcular_dados(busca, data_inicio, data_fim, segmento, estabelecimento, tim
     por_segmento_mes = [
         {"mes": k[0], "segmento": k[1], "custo": round(v, 2)}
         for k, v in sorted(seg_mes.items())
+        if v > 0
     ]
 
     # por_estabelecimento_mes
@@ -142,6 +170,7 @@ def _calcular_dados(busca, data_inicio, data_fim, segmento, estabelecimento, tim
     por_estabelecimento_mes = [
         {"mes": k[0], "estabelecimento": k[1], "custo": round(v, 2)}
         for k, v in sorted(est_mes.items())
+        if v > 0
     ]
 
     # por_time
@@ -153,21 +182,29 @@ def _calcular_dados(busca, data_inicio, data_fim, segmento, estabelecimento, tim
     for i in items:
         t = user_time_map.get(i.solicitante or "", "Sem time")
         time_tot[t] = time_tot.get(t, 0) + custo_item(i)
-    por_time = [{"time": k, "custo": round(v, 2)} for k, v in sorted(time_tot.items())]
+    por_time = [{"time": k, "custo": round(v, 2)} for k, v in sorted(time_tot.items()) if v > 0]
 
     # por_responsavel
     resp_tot = {}
     for i in items:
         r = (i.solicitante_responsavel or "Não informado").strip() or "Não informado"
         resp_tot[r] = resp_tot.get(r, 0) + custo_item(i)
-    por_responsavel = [{"responsavel": k, "custo": round(v, 2)} for k, v in sorted(resp_tot.items())]
+    por_responsavel = [
+        {"responsavel": k, "custo": round(v, 2)}
+        for k, v in sorted(resp_tot.items())
+        if v > 0
+    ]
 
     # por_solicitante
     sol_tot = {}
     for i in items:
         s = (i.solicitante or "Não informado").strip() or "Não informado"
         sol_tot[s] = sol_tot.get(s, 0) + custo_item(i)
-    por_solicitante = [{"solicitante": k, "custo": round(v, 2)} for k, v in sorted(sol_tot.items())]
+    por_solicitante = [
+        {"solicitante": k, "custo": round(v, 2)}
+        for k, v in sorted(sol_tot.items())
+        if v > 0
+    ]
 
     # comparativo_mes
     comp_mes = {}
@@ -188,6 +225,7 @@ def _calcular_dados(busca, data_inicio, data_fim, segmento, estabelecimento, tim
             "real": round(v["real"], 2),
         }
         for m, v in sorted(comp_mes.items())
+        if max(v["estimado"], v["teto"], v["real"]) > 0
     ]
 
     # projecao_futuro
@@ -213,11 +251,13 @@ def _calcular_dados(busca, data_inicio, data_fim, segmento, estabelecimento, tim
             "teto": round(v["teto"], 2),
         }
         for k, v in sorted(proj_acc.items(), key=lambda x: x[1]["estimado"], reverse=True)
+        if max(v["estimado"], v["teto"]) > 0
     ]
 
     return {
         "por_mes": por_mes_list,
         "por_dia_semana": por_dia,
+        "por_dia_semana_mes": por_dia_mes,
         "por_segmento_mes": por_segmento_mes,
         "por_estabelecimento_mes": por_estabelecimento_mes,
         "por_time": por_time,
@@ -286,6 +326,10 @@ def agenda_financeira(
             except Exception:
                 lead = 0
 
+            valor_previsto = round(s.valor_estimado or 0, 2)
+            if valor_previsto <= 0:
+                continue
+
             result.append({
                 "id": s.id,
                 "nome": s.titulo,
@@ -294,7 +338,7 @@ def agenda_financeira(
                 "centroCusto": s.departamento or "—",
                 "responsavel": (s.solicitante_responsavel or s.solicitante or "—"),
                 "status": agenda_status,
-                "valorPrevisto": round(s.valor_estimado or 0, 2),
+                "valorPrevisto": valor_previsto,
                 "valorRealizado": round(s.valor_compra or 0, 2),
                 "dataInicio": data_ini,
                 "dataPagamento": data_pag,

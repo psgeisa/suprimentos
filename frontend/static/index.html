@@ -7412,12 +7412,13 @@ function biBarOptions() {
       tooltip: {
         backgroundColor: ttBg, titleColor: ttTitle, bodyColor: ttBody,
         borderColor: ttBorder, borderWidth: 1, padding: 10, cornerRadius: 10,
+        filter: item => Number(item.parsed.y) > 0,
         callbacks: { label: ctx => ` ${ctx.dataset.label || ''}: ${fmtBRL(ctx.parsed.y)}` },
       },
     },
     scales: {
       x: { stacked: true, ticks: { color: tickColor, font: { size: 11 } }, grid: { display: false }, border: { display: false } },
-      y: { stacked: true, ticks: { color: tickColor, font: { size: 11 }, callback: v => fmtBRL(v) }, grid: { color: gridColor }, border: { display: false } },
+      y: { stacked: true, ticks: { color: tickColor, font: { size: 11 }, callback: v => Number(v) > 0 ? fmtBRL(v) : '' }, grid: { color: gridColor }, border: { display: false } },
     },
   };
 }
@@ -7439,12 +7440,13 @@ function biLineOptions() {
       tooltip: {
         backgroundColor: ttBg, titleColor: ttTitle, bodyColor: ttBody,
         borderColor: ttBorder, borderWidth: 1, padding: 10, cornerRadius: 10,
+        filter: item => Number(item.parsed.y) > 0,
         callbacks: { label: ctx => ` ${ctx.dataset.label}: ${fmtBRL(ctx.parsed.y)}` },
       },
     },
     scales: {
       x: { ticks: { color: tickColor, font: { size: 11 } }, grid: { display: false }, border: { display: false } },
-      y: { ticks: { color: tickColor, font: { size: 11 }, callback: v => fmtBRL(v) }, grid: { color: gridColor }, border: { display: false } },
+      y: { ticks: { color: tickColor, font: { size: 11 }, callback: v => Number(v) > 0 ? fmtBRL(v) : '' }, grid: { color: gridColor }, border: { display: false } },
     },
   };
 }
@@ -7453,6 +7455,26 @@ function renderBiCharts(d) {
   const dark = document.documentElement.classList.contains('dark');
   const tickColor = dark ? '#94a3b8' : '#64748b';
   const gridColor = dark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.06)';
+  const isPositive = value => Number(value) > 0;
+  const positiveOrNull = value => isPositive(value) ? Number(value) : null;
+  const positiveCurrencyTick = value => isPositive(value) ? fmtBRL(value) : '';
+  const formatBiMonth = value => {
+    const [year, month] = String(value || '').split('-').map(Number);
+    if (!year || !month) return String(value || '');
+    return new Date(year, month - 1, 1)
+      .toLocaleDateString('pt-BR', { month: 'short', year: 'numeric' })
+      .replace('.', '');
+  };
+  const formatPositiveAxisTooltip = params => {
+    const valid = (Array.isArray(params) ? params : [params])
+      .filter(p => isPositive(p?.value));
+    if (!valid.length) return '';
+    const title = valid[0].axisValueLabel || valid[0].name || '';
+    return [
+      title,
+      ...valid.map(p => `${p.marker || ''}${p.seriesName || ''}: <b>${fmtBRL(p.value)}</b>`),
+    ].join('<br/>');
+  };
 
   function echartsAxis(isDark) {
     const tc = isDark ? '#94a3b8' : '#64748b';
@@ -7478,63 +7500,130 @@ function renderBiCharts(d) {
     };
   }
 
-  // ── 1. Custo total por mês (bar + background) ───────────────────────────
+  const positiveMonthRows = (d.por_mes || []).filter(r => isPositive(r.custo));
+
+  // ── 1. Evolução mensal (linha com vértices e delta) ─────────────────────
   initEchart('biChartMes', (tc, gc) => ({
     backgroundColor: 'transparent',
-    tooltip: { trigger: 'axis', formatter: p => `${p[0].name}<br/><b>${fmtBRL(p[0].value)}</b>` },
+    tooltip: {
+      trigger: 'axis',
+      formatter: params => {
+        const point = (Array.isArray(params) ? params : [params]).find(p => isPositive(p?.value));
+        if (!point) return '';
+        const index = point.dataIndex;
+        const current = Number(point.value);
+        const previous = index > 0 ? Number(positiveMonthRows[index - 1].custo) : null;
+        const delta = previous === null ? null : current - previous;
+        const deltaText = delta === null
+          ? 'Sem mês anterior no período'
+          : delta === 0
+            ? 'Sem variação'
+            : `${delta > 0 ? '+' : '−'}${fmtBRL(Math.abs(delta))}`;
+        return `${formatBiMonth(positiveMonthRows[index].mes)}<br/>Valor do mês: <b>${fmtBRL(current)}</b><br/>Delta: <b>${deltaText}</b>`;
+      },
+    },
     grid: { left: 16, right: 16, top: 16, bottom: 8, containLabel: true },
-    xAxis: { type: 'category', data: d.por_mes.map(r => r.mes), axisTick: { show: false }, axisLine: { show: false }, axisLabel: { color: tc, fontSize: 11 } },
-    yAxis: { type: 'value', axisLabel: { color: tc, fontSize: 10, formatter: v => fmtBRL(v) }, splitLine: { lineStyle: { color: gc } }, axisLine: { show: false }, axisTick: { show: false } },
-    series: [{ type: 'bar', data: d.por_mes.map(r => r.custo), showBackground: true, backgroundStyle: { color: dark ? 'rgba(255,255,255,0.04)' : 'rgba(180,180,180,0.15)', borderRadius: [10,10,0,0] }, itemStyle: { color: '#D4A520', borderRadius: [10,10,0,0] }, barMaxWidth: 52 }],
+    xAxis: { type: 'category', data: positiveMonthRows.map(r => formatBiMonth(r.mes)), axisTick: { show: false }, axisLine: { show: false }, axisLabel: { color: tc, fontSize: 11 } },
+    yAxis: { type: 'value', axisLabel: { color: tc, fontSize: 10, formatter: positiveCurrencyTick }, splitLine: { lineStyle: { color: gc } }, axisLine: { show: false }, axisTick: { show: false } },
+    series: [{
+      name: 'Custo do mês',
+      type: 'line',
+      data: positiveMonthRows.map(r => r.custo),
+      smooth: false,
+      showSymbol: true,
+      symbol: 'circle',
+      symbolSize: 8,
+      lineStyle: { color: '#D4A520', width: 3 },
+      itemStyle: { color: '#D4A520', borderColor: dark ? '#1e2330' : '#fff', borderWidth: 2 },
+      emphasis: { scale: 1.35 },
+    }],
   }));
 
-  // ── 2. Custo médio por dia da semana (bar + background) ─────────────────
+  // ── 2. Último mês em barras; meses anteriores em linhas ─────────────────
+  const weekdayRows = (d.por_dia_semana_mes || []).filter(r => isPositive(r.media));
+  const weekdayLabels = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+  const weekdayMonths = [...new Set(weekdayRows.map(r => r.mes))].sort();
+  const currentWeekdayMonth = weekdayMonths[weekdayMonths.length - 1];
+  const previousWeekdayMonths = weekdayMonths.slice(0, -1);
+  const weekdayValue = (month, day) => positiveOrNull(
+    weekdayRows.find(r => r.mes === month && Number(r.dia) === day)?.media
+  );
+  const previousMonthColors = ['#38BDF8', '#A78BFA', '#F472B6', '#FB923C', '#94A3B8'];
+
   initEchart('biChartDia', (tc, gc) => ({
     backgroundColor: 'transparent',
-    tooltip: { trigger: 'axis', formatter: p => `${p[0].name}<br/><b>${fmtBRL(p[0].value)}</b>` },
-    grid: { left: 16, right: 16, top: 16, bottom: 8, containLabel: true },
-    xAxis: { type: 'category', data: d.por_dia_semana.map(r => r.label), axisTick: { show: false }, axisLine: { show: false }, axisLabel: { color: tc, fontSize: 11 } },
-    yAxis: { type: 'value', axisLabel: { color: tc, fontSize: 10, formatter: v => fmtBRL(v) }, splitLine: { lineStyle: { color: gc } }, axisLine: { show: false }, axisTick: { show: false } },
-    series: [{ type: 'bar', data: d.por_dia_semana.map(r => r.media), showBackground: true, backgroundStyle: { color: dark ? 'rgba(255,255,255,0.04)' : 'rgba(180,180,180,0.15)', borderRadius: [10,10,0,0] }, itemStyle: { color: '#F59E0B', borderRadius: [10,10,0,0] }, barMaxWidth: 52 }],
+    tooltip: { trigger: 'axis', formatter: formatPositiveAxisTooltip },
+    legend: { bottom: 0, textStyle: { color: tc, fontSize: 10 }, icon: 'circle', itemWidth: 9, itemHeight: 9 },
+    grid: { left: 16, right: 16, top: 16, bottom: 42, containLabel: true },
+    xAxis: { type: 'category', data: weekdayLabels, axisTick: { show: false }, axisLine: { show: false }, axisLabel: { color: tc, fontSize: 11 } },
+    yAxis: { type: 'value', axisLabel: { color: tc, fontSize: 10, formatter: positiveCurrencyTick }, splitLine: { lineStyle: { color: gc } }, axisLine: { show: false }, axisTick: { show: false } },
+    series: [
+      ...(currentWeekdayMonth ? [{
+        name: `${formatBiMonth(currentWeekdayMonth)} (atual)`,
+        type: 'bar',
+        data: weekdayLabels.map((_, day) => weekdayValue(currentWeekdayMonth, day)),
+        showBackground: true,
+        backgroundStyle: { color: dark ? 'rgba(255,255,255,0.04)' : 'rgba(180,180,180,0.15)', borderRadius: [8,8,0,0] },
+        itemStyle: { color: '#D4A520', borderRadius: [8,8,0,0] },
+        barMaxWidth: 48,
+        z: 2,
+      }] : []),
+      ...previousWeekdayMonths.map((month, index) => ({
+        name: formatBiMonth(month),
+        type: 'line',
+        data: weekdayLabels.map((_, day) => weekdayValue(month, day)),
+        connectNulls: false,
+        smooth: false,
+        showSymbol: true,
+        symbol: 'circle',
+        symbolSize: 6,
+        lineStyle: { color: previousMonthColors[index % previousMonthColors.length], width: 2 },
+        itemStyle: { color: previousMonthColors[index % previousMonthColors.length] },
+        z: 4 + index,
+      })),
+    ],
   }));
 
   // ── 3. Custo por segmento por mês (gradient stacked area) ───────────────
-  const mesesSeg = [...new Set(d.por_segmento_mes.map(r => r.mes))].sort();
-  const segsList = [...new Set(d.por_segmento_mes.map(r => r.segmento))].sort();
+  const positiveSegmentRows = (d.por_segmento_mes || []).filter(r => isPositive(r.custo));
+  const mesesSeg = [...new Set(positiveSegmentRows.map(r => r.mes))].sort();
+  const segsList = [...new Set(positiveSegmentRows.map(r => r.segmento))].sort();
   initEchart('biChartSegmento', (tc, gc) => ({
     backgroundColor: 'transparent',
-    tooltip: { trigger: 'axis', axisPointer: { type: 'cross', label: { backgroundColor: '#6a7985' } } },
+    tooltip: { trigger: 'axis', axisPointer: { type: 'cross', label: { backgroundColor: '#6a7985' } }, formatter: formatPositiveAxisTooltip },
     legend: { type: 'scroll', bottom: 6, width: '92%', height: 58, textStyle: { color: tc, fontSize: 11 }, icon: 'circle', itemWidth: 8, itemHeight: 8, itemGap: 14, pageTextStyle: { color: tc, fontSize: 10 }, pageIconColor: '#D4A520', pageIconInactiveColor: gc },
     grid: { left: 16, right: 16, top: 8, bottom: 96, containLabel: true },
     xAxis: [{ type: 'category', boundaryGap: false, data: mesesSeg, axisLabel: { color: tc, fontSize: 10 }, axisLine: { lineStyle: { color: gc } }, axisTick: { show: false } }],
-    yAxis: [{ type: 'value', axisLabel: { color: tc, fontSize: 10, formatter: v => fmtBRL(v) }, splitLine: { lineStyle: { color: gc } }, axisLine: { show: false }, axisTick: { show: false } }],
+    yAxis: [{ type: 'value', axisLabel: { color: tc, fontSize: 10, formatter: positiveCurrencyTick }, splitLine: { lineStyle: { color: gc } }, axisLine: { show: false }, axisTick: { show: false } }],
     series: segsList.map((seg, i) => {
       const c = biColor(i);
       const c2 = biColor(i + 1);
-      return { name: seg, type: 'line', stack: 'Total', smooth: true, lineStyle: { width: 0 }, showSymbol: false, emphasis: { focus: 'series' }, areaStyle: { opacity: 0.85, color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: c }, { offset: 1, color: c2 + '55' }]) }, data: mesesSeg.map(m => d.por_segmento_mes.find(r => r.mes === m && r.segmento === seg)?.custo || 0) };
+      return { name: seg, type: 'line', stack: 'Total', smooth: true, lineStyle: { width: 0 }, showSymbol: false, emphasis: { focus: 'series' }, areaStyle: { opacity: 0.85, color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: c }, { offset: 1, color: c2 + '55' }]) }, data: mesesSeg.map(m => positiveOrNull(positiveSegmentRows.find(r => r.mes === m && r.segmento === seg)?.custo)) };
     }),
   }));
 
   // ── 4. Custo por estabelecimento por mês (gradient stacked area) ─────────
-  const mesesEst = [...new Set(d.por_estabelecimento_mes.map(r => r.mes))].sort();
-  const estsList = [...new Set(d.por_estabelecimento_mes.map(r => r.estabelecimento))].sort();
+  const positiveEstablishmentRows = (d.por_estabelecimento_mes || []).filter(r => isPositive(r.custo));
+  const mesesEst = [...new Set(positiveEstablishmentRows.map(r => r.mes))].sort();
+  const estsList = [...new Set(positiveEstablishmentRows.map(r => r.estabelecimento))].sort();
   initEchart('biChartEst', (tc, gc) => ({
     backgroundColor: 'transparent',
-    tooltip: { trigger: 'axis', axisPointer: { type: 'cross', label: { backgroundColor: '#6a7985' } } },
+    tooltip: { trigger: 'axis', axisPointer: { type: 'cross', label: { backgroundColor: '#6a7985' } }, formatter: formatPositiveAxisTooltip },
     legend: { type: 'scroll', bottom: 6, width: '92%', height: 58, textStyle: { color: tc, fontSize: 11 }, icon: 'circle', itemWidth: 8, itemHeight: 8, itemGap: 14, pageTextStyle: { color: tc, fontSize: 10 }, pageIconColor: '#D4A520', pageIconInactiveColor: gc },
     grid: { left: 16, right: 16, top: 8, bottom: 96, containLabel: true },
     xAxis: [{ type: 'category', boundaryGap: false, data: mesesEst, axisLabel: { color: tc, fontSize: 10 }, axisLine: { lineStyle: { color: gc } }, axisTick: { show: false } }],
-    yAxis: [{ type: 'value', axisLabel: { color: tc, fontSize: 10, formatter: v => fmtBRL(v) }, splitLine: { lineStyle: { color: gc } }, axisLine: { show: false }, axisTick: { show: false } }],
+    yAxis: [{ type: 'value', axisLabel: { color: tc, fontSize: 10, formatter: positiveCurrencyTick }, splitLine: { lineStyle: { color: gc } }, axisLine: { show: false }, axisTick: { show: false } }],
     series: estsList.map((est, i) => {
       const c = biColor(i + 2);
       const c2 = biColor(i + 3);
-      return { name: est, type: 'line', stack: 'Total', smooth: true, lineStyle: { width: 0 }, showSymbol: false, emphasis: { focus: 'series' }, areaStyle: { opacity: 0.85, color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: c }, { offset: 1, color: c2 + '55' }]) }, data: mesesEst.map(m => d.por_estabelecimento_mes.find(r => r.mes === m && r.estabelecimento === est)?.custo || 0) };
+      return { name: est, type: 'line', stack: 'Total', smooth: true, lineStyle: { width: 0 }, showSymbol: false, emphasis: { focus: 'series' }, areaStyle: { opacity: 0.85, color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: c }, { offset: 1, color: c2 + '55' }]) }, data: mesesEst.map(m => positiveOrNull(positiveEstablishmentRows.find(r => r.mes === m && r.estabelecimento === est)?.custo)) };
     }),
   }));
 
   // ── 5-7. Rose (Nightingale / ECharts) ───────────────────────────────────
   function makeRoseOption(rows, keyField, valueField, isDark) {
     const labelColor = isDark ? '#94a3b8' : '#475569';
+    const positiveRows = (rows || []).filter(r => isPositive(r[valueField]));
     return {
       backgroundColor: 'transparent',
       tooltip: { trigger: 'item', formatter: p => `${p.name}<br/><b>${fmtBRL(p.value)}</b> (${p.percent.toFixed(1)}%)` },
@@ -7555,7 +7644,7 @@ function renderBiCharts(d) {
           width: 80,
         },
         labelLine: { show: true, length: 8, length2: 12 },
-        data: rows.map((r, i) => ({ value: r[valueField], name: r[keyField], itemStyle: { color: biColor(i) } })),
+        data: positiveRows.map((r, i) => ({ value: r[valueField], name: r[keyField], itemStyle: { color: biColor(i) } })),
       }],
     };
   }
@@ -7585,36 +7674,48 @@ function renderBiCharts(d) {
   renderDonut('biChartSol', d.por_solicitante, 'solicitante', 'custo');
 
   // ── 8. Comparativo (mix bar + line) ─────────────────────────────────────
+  const positiveComparativeRows = (d.comparativo || []).filter(r =>
+    isPositive(r.estimado) || isPositive(r.real) || isPositive(r.teto)
+  );
   initEchart('biChartComp', (tc, gc) => ({
     backgroundColor: 'transparent',
-    tooltip: { trigger: 'axis', axisPointer: { type: 'cross', crossStyle: { color: '#999' } } },
+    tooltip: { trigger: 'axis', axisPointer: { type: 'cross', crossStyle: { color: '#999' } }, formatter: formatPositiveAxisTooltip },
     legend: { bottom: 0, textStyle: { color: tc }, icon: 'circle', itemWidth: 8, itemHeight: 8 },
     grid: { left: 16, right: 16, top: 8, bottom: 36, containLabel: true },
-    xAxis: [{ type: 'category', data: d.comparativo.map(r => r.mes), axisPointer: { type: 'shadow' }, axisTick: { show: false }, axisLine: { show: false }, axisLabel: { color: tc, fontSize: 10 } }],
-    yAxis: [{ type: 'value', axisLabel: { color: tc, fontSize: 10, formatter: v => fmtBRL(v) }, splitLine: { lineStyle: { color: gc } }, axisLine: { show: false }, axisTick: { show: false } }],
+    xAxis: [{ type: 'category', data: positiveComparativeRows.map(r => r.mes), axisPointer: { type: 'shadow' }, axisTick: { show: false }, axisLine: { show: false }, axisLabel: { color: tc, fontSize: 10 } }],
+    yAxis: [{ type: 'value', axisLabel: { color: tc, fontSize: 10, formatter: positiveCurrencyTick }, splitLine: { lineStyle: { color: gc } }, axisLine: { show: false }, axisTick: { show: false } }],
     series: [
-      { name: 'Estimado', type: 'bar', data: d.comparativo.map(r => r.estimado), itemStyle: { color: '#D4A520', borderRadius: [6,6,0,0] }, barMaxWidth: 36 },
-      { name: 'Valor real', type: 'bar', data: d.comparativo.map(r => r.real), itemStyle: { color: '#10B981', borderRadius: [6,6,0,0] }, barMaxWidth: 36 },
-      { name: 'Teto de gasto', type: 'line', data: d.comparativo.map(r => r.teto), smooth: true, lineStyle: { color: '#EF4444', width: 2, type: 'dashed' }, itemStyle: { color: '#EF4444' }, symbol: 'circle', symbolSize: 6 },
+      { name: 'Estimado', type: 'bar', data: positiveComparativeRows.map(r => positiveOrNull(r.estimado)), itemStyle: { color: '#D4A520', borderRadius: [6,6,0,0] }, barMaxWidth: 36 },
+      { name: 'Valor real', type: 'bar', data: positiveComparativeRows.map(r => positiveOrNull(r.real)), itemStyle: { color: '#10B981', borderRadius: [6,6,0,0] }, barMaxWidth: 36 },
+      { name: 'Teto de gasto', type: 'line', data: positiveComparativeRows.map(r => positiveOrNull(r.teto)), connectNulls: false, smooth: true, lineStyle: { color: '#EF4444', width: 2, type: 'dashed' }, itemStyle: { color: '#EF4444' }, symbol: 'circle', symbolSize: 6 },
     ],
   }));
 
   // ── 9. Projeção futura (mix bar + line) ─────────────────────────────────
-  const projLabels = d.projecao.map(r => r.estabelecimento);
+  const positiveProjectionRows = (d.projecao || []).filter(r =>
+    isPositive(r.estimado) || isPositive(r.teto)
+  );
+  const projLabels = positiveProjectionRows.map(r => r.estabelecimento);
   let accEst = 0, accTeto = 0;
-  const projAccEst = d.projecao.map(r => { accEst += r.estimado; return Math.round(accEst * 100) / 100; });
-  const projAccTeto = d.projecao.map(r => { accTeto += r.teto; return Math.round(accTeto * 100) / 100; });
+  const projAccEst = positiveProjectionRows.map(r => {
+    if (isPositive(r.estimado)) accEst += Number(r.estimado);
+    return positiveOrNull(Math.round(accEst * 100) / 100);
+  });
+  const projAccTeto = positiveProjectionRows.map(r => {
+    if (isPositive(r.teto)) accTeto += Number(r.teto);
+    return positiveOrNull(Math.round(accTeto * 100) / 100);
+  });
   initEchart('biChartProj', (tc, gc) => ({
     backgroundColor: 'transparent',
-    tooltip: { trigger: 'axis', axisPointer: { type: 'cross', crossStyle: { color: '#999' } } },
+    tooltip: { trigger: 'axis', axisPointer: { type: 'cross', crossStyle: { color: '#999' } }, formatter: formatPositiveAxisTooltip },
     legend: { bottom: 0, textStyle: { color: tc }, icon: 'circle', itemWidth: 8, itemHeight: 8 },
     grid: { left: 16, right: 16, top: 8, bottom: 36, containLabel: true },
     xAxis: [{ type: 'category', data: projLabels, axisPointer: { type: 'shadow' }, axisTick: { show: false }, axisLine: { show: false }, axisLabel: { color: tc, fontSize: 10, rotate: 30 } }],
-    yAxis: [{ type: 'value', axisLabel: { color: tc, fontSize: 10, formatter: v => fmtBRL(v) }, splitLine: { lineStyle: { color: gc } }, axisLine: { show: false }, axisTick: { show: false } }],
+    yAxis: [{ type: 'value', axisLabel: { color: tc, fontSize: 10, formatter: positiveCurrencyTick }, splitLine: { lineStyle: { color: gc } }, axisLine: { show: false }, axisTick: { show: false } }],
     series: [
       { name: 'Custo estimado acum.', type: 'bar', data: projAccEst, itemStyle: { color: '#D4A520', borderRadius: [6,6,0,0] }, barMaxWidth: 36 },
       { name: 'Teto de gasto acum.', type: 'line', data: projAccTeto, smooth: true, lineStyle: { color: '#EF4444', width: 2, type: 'dashed' }, itemStyle: { color: '#EF4444' }, symbol: 'circle', symbolSize: 6,
-        label: { show: true, formatter: p => p.dataIndex === projAccTeto.length - 1 ? fmtBRL(p.value) : '', position: 'right', backgroundColor: '#EF4444', color: '#fff', borderRadius: 4, padding: [3, 7], fontSize: 10, fontWeight: 700 } },
+        label: { show: true, formatter: p => p.dataIndex === projAccTeto.length - 1 && isPositive(p.value) ? fmtBRL(p.value) : '', position: 'right', backgroundColor: '#EF4444', color: '#fff', borderRadius: 4, padding: [3, 7], fontSize: 10, fontWeight: 700 } },
     ],
   }));
 
@@ -7849,7 +7950,8 @@ function renderAgendaGanttFiltered() {
 async function loadAgendaFinanceira(params) {
   const res = await apiFetch(`/api/custos-bi/agenda?${params}`);
   if (!res || !res.ok) return;
-  agendaData = await res.json();
+  const rows = await res.json();
+  agendaData = rows.filter(item => Number(item.valorPrevisto) > 0);
   renderAgendaKpis(agendaData);
   renderAgendaGanttFiltered();
 }
