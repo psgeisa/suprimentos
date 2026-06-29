@@ -7582,7 +7582,8 @@ function renderBiCharts(d) {
     yAxis: [{ type: 'value', axisLabel: { color: tc, fontSize: 10, formatter: v => fmtBRL(v) }, splitLine: { lineStyle: { color: gc } }, axisLine: { show: false }, axisTick: { show: false } }],
     series: [
       { name: 'Custo estimado acum.', type: 'bar', data: projAccEst, itemStyle: { color: '#D4A520', borderRadius: [6,6,0,0] }, barMaxWidth: 36 },
-      { name: 'Teto de gasto acum.', type: 'line', data: projAccTeto, smooth: true, lineStyle: { color: '#EF4444', width: 2, type: 'dashed' }, itemStyle: { color: '#EF4444' }, symbol: 'circle', symbolSize: 6 },
+      { name: 'Teto de gasto acum.', type: 'line', data: projAccTeto, smooth: true, lineStyle: { color: '#EF4444', width: 2, type: 'dashed' }, itemStyle: { color: '#EF4444' }, symbol: 'circle', symbolSize: 6,
+        label: { show: true, formatter: p => p.dataIndex === projAccTeto.length - 1 ? fmtBRL(p.value) : '', position: 'right', backgroundColor: '#EF4444', color: '#fff', borderRadius: 4, padding: [3, 7], fontSize: 10, fontWeight: 700 } },
     ],
   }));
 
