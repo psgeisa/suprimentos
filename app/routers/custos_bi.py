@@ -1,5 +1,5 @@
 import traceback
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional
 
 from fastapi import APIRouter, Depends, Query
@@ -226,6 +226,86 @@ def _calcular_dados(busca, data_inicio, data_fim, segmento, estabelecimento, tim
         "comparativo": comparativo,
         "projecao": projecao,
     }
+
+
+@router.get("/agenda")
+def agenda_financeira(
+    busca: Optional[str] = Query(None),
+    data_inicio: Optional[str] = Query(None),
+    data_fim: Optional[str] = Query(None),
+    segmento: Optional[str] = Query(None),
+    estabelecimento: Optional[str] = Query(None),
+    time_val: Optional[str] = Query(None, alias="time"),
+    db: Session = Depends(get_db),
+    _=Depends(get_viewer),
+):
+    try:
+        all_statuses = ["pendente", "aprovado", "em_andamento", "entregue", "concluido"]
+        q = db.query(Suprimento).filter(Suprimento.status.in_(all_statuses))
+        q = _apply_filters(q, busca, data_inicio, data_fim, segmento, estabelecimento, time_val, db)
+        items = q.order_by(Suprimento.created_at).all()
+
+        now = datetime.utcnow()
+        result = []
+
+        for s in items:
+            if not s.created_at:
+                continue
+
+            data_ini = s.created_at.strftime("%Y-%m-%d")
+
+            # Data de pagamento/prazo: usa data_necessidade ou fallback +30 dias
+            data_pag = s.data_necessidade  # já é string "YYYY-MM-DD" ou None
+            if not data_pag:
+                data_pag = (s.created_at + timedelta(days=30)).strftime("%Y-%m-%d")
+
+            # Data de entrega real, se existir
+            data_ent = (
+                s.entregue_em.strftime("%Y-%m-%d") if s.entregue_em else data_pag
+            )
+
+            # Mapeamento de status
+            if s.status in ("entregue", "concluido"):
+                agenda_status = "concluido"
+            elif s.status == "em_andamento":
+                agenda_status = "em_andamento"
+            else:  # pendente, aprovado
+                agenda_status = "programado"
+
+            # Detecta atraso: prazo no passado e não concluído
+            if agenda_status != "concluido" and s.data_necessidade:
+                try:
+                    if datetime.strptime(s.data_necessidade, "%Y-%m-%d") < now:
+                        agenda_status = "atrasado"
+                except Exception:
+                    pass
+
+            # Lead time em dias
+            try:
+                lead = max((datetime.strptime(data_pag, "%Y-%m-%d") - s.created_at).days, 1)
+            except Exception:
+                lead = 0
+
+            result.append({
+                "id": s.id,
+                "nome": s.titulo,
+                "categoria": s.categoria or "—",
+                "fornecedor": s.fornecedor_sugerido or "—",
+                "centroCusto": s.departamento or "—",
+                "responsavel": (s.solicitante_responsavel or s.solicitante or "—"),
+                "status": agenda_status,
+                "valorPrevisto": round(s.valor_estimado or 0, 2),
+                "valorRealizado": round(s.valor_compra or 0, 2),
+                "dataInicio": data_ini,
+                "dataPagamento": data_pag,
+                "dataEntrega": data_ent,
+                "leadTime": lead,
+                "obs": s.observacoes or "",
+            })
+
+        return result
+    except Exception:
+        return JSONResponse(status_code=500, content={"detail": traceback.format_exc()})
 
 
 @router.get("/dados")

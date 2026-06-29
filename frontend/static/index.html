@@ -7293,6 +7293,7 @@ async function loadCustosBi() {
       throw new Error('A biblioteca de gráficos não foi carregada.');
     }
     renderBiCharts(d);
+    loadAgendaFinanceira(params);
   } catch (error) {
     console.error('[CustosBi] Falha ao renderizar gráficos:', error);
     if (errorBox) {
@@ -7533,14 +7534,15 @@ function renderBiCharts(d) {
     ],
   }));
 
-  initAgendaFinanceira();
 }
 
 /* ══════════════════════════════════════════════════════════════════════
    AGENDA FINANCEIRA DE COMPRAS
 ══════════════════════════════════════════════════════════════════════ */
 
-const AGENDA_MOCK = [
+let agendaData = []; // preenchido via API
+
+const AGENDA_MOCK_REMOVED = [
   // Concluídas
   { id:1,  nome:'Licenças Microsoft 365',    categoria:'Software',       fornecedor:'Microsoft Brasil',     centroCusto:'TI',             responsavel:'Ana Silva',    status:'concluido',   valorPrevisto:42000, valorRealizado:41800, dataInicio:'2026-05-15', dataPagamento:'2026-06-10', dataEntrega:'2026-06-10', leadTime:26, obs:'Renovação anual. 150 licenças.' },
   { id:2,  nome:'Notebook Dell XPS 15',      categoria:'Informática',    fornecedor:'Dell Brasil',          centroCusto:'TI',             responsavel:'Carlos Matos', status:'concluido',   valorPrevisto:85000, valorRealizado:82500, dataInicio:'2026-05-20', dataPagamento:'2026-06-25', dataEntrega:'2026-06-22', leadTime:35, obs:'10 unidades para equipe de campo.' },
@@ -7776,7 +7778,7 @@ function agendaSetStatus(status) {
 
 function renderAgendaGanttFiltered() {
   const q = (document.getElementById('agendaSearch')?.value || '').toLowerCase().trim();
-  let data = AGENDA_MOCK;
+  let data = agendaData;
   if (agendaCurrentStatus !== 'todos') data = data.filter(c => c.status === agendaCurrentStatus);
   if (q) data = data.filter(c =>
     c.nome.toLowerCase().includes(q) ||
@@ -7786,8 +7788,11 @@ function renderAgendaGanttFiltered() {
   renderAgendaGantt(data);
 }
 
-function initAgendaFinanceira() {
-  renderAgendaKpis(AGENDA_MOCK);
+async function loadAgendaFinanceira(params) {
+  const res = await apiFetch(`/api/custos-bi/agenda?${params}`);
+  if (!res || !res.ok) return;
+  agendaData = await res.json();
+  renderAgendaKpis(agendaData);
   renderAgendaGanttFiltered();
 }
 </script>
