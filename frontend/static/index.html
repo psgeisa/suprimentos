@@ -561,7 +561,8 @@
     .bi-modal-close:hover { background:#f1f5f9; }
     .dark .bi-modal-close { color:#94a3b8; }
     .dark .bi-modal-close:hover { background:#2d3748; }
-    .bi-modal-chart { flex:1; min-height:0; position:relative; padding:16px; }
+    .bi-modal-chart { flex:1; min-height:0; position:relative; padding:16px; overflow:hidden; }
+    #biExpandContainer { width:100%; height:100%; }
     .bi-drop-opt { display:flex; align-items:center; gap:7px; padding:5px 6px; border-radius:6px; cursor:pointer; font-size:.72rem; color:#475569; }
     .bi-drop-opt:hover { background:#f8fafc; }
     .bi-drop-opt input { accent-color:#C8780A; }
@@ -778,7 +779,7 @@
     #sidebar.collapsed #sidebarAdminGroup,
     #sidebar.collapsed #sidebarInfoGroup { display:flex !important; flex-direction:column; align-items:center; width:56px !important; }
     #sidebar.collapsed #sidebarAdminGroup .sidebar-item,
-    #sidebar.collapsed #sidebarInfoGroup .sidebar-item { width:56px !important; max-width:56px !important; justify-content:center !important; padding-left:0 !important; padding-right:0 !important; gap:0 !important; }
+    #sidebar.collapsed #sidebarInfoGroup .sidebar-item { width:56px !important; max-width:56px !important; margin-left:auto !important; margin-right:auto !important; justify-content:center !important; padding-left:0 !important; padding-right:0 !important; gap:0 !important; }
 
     /* ══ SIDEBAR: labels visíveis quando mobile-open (mesmo com collapsed) ══ */
     #sidebar.mobile-open .sidebar-label {
@@ -1878,7 +1879,7 @@
         </div>
       </div>
       <div class="bi-card">
-        <div class="bi-card-hdr"><p class="bi-title">Execução do Orçamento</p><button class="bi-expand-btn" onclick="expandBiChart('biChartComp','Execução do Orçamento')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
+        <div class="bi-card-hdr"><p class="bi-title" data-base-title="Execução do Orçamento">Execução do Orçamento</p><button class="bi-expand-btn" onclick="expandBiChart('biChartComp')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
         <div class="bi-chart-wrap" style="height:260px"><div id="biChartComp" style="width:100%;height:100%"></div></div>
       </div>
     </div>
@@ -1894,11 +1895,11 @@
       </div>
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div class="bi-card">
-          <div class="bi-card-hdr"><p class="bi-title">Evolução dos Gastos</p><button class="bi-expand-btn" onclick="expandBiChart('biChartMes','Evolução dos Gastos')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
+          <div class="bi-card-hdr"><p class="bi-title" data-base-title="Evolução dos Gastos">Evolução dos Gastos</p><button class="bi-expand-btn" onclick="expandBiChart('biChartMes')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
           <div class="bi-chart-wrap"><div id="biChartMes" style="width:100%;height:100%"></div></div>
         </div>
         <div class="bi-card">
-          <div class="bi-card-hdr"><p class="bi-title">Distribuição dos Gastos por Dia da Semana</p><button class="bi-expand-btn" onclick="expandBiChart('biChartDia','Distribuição dos Gastos por Dia da Semana')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
+          <div class="bi-card-hdr"><p class="bi-title" data-base-title="Distribuição dos Gastos por Dia da Semana">Distribuição dos Gastos por Dia da Semana</p><button class="bi-expand-btn" onclick="expandBiChart('biChartDia')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
           <div class="bi-chart-wrap"><div id="biChartDia" style="width:100%;height:100%"></div></div>
         </div>
       </div>
@@ -1915,25 +1916,25 @@
       </div>
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <div class="bi-card">
-          <div class="bi-card-hdr"><p class="bi-title">Investimento por Segmento</p><button class="bi-expand-btn" onclick="expandBiChart('biChartSegmento','Investimento por Segmento')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
+          <div class="bi-card-hdr"><p class="bi-title" data-base-title="Investimento por Segmento">Investimento por Segmento</p><button class="bi-expand-btn" onclick="expandBiChart('biChartSegmento')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
           <div class="bi-chart-wrap"><div id="biChartSegmento" style="width:100%;height:100%"></div></div>
         </div>
         <div class="bi-card">
-          <div class="bi-card-hdr"><p class="bi-title">Investimento por Estabelecimento</p><button class="bi-expand-btn" onclick="expandBiChart('biChartEst','Investimento por Estabelecimento')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
+          <div class="bi-card-hdr"><p class="bi-title" data-base-title="Investimento por Estabelecimento">Investimento por Estabelecimento</p><button class="bi-expand-btn" onclick="expandBiChart('biChartEst')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
           <div class="bi-chart-wrap"><div id="biChartEst" style="width:100%;height:100%"></div></div>
         </div>
       </div>
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div class="bi-card">
-          <div class="bi-card-hdr"><p class="bi-title">Participação por Time</p><button class="bi-expand-btn" onclick="expandBiChart('biChartTime','Participação por Time')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
+          <div class="bi-card-hdr"><p class="bi-title" data-base-title="Participação por Time">Participação por Time</p><button class="bi-expand-btn" onclick="expandBiChart('biChartTime')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
           <div id="biChartTime" class="bi-rose-canvas"></div>
         </div>
         <div class="bi-card">
-          <div class="bi-card-hdr"><p class="bi-title">Participação por Responsável</p><button class="bi-expand-btn" onclick="expandBiChart('biChartResp','Participação por Responsável')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
+          <div class="bi-card-hdr"><p class="bi-title" data-base-title="Participação por Responsável">Participação por Responsável</p><button class="bi-expand-btn" onclick="expandBiChart('biChartResp')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
           <div id="biChartResp" class="bi-rose-canvas"></div>
         </div>
         <div class="bi-card">
-          <div class="bi-card-hdr"><p class="bi-title">Origem das Solicitações</p><button class="bi-expand-btn" onclick="expandBiChart('biChartSol','Origem das Solicitações')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
+          <div class="bi-card-hdr"><p class="bi-title" data-base-title="Origem das Solicitações">Origem das Solicitações</p><button class="bi-expand-btn" onclick="expandBiChart('biChartSol')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
           <div id="biChartSol" class="bi-rose-canvas"></div>
         </div>
       </div>
@@ -1949,7 +1950,7 @@
         </div>
       </div>
       <div class="bi-card">
-        <div class="bi-card-hdr"><p class="bi-title">Projeção de Custos</p><button class="bi-expand-btn" onclick="expandBiChart('biChartProj','Projeção de Custos')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
+        <div class="bi-card-hdr"><p class="bi-title" data-base-title="Projeção de Custos">Projeção de Custos</p><button class="bi-expand-btn" onclick="expandBiChart('biChartProj')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
         <div class="bi-chart-wrap" style="height:260px"><div id="biChartProj" style="width:100%;height:100%"></div></div>
       </div>
     </div>
@@ -7223,10 +7224,30 @@ const biFilterState = { segmentos: new Set(), ests: new Set(), times: new Set() 
 let biCharts = {};
 const biExpandStore = {};
 
-function expandBiChart(id, title) {
+function biDateLabel() {
+  const df = document.getElementById('biDateFrom')?.value;
+  const dt = document.getElementById('biDateTo')?.value;
+  const fmt = v => { if (!v) return null; const [y,m,d] = v.split('-'); return `${d}/${m}/${y}`; };
+  const a = fmt(df), b = fmt(dt);
+  if (a && b) return `${a} – ${b}`;
+  if (a) return `a partir de ${a}`;
+  if (b) return `até ${b}`;
+  return null;
+}
+
+function updateBiTitles() {
+  const label = biDateLabel();
+  document.querySelectorAll('#page-custos-bi .bi-title[data-base-title]').forEach(el => {
+    const base = el.dataset.baseTitle;
+    el.textContent = label ? `${base} · ${label}` : base;
+  });
+}
+
+function expandBiChart(id) {
   const store = biExpandStore[id];
   if (!store) return;
-  document.getElementById('biExpandTitle').textContent = title || '';
+  const titleEl = document.getElementById(id)?.closest('.bi-card')?.querySelector('.bi-title[data-base-title]');
+  document.getElementById('biExpandTitle').textContent = titleEl ? titleEl.textContent : '';
   document.getElementById('biExpandModal').classList.remove('hidden');
   document.body.style.overflow = 'hidden';
   const container = document.getElementById('biExpandContainer');
@@ -7290,8 +7311,7 @@ function biToggleFilter(dropId, labelId, val, checked) {
 
 function resetBiFilters() {
   document.getElementById('biSearch').value = '';
-  document.getElementById('biDateFrom').value = '';
-  document.getElementById('biDateTo').value = '';
+  setBiDefaultDates();
   biFilterState.segmentos.clear();
   biFilterState.ests.clear();
   biFilterState.times.clear();
@@ -7304,7 +7324,17 @@ function resetBiFilters() {
   loadCustosBi();
 }
 
+function setBiDefaultDates() {
+  const today = new Date();
+  const firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  const pad = n => String(n).padStart(2, '0');
+  const fmt = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  document.getElementById('biDateFrom').value = fmt(firstOfMonth);
+  document.getElementById('biDateTo').value = fmt(today);
+}
+
 async function initCustosBi() {
+  setBiDefaultDates();
   if (!biFiltrosCache) {
     const res = await apiFetch('/api/custos-bi/filtros');
     if (res && res.ok) {
@@ -7340,6 +7370,7 @@ async function loadCustosBi() {
   const d = await res.json();
   const errorBox = document.getElementById('biChartError');
   if (errorBox) errorBox.classList.add('hidden');
+  updateBiTitles();
   try {
     if (typeof Chart !== 'function') {
       throw new Error('A biblioteca de gráficos não foi carregada.');
@@ -7438,7 +7469,7 @@ function renderBiCharts(d) {
     biExpandStore[id] = {
       initFn(container) {
         const div = document.createElement('div');
-        div.style.cssText = 'width:100%;height:100%;min-height:460px';
+        div.style.cssText = 'width:100%;height:100%';
         container.appendChild(div);
         const c = echarts.init(div, dark ? 'dark' : null);
         c.setOption(optFn(tc, gc));
@@ -7540,7 +7571,7 @@ function renderBiCharts(d) {
     biExpandStore[canvasId] = {
       initFn(container) {
         const div = document.createElement('div');
-        div.style.cssText = 'width:100%;height:100%;min-height:500px';
+        div.style.cssText = 'width:100%;height:100%';
         container.appendChild(div);
         const c = echarts.init(div, dark ? 'dark' : null);
         c.setOption(makeRoseOption(rows, keyField, valueField, dark));
@@ -7810,7 +7841,7 @@ function renderAgendaGantt(data) {
   biExpandStore['biChartAgenda'] = {
     initFn(container) {
       const div = document.createElement('div');
-      div.style.cssText = 'width:100%;height:100%;min-height:540px';
+      div.style.cssText = 'width:100%;flex:1;min-height:0';
       container.appendChild(div);
       const c = echarts.init(div, dark ? 'dark' : null, { renderer: 'canvas' });
       c.setOption(option);
