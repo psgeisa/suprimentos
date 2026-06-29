@@ -913,19 +913,18 @@
     .agenda-chip.active { color:#fff; border-color:transparent; }
     .agenda-chip[data-agenda-status="todos"].active    { background:#1e293b; }
     .dark .agenda-chip[data-agenda-status="todos"].active { background:#374151; }
-    .agenda-chip[data-agenda-status="em_andamento"].active { background:#6366F1; }
-    .agenda-chip[data-agenda-status="programado"].active   { background:#3B82F6; }
+    .agenda-chip[data-agenda-status="em_andamento"].active { background:#14B8A6; }
+    .agenda-chip[data-agenda-status="programado"].active   { background:#0000FF; }
     .agenda-chip[data-agenda-status="atrasado"].active     { background:#EF4444; }
-    .agenda-chip[data-agenda-status="concluido"].active    { background:#94A3B8; }
-    .agenda-search-input { font-size:.72rem; padding:4px 11px; border-radius:8px; border:1px solid #e2e8f0; background:transparent; color:inherit; outline:none; min-width:175px; }
-    .dark .agenda-search-input { border-color:#374151; color:#f1f5f9; }
-    .agenda-search-input::placeholder { color:#94a3b8; }
+    .agenda-chip[data-agenda-status="concluido"].active    { background:#22C55E; }
+    .agenda-search-input { font-size:.72rem; padding:4px 11px; border-radius:8px; border:1px solid #e2e8f0; background:transparent; color:#fff; caret-color:#fff; outline:none; min-width:175px; }
+    .dark .agenda-search-input { border-color:#374151; color:#fff; }
+    .agenda-search-input::placeholder { color:#E2E8F0; opacity:1; }
     .agenda-chart-wrap { height:490px; position:relative; }
     .agenda-legend { display:flex; flex-wrap:wrap; gap:10px; margin-top:10px; align-items:center; }
     .agenda-leg-item { display:flex; align-items:center; gap:5px; font-size:.67rem; color:#64748b; }
     .dark .agenda-leg-item { color:#94a3b8; }
     .agenda-leg-dot { width:10px; height:10px; border-radius:3px; flex-shrink:0; }
-    .agenda-note { font-size:.62rem; color:#94a3b8; font-style:italic; margin-left:auto; }
   </style>
 </head>
 <body class="h-screen flex overflow-hidden" style="background-color:#F8FAFC;">
@@ -1998,13 +1997,12 @@
 
         <!-- Legenda -->
         <div class="agenda-legend">
-          <span class="agenda-leg-item"><span class="agenda-leg-dot" style="background:#10B981"></span>Baixo impacto</span>
-          <span class="agenda-leg-item"><span class="agenda-leg-dot" style="background:#3B82F6"></span>Programado</span>
-          <span class="agenda-leg-item"><span class="agenda-leg-dot" style="background:#6366F1"></span>Em andamento</span>
-          <span class="agenda-leg-item"><span class="agenda-leg-dot" style="background:#F59E0B"></span>Atenção</span>
+          <span class="agenda-leg-item"><span class="agenda-leg-dot" style="background:#94A3B8"></span>Baixo impacto</span>
+          <span class="agenda-leg-item"><span class="agenda-leg-dot" style="background:#0000FF"></span>Programado</span>
+          <span class="agenda-leg-item"><span class="agenda-leg-dot" style="background:#14B8A6"></span>Em andamento</span>
+          <span class="agenda-leg-item"><span class="agenda-leg-dot" style="background:#FACC15"></span>Atenção</span>
           <span class="agenda-leg-item"><span class="agenda-leg-dot" style="background:#EF4444"></span>Alto impacto / Atrasado</span>
-          <span class="agenda-leg-item"><span class="agenda-leg-dot" style="background:#94A3B8"></span>Concluído</span>
-          <span class="agenda-note">* Dados demonstrativos — integração com módulo Compras em breve.</span>
+          <span class="agenda-leg-item"><span class="agenda-leg-dot" style="background:#22C55E"></span>Concluído</span>
         </div>
       </div>
     </div>
@@ -7629,13 +7627,13 @@ function renderBiCharts(d) {
 let agendaData = []; // preenchido via API
 
 function agendaItemColor(item) {
-  if (item.status === 'concluido')   return '#94A3B8';
+  if (item.status === 'concluido')   return '#22C55E';
   if (item.status === 'atrasado')    return '#EF4444';
-  if (item.status === 'em_andamento') return '#6366F1';
+  if (item.status === 'em_andamento') return '#14B8A6';
   // programado — risco por valor
-  if (item.valorPrevisto <  10000)  return '#10B981'; // verde — baixo impacto
-  if (item.valorPrevisto <  60000)  return '#3B82F6'; // azul — programado
-  if (item.valorPrevisto <  80000)  return '#F59E0B'; // amarelo — atenção
+  if (item.valorPrevisto <  10000)  return '#94A3B8'; // cinza azulado — baixo impacto
+  if (item.valorPrevisto <  60000)  return '#0000FF'; // azul puro — programado
+  if (item.valorPrevisto <  80000)  return '#FACC15'; // amarelo — atenção
   return '#DC2626';                                    // vermelho — alto impacto
 }
 
@@ -7744,11 +7742,13 @@ function renderAgendaGantt(data) {
       {
         type: 'slider', xAxisIndex: 0, bottom: 2, height: 18,
         borderColor: 'transparent',
-        fillerColor: dark ? 'rgba(99,102,241,.18)' : 'rgba(99,102,241,.12)',
-        handleStyle: { color: '#6366F1', borderColor: '#6366F1' },
-        moveHandleStyle: { color: '#6366F1' },
+        backgroundColor: 'rgba(226,232,240,.18)',
+        fillerColor: 'rgba(226,232,240,.58)',
+        handleStyle: { color: '#F1F5F9', borderColor: '#E2E8F0' },
+        moveHandleStyle: { color: '#F1F5F9' },
         textStyle: { color: tc, fontSize: 10 },
-        selectedDataBackground: { lineStyle: { color: '#6366F1' }, areaStyle: { color: '#6366F1' } },
+        dataBackground: { lineStyle: { color: '#CBD5E1' }, areaStyle: { color: '#E2E8F0' } },
+        selectedDataBackground: { lineStyle: { color: '#F1F5F9' }, areaStyle: { color: '#E2E8F0' } },
       },
       { type: 'inside', xAxisIndex: 0 },
     ],
@@ -7797,10 +7797,10 @@ function renderAgendaGantt(data) {
       markLine: {
         silent: true,
         symbol: ['none', 'none'],
-        lineStyle: { color: '#EF4444', width: 1.5, type: 'solid', opacity: 0.9 },
+        lineStyle: { color: '#800020', width: 1.5, type: 'dotted', opacity: 0.9 },
         label: {
           show: true, formatter: 'Hoje',
-          color: '#EF4444', fontSize: 9.5, fontWeight: 700,
+          color: '#800020', fontSize: 9.5, fontWeight: 700,
           position: 'insideEndTop', distance: 4,
         },
         data: [{ xAxis: nowMs }],
