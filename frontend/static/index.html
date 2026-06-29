@@ -776,10 +776,12 @@
     #sidebar:not(.collapsed) .sidebar-util[data-tip]:hover::after { content:attr(data-tip); position:absolute; left:calc(100% + 8px); top:50%; transform:translateY(-50%); background:rgba(30,20,0,0.88); color:#fff; font-size:.7rem; font-weight:600; padding:4px 9px; border-radius:7px; white-space:nowrap; pointer-events:none; opacity:1; z-index:50; }
 
     /* Admin/Info group alinhado no modo colapsado */
-    #sidebar.collapsed #sidebarAdminGroup,
-    #sidebar.collapsed #sidebarInfoGroup { display:flex !important; flex-direction:column; align-items:center; width:56px !important; }
-    #sidebar.collapsed #sidebarAdminGroup .sidebar-item,
-    #sidebar.collapsed #sidebarInfoGroup .sidebar-item { display:flex !important; align-items:center !important; width:56px !important; max-width:56px !important; margin-left:auto !important; margin-right:auto !important; justify-content:center !important; padding-left:0 !important; padding-right:0 !important; gap:0 !important; }
+    #sidebar.collapsed:not(.mobile-open) #sidebarAdminGroup,
+    #sidebar.collapsed:not(.mobile-open) #sidebarInfoGroup { display:flex !important; flex-direction:column; align-items:center; width:56px !important; }
+    #sidebar.collapsed:not(.mobile-open) #sidebarAdminGroup .sidebar-item,
+    #sidebar.collapsed:not(.mobile-open) #sidebarInfoGroup .sidebar-item { display:flex !important; align-items:center !important; width:56px !important; max-width:56px !important; margin-left:auto !important; margin-right:auto !important; justify-content:center !important; padding-left:0 !important; padding-right:0 !important; gap:0 !important; }
+    #sidebar.collapsed:not(.mobile-open) #adminChevron,
+    #sidebar.collapsed:not(.mobile-open) #infoChevron { margin-left:0 !important; }
 
     /* ══ SIDEBAR: labels visíveis quando mobile-open (mesmo com collapsed) ══ */
     #sidebar.mobile-open .sidebar-label {
