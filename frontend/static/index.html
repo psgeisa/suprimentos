@@ -526,6 +526,14 @@
     .dark .bi-card { background:#1e2330; border-color:#2d3748; }
     .bi-title { font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:#64748b; margin-bottom:14px; }
     .dark .bi-title { color:#94a3b8; }
+    /* capítulos / cards-pai */
+    .bi-chapter { margin-bottom:2rem; }
+    .bi-chapter-hdr { display:flex; align-items:baseline; gap:.75rem; margin-bottom:1rem; padding-bottom:.625rem; border-bottom:1px solid #f1f5f9; }
+    .dark .bi-chapter-hdr { border-color:#2d3748; }
+    .bi-chapter-emoji { font-size:1.1rem; line-height:1; }
+    .bi-chapter-title { font-size:.85rem; font-weight:700; color:#1e293b; letter-spacing:.01em; }
+    .dark .bi-chapter-title { color:#f1f5f9; }
+    .bi-chapter-desc { font-size:.7rem; color:#94a3b8; margin-top:.15rem; font-weight:400; }
     .bi-chart-wrap { position:relative; height:220px; }
     .bi-chart-error { border:1px solid #FCA5A5; background:#FEF2F2; color:#991B1B; border-radius:12px; padding:12px 14px; font-size:.8rem; margin-bottom:1rem; }
     .dark .bi-chart-error { background:rgba(127,29,29,.18); border-color:rgba(248,113,113,.45); color:#FCA5A5; }
@@ -1856,101 +1864,141 @@
     </div>
     <div id="biChartError" class="bi-chart-error hidden" role="alert"></div>
 
-    <!-- Row 1: Custo total por mês | Custo médio por dia da semana -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-      <div class="bi-card">
-        <div class="bi-card-hdr"><p class="bi-title">Custo total por mês</p><button class="bi-expand-btn" onclick="expandBiChart('biChartMes','Custo total por mês')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
-        <div class="bi-chart-wrap"><div id="biChartMes" style="width:100%;height:100%"></div></div>
-      </div>
-      <div class="bi-card">
-        <div class="bi-card-hdr"><p class="bi-title">Custo médio por dia da semana</p><button class="bi-expand-btn" onclick="expandBiChart('biChartDia','Custo médio por dia da semana')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
-        <div class="bi-chart-wrap"><div id="biChartDia" style="width:100%;height:100%"></div></div>
-      </div>
-    </div>
-
-    <!-- Row 2: Por segmento por mês | Por estabelecimento por mês -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-      <div class="bi-card">
-        <div class="bi-card-hdr"><p class="bi-title">Custo por segmento por mês</p><button class="bi-expand-btn" onclick="expandBiChart('biChartSegmento','Custo por segmento por mês')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
-        <div class="bi-chart-wrap"><div id="biChartSegmento" style="width:100%;height:100%"></div></div>
-      </div>
-      <div class="bi-card">
-        <div class="bi-card-hdr"><p class="bi-title">Custo por estabelecimento por mês</p><button class="bi-expand-btn" onclick="expandBiChart('biChartEst','Custo por estabelecimento por mês')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
-        <div class="bi-chart-wrap"><div id="biChartEst" style="width:100%;height:100%"></div></div>
-      </div>
-    </div>
-
-    <!-- Row 3: Rose charts -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-      <div class="bi-card">
-        <div class="bi-card-hdr"><p class="bi-title">Custo por time</p><button class="bi-expand-btn" onclick="expandBiChart('biChartTime','Custo por time')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
-        <div id="biChartTime" class="bi-rose-canvas"></div>
-      </div>
-      <div class="bi-card">
-        <div class="bi-card-hdr"><p class="bi-title">Custo por Responsável</p><button class="bi-expand-btn" onclick="expandBiChart('biChartResp','Custo por Responsável')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
-        <div id="biChartResp" class="bi-rose-canvas"></div>
-      </div>
-      <div class="bi-card">
-        <div class="bi-card-hdr"><p class="bi-title">Custo por Solicitante</p><button class="bi-expand-btn" onclick="expandBiChart('biChartSol','Custo por Solicitante')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
-        <div id="biChartSol" class="bi-rose-canvas"></div>
-      </div>
-    </div>
-
-    <!-- Row 4: Comparativo full width -->
-    <div class="bi-card mb-6">
-      <div class="bi-card-hdr"><p class="bi-title">Valor estimado × Teto de gasto × Valor real por mês</p><button class="bi-expand-btn" onclick="expandBiChart('biChartComp','Valor estimado × Teto de gasto × Valor real por mês')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
-      <div class="bi-chart-wrap" style="height:260px"><div id="biChartComp" style="width:100%;height:100%"></div></div>
-    </div>
-
-    <!-- Row 5: Projeção full width -->
-    <div class="bi-card mb-6">
-      <div class="bi-card-hdr"><p class="bi-title">Custo futuro projetado por estabelecimento</p><button class="bi-expand-btn" onclick="expandBiChart('biChartProj','Custo futuro projetado por estabelecimento')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
-      <div class="bi-chart-wrap" style="height:260px"><div id="biChartProj" style="width:100%;height:100%"></div></div>
-    </div>
-
-    <!-- ── Agenda Financeira de Compras ─────────────────────────────── -->
-    <div class="bi-card mb-6" id="agendaCard">
-      <div class="bi-card-hdr">
+    <!-- ── 1. PANORAMA FINANCEIRO ─────────────────────────────────────── -->
+    <div class="bi-chapter">
+      <div class="bi-chapter-hdr">
+        <span class="bi-chapter-emoji">💰</span>
         <div>
-          <p class="bi-title" style="margin-bottom:2px">Agenda Financeira de Compras</p>
-          <p style="font-size:.68rem;color:#94a3b8;margin:0;font-weight:400">Ciclo completo de aquisição · planejamento de desembolso financeiro</p>
+          <p class="bi-chapter-title">Panorama Financeiro</p>
+          <p class="bi-chapter-desc">Visão consolidada da execução orçamentária, comparando valores planejados, realizados e o limite disponível para gastos.</p>
         </div>
-        <button class="bi-expand-btn" onclick="expandBiChart('biChartAgenda','Agenda Financeira de Compras')" title="Expandir">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
-        </button>
       </div>
-
-      <!-- KPI strip -->
-      <div class="agenda-kpi-grid" id="agendaKpis"></div>
-
-      <!-- Filtros -->
-      <div class="agenda-filters">
-        <span class="agenda-filter-label">Status</span>
-        <button class="agenda-chip active" data-agenda-status="todos"        onclick="agendaSetStatus('todos')">Todos</button>
-        <button class="agenda-chip"        data-agenda-status="em_andamento" onclick="agendaSetStatus('em_andamento')">Em andamento</button>
-        <button class="agenda-chip"        data-agenda-status="programado"   onclick="agendaSetStatus('programado')">Programado</button>
-        <button class="agenda-chip"        data-agenda-status="atrasado"     onclick="agendaSetStatus('atrasado')">Atrasado</button>
-        <button class="agenda-chip"        data-agenda-status="concluido"    onclick="agendaSetStatus('concluido')">Concluído</button>
-        <span style="width:1px;height:16px;background:#e2e8f0;flex-shrink:0;margin:0 4px"></span>
-        <input id="agendaSearch" type="text" class="agenda-search-input"
-          placeholder="Compra, fornecedor ou categoria…"
-          oninput="renderAgendaGanttFiltered()">
+      <div class="bi-card">
+        <div class="bi-card-hdr"><p class="bi-title">Execução do Orçamento</p><button class="bi-expand-btn" onclick="expandBiChart('biChartComp','Execução do Orçamento')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
+        <div class="bi-chart-wrap" style="height:260px"><div id="biChartComp" style="width:100%;height:100%"></div></div>
       </div>
+    </div>
 
-      <!-- Gráfico Gantt -->
-      <div class="agenda-chart-wrap">
-        <div id="biChartAgenda" style="width:100%;height:100%"></div>
+    <!-- ── 2. EVOLUÇÃO DOS GASTOS ──────────────────────────────────────── -->
+    <div class="bi-chapter">
+      <div class="bi-chapter-hdr">
+        <span class="bi-chapter-emoji">📈</span>
+        <div>
+          <p class="bi-chapter-title">Evolução dos Gastos</p>
+          <p class="bi-chapter-desc">Analise como os custos evoluem ao longo do tempo e identifique padrões de consumo por período.</p>
+        </div>
       </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bi-card">
+          <div class="bi-card-hdr"><p class="bi-title">Evolução dos Gastos</p><button class="bi-expand-btn" onclick="expandBiChart('biChartMes','Evolução dos Gastos')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
+          <div class="bi-chart-wrap"><div id="biChartMes" style="width:100%;height:100%"></div></div>
+        </div>
+        <div class="bi-card">
+          <div class="bi-card-hdr"><p class="bi-title">Distribuição dos Gastos por Dia da Semana</p><button class="bi-expand-btn" onclick="expandBiChart('biChartDia','Distribuição dos Gastos por Dia da Semana')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
+          <div class="bi-chart-wrap"><div id="biChartDia" style="width:100%;height:100%"></div></div>
+        </div>
+      </div>
+    </div>
 
-      <!-- Legenda -->
-      <div class="agenda-legend">
-        <span class="agenda-leg-item"><span class="agenda-leg-dot" style="background:#10B981"></span>Baixo impacto</span>
-        <span class="agenda-leg-item"><span class="agenda-leg-dot" style="background:#3B82F6"></span>Programado</span>
-        <span class="agenda-leg-item"><span class="agenda-leg-dot" style="background:#6366F1"></span>Em andamento</span>
-        <span class="agenda-leg-item"><span class="agenda-leg-dot" style="background:#F59E0B"></span>Atenção</span>
-        <span class="agenda-leg-item"><span class="agenda-leg-dot" style="background:#EF4444"></span>Alto impacto / Atrasado</span>
-        <span class="agenda-leg-item"><span class="agenda-leg-dot" style="background:#94A3B8"></span>Concluído</span>
-        <span class="agenda-note">* Dados demonstrativos — integração com módulo Compras em breve.</span>
+    <!-- ── 3. DISTRIBUIÇÃO DOS CUSTOS ─────────────────────────────────── -->
+    <div class="bi-chapter">
+      <div class="bi-chapter-hdr">
+        <span class="bi-chapter-emoji">🧭</span>
+        <div>
+          <p class="bi-chapter-title">Distribuição dos Custos</p>
+          <p class="bi-chapter-desc">Entenda onde os recursos estão sendo aplicados e quem concentra a maior parcela dos gastos.</p>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div class="bi-card">
+          <div class="bi-card-hdr"><p class="bi-title">Investimento por Segmento</p><button class="bi-expand-btn" onclick="expandBiChart('biChartSegmento','Investimento por Segmento')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
+          <div class="bi-chart-wrap"><div id="biChartSegmento" style="width:100%;height:100%"></div></div>
+        </div>
+        <div class="bi-card">
+          <div class="bi-card-hdr"><p class="bi-title">Investimento por Estabelecimento</p><button class="bi-expand-btn" onclick="expandBiChart('biChartEst','Investimento por Estabelecimento')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
+          <div class="bi-chart-wrap"><div id="biChartEst" style="width:100%;height:100%"></div></div>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="bi-card">
+          <div class="bi-card-hdr"><p class="bi-title">Participação por Time</p><button class="bi-expand-btn" onclick="expandBiChart('biChartTime','Participação por Time')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
+          <div id="biChartTime" class="bi-rose-canvas"></div>
+        </div>
+        <div class="bi-card">
+          <div class="bi-card-hdr"><p class="bi-title">Participação por Responsável</p><button class="bi-expand-btn" onclick="expandBiChart('biChartResp','Participação por Responsável')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
+          <div id="biChartResp" class="bi-rose-canvas"></div>
+        </div>
+        <div class="bi-card">
+          <div class="bi-card-hdr"><p class="bi-title">Origem das Solicitações</p><button class="bi-expand-btn" onclick="expandBiChart('biChartSol','Origem das Solicitações')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
+          <div id="biChartSol" class="bi-rose-canvas"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 4. INTELIGÊNCIA FINANCEIRA ─────────────────────────────────── -->
+    <div class="bi-chapter">
+      <div class="bi-chapter-hdr">
+        <span class="bi-chapter-emoji">🔮</span>
+        <div>
+          <p class="bi-chapter-title">Inteligência Financeira</p>
+          <p class="bi-chapter-desc">Antecipe tendências de consumo, acompanhe projeções e identifique possíveis riscos antes que eles aconteçam.</p>
+        </div>
+      </div>
+      <div class="bi-card">
+        <div class="bi-card-hdr"><p class="bi-title">Projeção de Custos</p><button class="bi-expand-btn" onclick="expandBiChart('biChartProj','Projeção de Custos')" title="Expandir"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></button></div>
+        <div class="bi-chart-wrap" style="height:260px"><div id="biChartProj" style="width:100%;height:100%"></div></div>
+      </div>
+    </div>
+
+    <!-- ── 5. AGENDA FINANCEIRA ───────────────────────────────────────── -->
+    <div class="bi-chapter">
+      <div class="bi-chapter-hdr">
+        <span class="bi-chapter-emoji">📅</span>
+        <div>
+          <p class="bi-chapter-title">Agenda Financeira</p>
+          <p class="bi-chapter-desc">Planeje os próximos desembolsos e acompanhe compras em andamento para manter o fluxo financeiro sob controle.</p>
+        </div>
+      </div>
+      <div class="bi-card" id="agendaCard">
+        <div class="bi-card-hdr">
+          <p class="bi-title">Agenda Financeira de Compras</p>
+          <button class="bi-expand-btn" onclick="expandBiChart('biChartAgenda','Agenda Financeira de Compras')" title="Expandir">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+          </button>
+        </div>
+
+        <!-- KPI strip -->
+        <div class="agenda-kpi-grid" id="agendaKpis"></div>
+
+        <!-- Filtros -->
+        <div class="agenda-filters">
+          <span class="agenda-filter-label">Status</span>
+          <button class="agenda-chip active" data-agenda-status="todos"        onclick="agendaSetStatus('todos')">Todos</button>
+          <button class="agenda-chip"        data-agenda-status="em_andamento" onclick="agendaSetStatus('em_andamento')">Em andamento</button>
+          <button class="agenda-chip"        data-agenda-status="programado"   onclick="agendaSetStatus('programado')">Programado</button>
+          <button class="agenda-chip"        data-agenda-status="atrasado"     onclick="agendaSetStatus('atrasado')">Atrasado</button>
+          <button class="agenda-chip"        data-agenda-status="concluido"    onclick="agendaSetStatus('concluido')">Concluído</button>
+          <span style="width:1px;height:16px;background:#e2e8f0;flex-shrink:0;margin:0 4px"></span>
+          <input id="agendaSearch" type="text" class="agenda-search-input"
+            placeholder="Compra, fornecedor ou categoria…"
+            oninput="renderAgendaGanttFiltered()">
+        </div>
+
+        <!-- Gráfico Gantt -->
+        <div class="agenda-chart-wrap">
+          <div id="biChartAgenda" style="width:100%;height:100%"></div>
+        </div>
+
+        <!-- Legenda -->
+        <div class="agenda-legend">
+          <span class="agenda-leg-item"><span class="agenda-leg-dot" style="background:#10B981"></span>Baixo impacto</span>
+          <span class="agenda-leg-item"><span class="agenda-leg-dot" style="background:#3B82F6"></span>Programado</span>
+          <span class="agenda-leg-item"><span class="agenda-leg-dot" style="background:#6366F1"></span>Em andamento</span>
+          <span class="agenda-leg-item"><span class="agenda-leg-dot" style="background:#F59E0B"></span>Atenção</span>
+          <span class="agenda-leg-item"><span class="agenda-leg-dot" style="background:#EF4444"></span>Alto impacto / Atrasado</span>
+          <span class="agenda-leg-item"><span class="agenda-leg-dot" style="background:#94A3B8"></span>Concluído</span>
+          <span class="agenda-note">* Dados demonstrativos — integração com módulo Compras em breve.</span>
+        </div>
       </div>
     </div>
   </section>
