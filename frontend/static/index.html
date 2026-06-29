@@ -527,13 +527,17 @@
     .bi-title { font-size:.75rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:#64748b; margin-bottom:14px; }
     .dark .bi-title { color:#94a3b8; }
     /* capítulos / cards-pai */
-    .bi-chapter { margin-bottom:2rem; }
-    .bi-chapter-hdr { display:flex; align-items:baseline; gap:.75rem; margin-bottom:1rem; padding-bottom:.625rem; border-bottom:1px solid #f1f5f9; }
-    .dark .bi-chapter-hdr { border-color:#2d3748; }
-    .bi-chapter-emoji { font-size:1.1rem; line-height:1; }
-    .bi-chapter-title { font-size:.85rem; font-weight:700; color:#1e293b; letter-spacing:.01em; }
+    .bi-chapter { margin-bottom:1.5rem; background:#fff; border-radius:20px; border:1px solid #e9edf2; box-shadow:0 2px 12px rgba(0,0,0,.055); padding:24px; }
+    .dark .bi-chapter { background:#161b27; border-color:#252d3d; }
+    .bi-chapter-hdr { display:flex; align-items:flex-start; gap:.75rem; margin-bottom:1.25rem; padding-bottom:1rem; border-bottom:1px solid #f1f5f9; }
+    .dark .bi-chapter-hdr { border-color:#252d3d; }
+    .bi-chapter-emoji { font-size:1.25rem; line-height:1.3; flex-shrink:0; }
+    .bi-chapter-title { font-size:.9rem; font-weight:700; color:#1e293b; letter-spacing:.01em; margin-bottom:.2rem; }
     .dark .bi-chapter-title { color:#f1f5f9; }
-    .bi-chapter-desc { font-size:.7rem; color:#94a3b8; margin-top:.15rem; font-weight:400; }
+    .bi-chapter-desc { font-size:.7rem; color:#94a3b8; font-weight:400; line-height:1.5; }
+    /* cards filhos dentro do capítulo ficam levemente encaixados */
+    .bi-chapter .bi-card { background:#f8fafc; box-shadow:none; border-color:#edf0f4; }
+    .dark .bi-chapter .bi-card { background:rgba(255,255,255,.03); border-color:#2a3347; }
     .bi-chart-wrap { position:relative; height:220px; }
     .bi-chart-error { border:1px solid #FCA5A5; background:#FEF2F2; color:#991B1B; border-radius:12px; padding:12px 14px; font-size:.8rem; margin-bottom:1rem; }
     .dark .bi-chart-error { background:rgba(127,29,29,.18); border-color:rgba(248,113,113,.45); color:#FCA5A5; }
