@@ -389,7 +389,8 @@
     .dark #page-custos-bi .filter-bar .bi-drop-btn { background:#0d0d0d !important; border-color:rgba(212,165,32,.3) !important; color:#fff !important; }
     .dark #page-custos-bi .filter-bar .bi-drop-btn span { color:#fff !important; }
     .dark #page-custos-bi .filter-bar .bi-label { color:rgba(255,255,255,.5); }
-    .dark #page-custos-bi .filter-bar #biSearch::placeholder { color:#64748b; }
+    .dark #page-custos-bi .filter-bar #biSearch { color:#fff !important; caret-color:#fff; }
+    .dark #page-custos-bi .filter-bar #biSearch::placeholder { color:rgba(248,250,252,.78) !important; opacity:1; }
     .dark #page-custos-bi .filter-bar .bi-drop { background:#17191D; border-color:#6B7280; }
     .dark #page-custos-bi .filter-bar .bi-drop label { color:#fff; }
     .dark #page-custos-bi .filter-bar .bi-drop label:hover { background:#30343B; }
@@ -551,7 +552,7 @@
     /* modal expand */
     .bi-modal-overlay { position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,.55); display:flex; align-items:center; justify-content:center; padding:24px; }
     .bi-modal-overlay.hidden { display:none; }
-    .bi-modal-box { background:#fff; border-radius:20px; width:100%; max-width:900px; max-height:90vh; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 24px 80px rgba(0,0,0,.25); }
+    .bi-modal-box { background:#fff; border-radius:20px; width:min(94vw,1280px); height:min(88vh,820px); min-height:520px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 24px 80px rgba(0,0,0,.25); }
     .dark .bi-modal-box { background:#1e2330; }
     .bi-modal-hdr { display:flex; align-items:center; justify-content:space-between; padding:18px 22px 14px; border-bottom:1px solid #f1f5f9; flex-shrink:0; }
     .dark .bi-modal-hdr { border-color:#2d3748; }
@@ -563,6 +564,12 @@
     .dark .bi-modal-close:hover { background:#2d3748; }
     .bi-modal-chart { flex:1; min-height:0; position:relative; padding:16px; overflow:hidden; }
     #biExpandContainer { width:100%; height:100%; }
+    @media (max-width:640px), (max-height:640px) {
+      .bi-modal-overlay { padding:10px; }
+      .bi-modal-box { width:100%; height:calc(100vh - 20px); min-height:0; border-radius:14px; }
+      .bi-modal-hdr { padding:13px 15px 10px; }
+      .bi-modal-chart { padding:8px; }
+    }
     .bi-drop-opt { display:flex; align-items:center; gap:7px; padding:5px 6px; border-radius:6px; cursor:pointer; font-size:.72rem; color:#475569; }
     .bi-drop-opt:hover { background:#f8fafc; }
     .bi-drop-opt input { accent-color:#C8780A; }
@@ -7243,16 +7250,19 @@ function updateBiTitles() {
   });
 }
 
-function expandBiChart(id) {
+function expandBiChart(id, titleOverride = '') {
   const store = biExpandStore[id];
   if (!store) return;
   const titleEl = document.getElementById(id)?.closest('.bi-card')?.querySelector('.bi-title[data-base-title]');
-  document.getElementById('biExpandTitle').textContent = titleEl ? titleEl.textContent : '';
+  document.getElementById('biExpandTitle').textContent = titleEl ? titleEl.textContent : titleOverride;
   document.getElementById('biExpandModal').classList.remove('hidden');
   document.body.style.overflow = 'hidden';
   const container = document.getElementById('biExpandContainer');
   container.innerHTML = '';
   store.initFn(container);
+  requestAnimationFrame(() => {
+    if (window._biExpandInst?.resize) window._biExpandInst.resize();
+  });
 }
 
 function closeBiExpand() {
@@ -7326,10 +7336,9 @@ function resetBiFilters() {
 
 function setBiDefaultDates() {
   const today = new Date();
-  const firstOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
   const pad = n => String(n).padStart(2, '0');
   const fmt = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-  document.getElementById('biDateFrom').value = fmt(firstOfMonth);
+  document.getElementById('biDateFrom').value = '2026-01-01';
   document.getElementById('biDateTo').value = fmt(today);
 }
 
@@ -7793,6 +7802,11 @@ function renderAgendaGantt(data) {
   const sorted = [...data].sort((a,b) => new Date(a.dataInicio) - new Date(b.dataInicio));
   const names  = sorted.map(c => c.categoria || 'Sem segmento');
   const nowMs  = Date.now();
+  const agendaDates = sorted.flatMap(c => [new Date(c.dataInicio).getTime(), new Date(c.dataPagamento).getTime()]).filter(Number.isFinite);
+  const agendaSpanMonths = agendaDates.length
+    ? Math.max(1, (Math.max(...agendaDates) - Math.min(...agendaDates)) / (1000 * 60 * 60 * 24 * 30.44))
+    : 1;
+  const agendaBarRatio = agendaSpanMonths > 12 ? 0.32 : agendaSpanMonths > 6 ? 0.42 : agendaSpanMonths > 3 ? 0.55 : 0.7;
 
   const seriesData = sorted.map((c, i) => ({
     value: [i, new Date(c.dataInicio).getTime(), new Date(c.dataPagamento).getTime()],
@@ -7879,7 +7893,8 @@ function renderAgendaGantt(data) {
         const yi    = api.value(0);
         const start = api.coord([api.value(1), yi]);
         const end   = api.coord([api.value(2), yi]);
-        const bh    = Math.max(api.size([0, 1])[1] * 0.52, 14);
+        const rowHeight = Math.abs(api.size([0, 1])[1]);
+        const bh = Math.max(4, Math.min(30, rowHeight * agendaBarRatio));
         const shape = echarts.graphic.clipRectByRect(
           { x: start[0], y: start[1] - bh/2, width: Math.max(end[0]-start[0], 4), height: bh },
           { x: params.coordSys.x, y: params.coordSys.y, width: params.coordSys.width, height: params.coordSys.height }
@@ -7916,7 +7931,7 @@ function renderAgendaGantt(data) {
   biExpandStore['biChartAgenda'] = {
     initFn(container) {
       const div = document.createElement('div');
-      div.style.cssText = 'width:100%;flex:1;min-height:0';
+      div.style.cssText = 'width:100%;height:100%;min-height:0';
       container.appendChild(div);
       const c = echarts.init(div, dark ? 'dark' : null, { renderer: 'canvas' });
       c.setOption(option);
