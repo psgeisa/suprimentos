@@ -681,32 +681,73 @@
     .dark .action-item.danger { color:#EF4444; }
     .dark .action-item.danger:hover { background:rgba(239,68,68,0.15); }
 
-    /* ── Mobile + Tablet (< 1024px): sidebar flutuante com overlay ── */
+    /* ── Mobile + Tablet (< 1024px): sidebar colapsado visível na lateral ── */
     @media (max-width: 1023px) {
       #sidebar {
         position:fixed !important;
         left:0 !important;
         top:0 !important;
-        width:280px !important;
-        min-width:280px !important;
+        width:72px !important;
+        min-width:72px !important;
         overflow:hidden !important;
-        transition:transform 0.3s cubic-bezier(.4,0,.2,1) !important;
+        transition:width 0.3s cubic-bezier(.4,0,.2,1) !important;
         height:100vh !important;
         height:100dvh !important;
         z-index:45 !important;
-        transform:translateX(-100%) !important;
       }
-      #sidebar.mobile-open { transform:translateX(0) !important; }
+      #sidebar.mobile-open {
+        width:280px !important;
+        min-width:280px !important;
+      }
 
-      /* Distribui itens uniformemente para caber sem scroll */
-      #sidebar nav {
-        display:flex !important;
-        flex-direction:column !important;
-        justify-content:space-evenly !important;
-        padding:0.25rem 0.75rem !important;
+      /* Ícones centrados no estado colapsado */
+      #sidebar:not(.mobile-open) .sidebar-item {
+        justify-content:center !important;
+        padding-left:0 !important;
+        padding-right:0 !important;
         gap:0 !important;
       }
-      #sidebar nav > * { margin-top:0 !important; }
+      #sidebar:not(.mobile-open) .sidebar-util {
+        justify-content:center !important;
+        padding-left:0 !important;
+        padding-right:0 !important;
+        gap:0 !important;
+      }
+      #sidebar:not(.mobile-open) nav {
+        padding-left:8px !important;
+        padding-right:8px !important;
+        align-items:center !important;
+      }
+      #sidebar:not(.mobile-open) > div {
+        padding-left:8px !important;
+        padding-right:8px !important;
+      }
+
+      /* Labels visíveis quando expandido */
+      #sidebar.mobile-open .sidebar-label {
+        opacity:1 !important;
+        max-width:200px !important;
+        pointer-events:auto !important;
+      }
+      #sidebar.mobile-open .sidebar-item {
+        justify-content:flex-start !important;
+        padding-left:0.75rem !important;
+        gap:0.75rem !important;
+      }
+      #sidebar.mobile-open .sidebar-util {
+        justify-content:flex-start !important;
+        padding-left:0.75rem !important;
+        gap:0.75rem !important;
+      }
+      #sidebar.mobile-open nav {
+        padding-left:0.75rem !important;
+        padding-right:0.75rem !important;
+        align-items:stretch !important;
+      }
+      #sidebar.mobile-open > div {
+        padding-left:0.75rem !important;
+        padding-right:0.75rem !important;
+      }
 
       /* Ícones maiores quando o sidebar está aberto */
       #sidebar.mobile-open .sidebar-item svg,
@@ -716,13 +757,23 @@
         flex-shrink:0 !important;
       }
 
-      /* Padding levemente reduzido para caber tudo na tela */
+      /* Distribui itens uniformemente */
+      #sidebar nav {
+        display:flex !important;
+        flex-direction:column !important;
+        justify-content:space-evenly !important;
+        gap:0 !important;
+      }
+      #sidebar nav > * { margin-top:0 !important; }
+
+      /* Padding levemente reduzido */
       #sidebar .sidebar-item,
       #sidebar .sidebar-util {
         padding-top:0.6rem !important;
         padding-bottom:0.6rem !important;
       }
 
+      /* Overlay aparece só quando expandido */
       #sidebarOverlay {
         display:none !important;
         position:fixed !important;
@@ -731,7 +782,10 @@
         z-index:44 !important;
       }
       #sidebarOverlay.mobile-open { display:block !important; }
-      .drawer { left:0 !important; }
+
+      /* Conteúdo principal desloca 72px para não ficar sob o sidebar */
+      main { margin-left:72px !important; }
+      .drawer { left:72px !important; }
       main header { padding-left:1rem !important; padding-right:1rem !important; }
       section[id^="page-"] { padding:1rem !important; }
       table { font-size:.75rem; }
