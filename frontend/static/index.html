@@ -1116,6 +1116,14 @@
           </svg>
           Itens
         </a>
+        <a onclick="showPage('acessos')"
+          class="sidebar-item flex items-center gap-3 px-3 py-2 rounded-lg text-yellow-200/80 hover:text-white text-sm font-medium cursor-pointer transition-all">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+          </svg>
+          Acessos
+        </a>
       </div>
     </div>
   </nav>
@@ -1692,6 +1700,30 @@
         <p class="font-medium">Nenhum usuário encontrado</p>
       </div>
       <div id="userPagination" class="px-5 py-4 border-t border-slate-100"></div>
+    </div>
+  </section>
+
+  <!-- ── Acessos (admin only) ── -->
+  <section id="page-acessos" class="p-8 hidden" style="min-height:calc(100vh - 73px)">
+    <div id="acessosKpis" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-6"></div>
+
+    <div class="card-glass bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-slate-50 border-b border-slate-100">
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Data/Hora</th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Visitante</th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Usuário</th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">IP</th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Navegador</th>
+          </tr>
+        </thead>
+        <tbody id="acessosBody" class="divide-y divide-slate-50"></tbody>
+      </table>
+      <div id="acessosEmpty" class="hidden flex flex-col items-center py-16 text-slate-400">
+        <p class="font-medium">Nenhum acesso registrado ainda</p>
+      </div>
+      <div id="acessosPagination" class="px-5 py-4 border-t border-slate-100"></div>
     </div>
   </section>
 
@@ -4106,7 +4138,7 @@ function showPage(page) {
   document.getElementById('page-'+page).classList.remove('hidden');
 
   const headerNovaBtn = document.getElementById('headerNovaBtn');
-  const mgmtPages = ['segmentos','areas','unidades','fornecedores','usuarios','estabelecimentos','itens','custos-bi','estrategia'];
+  const mgmtPages = ['segmentos','areas','unidades','fornecedores','usuarios','estabelecimentos','itens','custos-bi','estrategia','acessos'];
   const titles = {
     'custos-bi':  ['Custos BI',          'Análise interativa de custos'],
     estrategia:   ['Sobre o Projeto',    'Estratégia, arquitetura e tecnologias da aplicação'],
@@ -4122,6 +4154,7 @@ function showPage(page) {
     fornecedores: ['Fornecedores',      'Gerenciar fornecedores cadastrados'],
     estabelecimentos: ['Estabelecimentos', 'Gerenciar estabelecimentos cadastrados'],
     itens:            ['Itens',            'Gerenciar catálogo de itens'],
+    acessos:          ['Acessos',          'Quem e quando acessou o sistema'],
   };
   document.getElementById('pageTitle').textContent    = titles[page][0];
   document.getElementById('pageSubtitle').textContent = titles[page][1];
@@ -4158,6 +4191,63 @@ function showPage(page) {
   if (page === 'estabelecimentos') { estPage=1; renderEstabelecimentos(); }
   if (page === 'itens')        { itemPage=1; loadItensCache().then(renderItens); }
   if (page === 'custos-bi')   { initCustosBi(); }
+  if (page === 'acessos')     { acessosPage=1; loadAcessosStats(); loadAcessos(); }
+}
+
+// ── Acessos ──────────────────────────────────────────────────────────────
+let acessosPage = 1;
+const ACESSOS_PAGE_SIZE = 20;
+
+async function loadAcessosStats() {
+  const res = await apiFetch('/api/acessos/stats');
+  if (!res) return;
+  const d = await res.json();
+  const kpis = [
+    { label: 'Visitantes únicos',       value: d.visitantes_unicos,       icon: '👥', hex: '#6366F1' },
+    { label: 'Total de acessos',        value: d.total_acessos,           icon: '📈', hex: '#3B82F6' },
+    { label: 'Acessos hoje',            value: d.acessos_hoje,            icon: '📅', hex: '#EAB308' },
+    { label: 'Visitantes identificados', value: d.visitantes_identificados, icon: '🪪', hex: '#22C55E' },
+  ];
+  const _h2r = h => { const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16); return `${r},${g},${b}`; };
+  document.getElementById('acessosKpis').innerHTML = kpis.map(k => `
+    <div class="kpi-card bg-white rounded-2xl shadow-sm border border-slate-100 p-5 overflow-hidden relative" style="border-top:3px solid ${k.hex};--kc:${_h2r(k.hex)}">
+      <div class="kpi-deco absolute top-0 right-0 w-24 h-24 rounded-full translate-x-8 -translate-y-8" style="background:${k.hex};opacity:.12"></div>
+      <p class="absolute top-2 right-3 text-2xl">${k.icon}</p>
+      <p class="text-2xl font-bold text-slate-800 mt-8">${k.value}</p>
+      <p class="kpi-label text-xs font-semibold mt-1" style="color:${k.hex}">${k.label}</p>
+    </div>`).join('');
+}
+
+async function loadAcessos() {
+  const res = await apiFetch(`/api/acessos?page=${acessosPage}&page_size=${ACESSOS_PAGE_SIZE}`);
+  if (!res) return;
+  const d = await res.json();
+  const body = document.getElementById('acessosBody');
+  const empty = document.getElementById('acessosEmpty');
+  if (!d.items.length) {
+    body.innerHTML = '';
+    empty.classList.remove('hidden');
+  } else {
+    empty.classList.add('hidden');
+    body.innerHTML = d.items.map(item => `
+      <tr>
+        <td class="px-5 py-3 text-slate-600">${new Date(item.data_hora).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}</td>
+        <td class="px-5 py-3 text-slate-400 text-xs">${(item.visitor_id || '—').slice(0, 8)}</td>
+        <td class="px-5 py-3 text-slate-700 font-medium">${item.usuario_nome || '—'}</td>
+        <td class="px-5 py-3 text-slate-500">${item.ip || '—'}</td>
+        <td class="px-5 py-3 text-slate-400 text-xs truncate max-w-xs" title="${item.user_agent || ''}">${item.user_agent || '—'}</td>
+      </tr>`).join('');
+  }
+
+  const totalPages = Math.max(1, Math.ceil(d.total / ACESSOS_PAGE_SIZE));
+  document.getElementById('acessosPagination').innerHTML = `
+    <div class="flex items-center justify-between text-sm text-slate-500">
+      <span>${d.total} acesso(s) — página ${acessosPage} de ${totalPages}</span>
+      <div class="flex gap-2">
+        <button class="px-3 py-1 rounded-lg border border-slate-200 disabled:opacity-40" ${acessosPage<=1?'disabled':''} onclick="acessosPage--;loadAcessos()">Anterior</button>
+        <button class="px-3 py-1 rounded-lg border border-slate-200 disabled:opacity-40" ${acessosPage>=totalPages?'disabled':''} onclick="acessosPage++;loadAcessos()">Próxima</button>
+      </div>
+    </div>`;
 }
 
 // ── Dashboard ─────────────────────────────────────────────────────────────

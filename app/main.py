@@ -1,4 +1,7 @@
+import asyncio
 import os
+import uuid
+from datetime import datetime
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -6,6 +9,8 @@ load_dotenv()
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
+from starlette.concurrency import run_in_threadpool
+from starlette.middleware.base import BaseHTTPMiddleware
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from app.limiter import limiter
@@ -14,8 +19,61 @@ from app.database import Base, engine, SessionLocal
 import app.models  # noqa — garante registro de todos os modelos antes do create_all
 from app.routers import suprimentos, dashboard
 from app.routers import auth as routers_auth
-from app.routers import usuarios, anexos, lugares, estabelecimentos, itens, compras, entregas, aprovacoes, custos_bi
+from app.routers import usuarios, anexos, lugares, estabelecimentos, itens, compras, entregas, aprovacoes, custos_bi, acessos
 from sqlalchemy import inspect, text
+
+VISITOR_COOKIE = "visitor_id"
+VISITOR_COOKIE_MAX_AGE = 60 * 60 * 24 * 730  # ~2 anos
+
+
+def _save_access_log(visitor_id: str, ip: str | None, user_agent: str | None, path: str):
+    """Executa em thread separada para nunca atrasar a resposta ao usuário."""
+    from app.models.access_log import AccessLog
+
+    db = SessionLocal()
+    try:
+        db.add(AccessLog(
+            visitor_id=visitor_id,
+            ip=ip,
+            user_agent=user_agent,
+            path=path,
+            data_hora=datetime.utcnow(),
+        ))
+        db.commit()
+    except Exception:
+        db.rollback()
+    finally:
+        db.close()
+
+
+class AccessLogMiddleware(BaseHTTPMiddleware):
+    """Registra cada carregamento da página inicial (data/hora, IP e visitante).
+
+    O registro roda em segundo plano (thread separada) para não impactar a
+    navegação do usuário: a resposta é devolvida imediatamente, sem esperar
+    a gravação no banco.
+    """
+
+    async def dispatch(self, request, call_next):
+        response = await call_next(request)
+        if request.method == "GET" and request.url.path == "/":
+            visitor_id = request.cookies.get(VISITOR_COOKIE)
+            is_new_visitor = not visitor_id
+            if is_new_visitor:
+                visitor_id = str(uuid.uuid4())
+                response.set_cookie(
+                    VISITOR_COOKIE, visitor_id,
+                    max_age=VISITOR_COOKIE_MAX_AGE, httponly=True, samesite="lax",
+                )
+
+            forwarded = request.headers.get("x-forwarded-for")
+            ip = forwarded.split(",")[0].strip() if forwarded else (request.client.host if request.client else None)
+            user_agent = request.headers.get("user-agent")
+
+            asyncio.create_task(
+                run_in_threadpool(_save_access_log, visitor_id, ip, user_agent, request.url.path)
+            )
+        return response
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
@@ -195,6 +253,7 @@ def create_app() -> FastAPI:
     app = FastAPI(title="Gestão de Suprimentos", version="2.0.0")
     app.state.limiter = limiter
     app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+    app.add_middleware(AccessLogMiddleware)
 
     @app.on_event("startup")
     def startup():
@@ -216,6 +275,7 @@ def create_app() -> FastAPI:
     app.include_router(entregas.router)
     app.include_router(aprovacoes.router)
     app.include_router(custos_bi.router)
+    app.include_router(acessos.router)
 
     app.mount(
         "/static",

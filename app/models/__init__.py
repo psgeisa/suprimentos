@@ -8,3 +8,4 @@ from app.models.item import Item  # noqa
 from app.models.compra_log import CompraLog  # noqa
 from app.models.item_eliminado_log import ItemEliminadoLog  # noqa
 from app.models.ia_sugestao_log import IaSugestaoLog  # noqa
+from app.models.access_log import AccessLog  # noqa

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 
@@ -11,7 +11,7 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 
 @router.post("/login", response_model=Token)
-def login(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+def login(request: Request, form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == form.username, User.ativo == True).first()
     if not user or not verify_password(form.password, user.senha_hash):
         raise HTTPException(
@@ -20,6 +20,21 @@ def login(form: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get
             headers={"WWW-Authenticate": "Bearer"},
         )
     token = create_access_token({"sub": str(user.id)})
+
+    visitor_id = request.cookies.get("visitor_id")
+    if visitor_id:
+        from app.models.access_log import AccessLog
+        ultimo = (
+            db.query(AccessLog)
+            .filter(AccessLog.visitor_id == visitor_id)
+            .order_by(AccessLog.data_hora.desc())
+            .first()
+        )
+        if ultimo and not ultimo.usuario_id:
+            ultimo.usuario_id = user.id
+            ultimo.usuario_nome = user.nome
+            db.commit()
+
     return {"access_token": token, "token_type": "bearer", "user": user}
 
 
