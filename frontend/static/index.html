@@ -683,6 +683,7 @@
 
     /* ── Mobile + Tablet (< 1024px): sidebar colapsado visível na lateral ── */
     @media (max-width: 1023px) {
+      /* Sidebar fixo na lateral, colapsado por padrão (72px, igual ao desktop collapsed) */
       #sidebar {
         position:fixed !important;
         left:0 !important;
@@ -695,92 +696,20 @@
         height:100dvh !important;
         z-index:45 !important;
       }
+      /* Ao abrir, expande para largura completa com labels */
       #sidebar.mobile-open {
         width:280px !important;
         min-width:280px !important;
       }
+      /* Quando expandido, restaura labels e alinhamento normal */
+      #sidebar.mobile-open .sidebar-label { opacity:1 !important; max-width:200px !important; pointer-events:auto !important; }
+      #sidebar.mobile-open .sidebar-item  { justify-content:flex-start !important; padding-left:0.75rem !important; gap:0.75rem !important; }
+      #sidebar.mobile-open .sidebar-util  { justify-content:flex-start !important; padding-left:0.75rem !important; gap:0.75rem !important; }
+      #sidebar.mobile-open nav            { padding-left:0.75rem !important; padding-right:0.75rem !important; align-items:stretch !important; }
+      #sidebar.mobile-open > div          { padding-left:0.75rem !important; padding-right:0.75rem !important; }
 
-      /* Ícones centrados no estado colapsado */
-      #sidebar:not(.mobile-open) .sidebar-item {
-        justify-content:center !important;
-        padding-left:0 !important;
-        padding-right:0 !important;
-        gap:0 !important;
-      }
-      #sidebar:not(.mobile-open) .sidebar-util {
-        justify-content:center !important;
-        padding-left:0 !important;
-        padding-right:0 !important;
-        gap:0 !important;
-      }
-      #sidebar:not(.mobile-open) nav {
-        padding-left:8px !important;
-        padding-right:8px !important;
-        align-items:center !important;
-      }
-      #sidebar:not(.mobile-open) > div {
-        padding-left:8px !important;
-        padding-right:8px !important;
-      }
-
-      /* Labels visíveis quando expandido */
-      #sidebar.mobile-open .sidebar-label {
-        opacity:1 !important;
-        max-width:200px !important;
-        pointer-events:auto !important;
-      }
-      #sidebar.mobile-open .sidebar-item {
-        justify-content:flex-start !important;
-        padding-left:0.75rem !important;
-        gap:0.75rem !important;
-      }
-      #sidebar.mobile-open .sidebar-util {
-        justify-content:flex-start !important;
-        padding-left:0.75rem !important;
-        gap:0.75rem !important;
-      }
-      #sidebar.mobile-open nav {
-        padding-left:0.75rem !important;
-        padding-right:0.75rem !important;
-        align-items:stretch !important;
-      }
-      #sidebar.mobile-open > div {
-        padding-left:0.75rem !important;
-        padding-right:0.75rem !important;
-      }
-
-      /* Ícones maiores quando o sidebar está aberto */
-      #sidebar.mobile-open .sidebar-item svg,
-      #sidebar.mobile-open .sidebar-util svg {
-        width:1.75rem !important;
-        height:1.75rem !important;
-        flex-shrink:0 !important;
-      }
-
-      /* Distribui itens uniformemente */
-      #sidebar nav {
-        display:flex !important;
-        flex-direction:column !important;
-        justify-content:space-evenly !important;
-        gap:0 !important;
-      }
-      #sidebar nav > * { margin-top:0 !important; }
-
-      /* Padding levemente reduzido */
-      #sidebar .sidebar-item,
-      #sidebar .sidebar-util {
-        padding-top:0.6rem !important;
-        padding-bottom:0.6rem !important;
-      }
-
-      /* Overlay aparece só quando expandido */
-      #sidebarOverlay {
-        display:none !important;
-        position:fixed !important;
-        inset:0 !important;
-        background:rgba(0,0,0,0.5) !important;
-        z-index:44 !important;
-      }
+      /* Overlay só quando expandido */
+      #sidebarOverlay { display:none !important; position:fixed !important; inset:0 !important; background:rgba(0,0,0,0.5) !important; z-index:44 !important; }
       #sidebarOverlay.mobile-open { display:block !important; }
 
       /* Conteúdo principal desloca 72px para não ficar sob o sidebar */
