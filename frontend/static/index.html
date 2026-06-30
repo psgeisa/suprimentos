@@ -777,6 +777,8 @@
     #sidebar.collapsed:not(.mobile-open) #sidebarInfoGroup .sidebar-item { display:flex !important; align-items:center !important; width:56px !important; max-width:56px !important; margin-left:auto !important; margin-right:auto !important; justify-content:center !important; padding-left:0 !important; padding-right:0 !important; gap:0 !important; }
     #sidebar.collapsed:not(.mobile-open) #adminChevron,
     #sidebar.collapsed:not(.mobile-open) #infoChevron { margin-left:0 !important; }
+    #sidebar.collapsed #adminSubmenu,
+    #sidebar.collapsed #infoSubmenu { padding-left:0 !important; }
 
     /* ══ SIDEBAR: labels visíveis quando mobile-open (mesmo com collapsed) ══ */
     #sidebar.mobile-open .sidebar-label {
@@ -950,7 +952,7 @@
 </div>
 
 <!-- ── Overlay Mobile ──────────────────────────────────────────────── -->
-<div id="sidebarOverlay" onclick="closeMobileMenu()"></div>
+<div id="sidebarOverlay" onclick="hideMobileSidebar()"></div>
 
 <!-- ── Sidebar ─────────────────────────────────────────────────────────────── -->
 <aside id="sidebar" class="gradient-brand flex flex-col h-screen shadow-xl" style="position:relative;z-index:1;overflow-y:auto;">
@@ -1023,7 +1025,7 @@
 
     <!-- ── Grupo Informações ── -->
     <div id="sidebarInfoGroup">
-      <button type="button" onclick="toggleInfoMenu()" data-tip="Informações"
+      <button type="button" onclick="toggleInfoMenu()" data-tip="Informações" data-toggle
         class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-yellow-200 hover:text-white text-sm font-medium cursor-pointer transition-all">
         <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
@@ -1033,27 +1035,27 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
         </svg>
       </button>
-      <div id="infoSubmenu" class="hidden sidebar-label overflow-hidden pl-2">
+      <div id="infoSubmenu" class="hidden overflow-hidden pl-2">
         <a onclick="showPage('segmentos')"
           class="sidebar-item flex items-center gap-3 px-3 py-2 rounded-lg text-yellow-200/80 hover:text-white text-sm font-medium cursor-pointer transition-all">
           <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z"/>
           </svg>
-          Segmento
+          <span class="sidebar-label">Segmento</span>
         </a>
         <a onclick="showPage('fornecedores')"
           class="sidebar-item flex items-center gap-3 px-3 py-2 rounded-lg text-yellow-200/80 hover:text-white text-sm font-medium cursor-pointer transition-all">
           <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
           </svg>
-          Fornecedores
+          <span class="sidebar-label">Fornecedores</span>
         </a>
       </div>
     </div>
 
     <!-- ── Grupo Admin ── -->
     <div id="sidebarAdminGroup" style="display:none">
-      <button type="button" onclick="toggleAdminMenu()" data-tip="Admin"
+      <button type="button" onclick="toggleAdminMenu()" data-tip="Admin" data-toggle
         class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-yellow-200 hover:text-white text-sm font-medium cursor-pointer transition-all">
         <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
@@ -1063,20 +1065,20 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
         </svg>
       </button>
-      <div id="adminSubmenu" class="hidden sidebar-label overflow-hidden pl-2">
+      <div id="adminSubmenu" class="hidden overflow-hidden pl-2">
         <a onclick="showPage('usuarios')"
           class="sidebar-item flex items-center gap-3 px-3 py-2 rounded-lg text-yellow-200/80 hover:text-white text-sm font-medium cursor-pointer transition-all">
           <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
           </svg>
-          Stakeholders
+          <span class="sidebar-label">Stakeholders</span>
         </a>
         <a onclick="showPage('areas')"
           class="sidebar-item flex items-center gap-3 px-3 py-2 rounded-lg text-yellow-200/80 hover:text-white text-sm font-medium cursor-pointer transition-all">
           <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
           </svg>
-          Área Demandante
+          <span class="sidebar-label">Área Demandante</span>
         </a>
         <a onclick="showPage('unidades')"
           class="sidebar-item flex items-center gap-3 px-3 py-2 rounded-lg text-yellow-200/80 hover:text-white text-sm font-medium cursor-pointer transition-all">
@@ -1084,21 +1086,21 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2 9a1 1 0 011-1h18a1 1 0 011 1v6a1 1 0 01-1 1H3a1 1 0 01-1-1V9z"/>
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 9v3M9 9v2M12 9v3M15 9v2M18 9v3"/>
           </svg>
-          Unidade
+          <span class="sidebar-label">Unidade</span>
         </a>
         <a onclick="showPage('estabelecimentos')"
           class="sidebar-item flex items-center gap-3 px-3 py-2 rounded-lg text-yellow-200/80 hover:text-white text-sm font-medium cursor-pointer transition-all">
           <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21h18M5 21V7l7-4 7 4v14M9 10h2m2 0h2M9 14h2m2 0h2M9 18h6"/>
           </svg>
-          Estabelecimentos
+          <span class="sidebar-label">Estabelecimentos</span>
         </a>
         <a onclick="showPage('itens')"
           class="sidebar-item flex items-center gap-3 px-3 py-2 rounded-lg text-yellow-200/80 hover:text-white text-sm font-medium cursor-pointer transition-all">
           <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
           </svg>
-          Itens
+          <span class="sidebar-label">Itens</span>
         </a>
         <a id="sidebarAcessosItem" onclick="showPage('acessos')"
           class="sidebar-item flex items-center gap-3 px-3 py-2 rounded-lg text-yellow-200/80 hover:text-white text-sm font-medium cursor-pointer transition-all">
@@ -1106,7 +1108,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
           </svg>
-          Acessos
+          <span class="sidebar-label">Acessos</span>
         </a>
       </div>
     </div>
@@ -3076,22 +3078,18 @@ function showMobileSidebar() {
 }
 
 function closeMobileMenu() {
-  // Clique fora do sidebar: some completamente
-  if (window.innerWidth < 1024) {
-    hideMobileSidebar();
-  } else {
-    const sb = document.getElementById('sidebar');
-    const overlay = document.getElementById('sidebarOverlay');
-    sb.classList.remove('mobile-open');
-    overlay.classList.remove('mobile-open');
-  }
+  // Clique em item de navegação: recolhe para 72px
+  const sb = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  sb.classList.remove('mobile-open');
+  overlay.classList.remove('mobile-open');
 }
 
-// Fechar menu mobile/tablet ao clicar em um item
+// Fechar menu mobile/tablet ao clicar em um item (exceto botões de toggle de submenu)
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('#sidebar .sidebar-item, #sidebar .sidebar-util').forEach(el => {
     el.addEventListener('click', () => {
-      if (window.innerWidth < 1024) closeMobileMenu();
+      if (window.innerWidth < 1024 && !el.hasAttribute('data-toggle')) closeMobileMenu();
     });
   });
 });
