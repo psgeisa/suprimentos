@@ -1,4 +1,5 @@
 import asyncio
+import ipaddress
 import os
 import uuid
 from datetime import datetime
@@ -6,6 +7,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+import httpx
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -26,10 +28,39 @@ VISITOR_COOKIE = "visitor_id"
 VISITOR_COOKIE_MAX_AGE = 60 * 60 * 24 * 730  # ~2 anos
 
 
+def _lookup_geo(ip: str | None) -> dict:
+    """Resolve cidade/estado/país a partir do IP público, sem exigir nada do usuário."""
+    if not ip:
+        return {}
+    try:
+        if ipaddress.ip_address(ip).is_private:
+            return {}
+    except ValueError:
+        return {}
+    try:
+        resp = httpx.get(
+            f"http://ip-api.com/json/{ip}",
+            params={"fields": "status,country,regionName,city"},
+            timeout=3.0,
+        )
+        if resp.status_code == 200:
+            data = resp.json()
+            if data.get("status") == "success":
+                return {
+                    "cidade": data.get("city"),
+                    "estado": data.get("regionName"),
+                    "pais": data.get("country"),
+                }
+    except Exception:
+        pass
+    return {}
+
+
 def _save_access_log(visitor_id: str, ip: str | None, user_agent: str | None, path: str):
     """Executa em thread separada para nunca atrasar a resposta ao usuário."""
     from app.models.access_log import AccessLog
 
+    geo = _lookup_geo(ip)
     db = SessionLocal()
     try:
         db.add(AccessLog(
@@ -37,6 +68,9 @@ def _save_access_log(visitor_id: str, ip: str | None, user_agent: str | None, pa
             ip=ip,
             user_agent=user_agent,
             path=path,
+            cidade=geo.get("cidade"),
+            estado=geo.get("estado"),
+            pais=geo.get("pais"),
             data_hora=datetime.utcnow(),
         ))
         db.commit()
@@ -234,6 +268,12 @@ def migrate_schema():
     if "entregue_em" not in sup_columns3:
         with engine.begin() as connection:
             connection.execute(text("ALTER TABLE suprimentos ADD COLUMN entregue_em TIMESTAMP"))
+    if "access_logs" in inspect(engine).get_table_names():
+        access_log_columns = {column["name"] for column in inspect(engine).get_columns("access_logs")}
+        for col in ("cidade", "estado", "pais"):
+            if col not in access_log_columns:
+                with engine.begin() as connection:
+                    connection.execute(text(f"ALTER TABLE access_logs ADD COLUMN {col} VARCHAR(150)"))
 
 
 def migrate_segmento_table():

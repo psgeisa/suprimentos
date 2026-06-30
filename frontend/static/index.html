@@ -1714,6 +1714,7 @@
             <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Data/Hora</th>
             <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Visitante</th>
             <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Usuário</th>
+            <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Local</th>
             <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">IP</th>
             <th class="text-left px-5 py-3 text-slate-500 font-semibold text-xs uppercase tracking-wide">Navegador</th>
           </tr>
@@ -4234,6 +4235,7 @@ async function loadAcessos() {
         <td class="px-5 py-3 text-slate-600">${new Date(item.data_hora).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}</td>
         <td class="px-5 py-3 text-slate-400 text-xs">${(item.visitor_id || '—').slice(0, 8)}</td>
         <td class="px-5 py-3 text-slate-700 font-medium">${item.usuario_nome || '—'}</td>
+        <td class="px-5 py-3 text-slate-500">${[item.cidade, item.estado, item.pais].filter(Boolean).join(', ') || '—'}</td>
         <td class="px-5 py-3 text-slate-500">${item.ip || '—'}</td>
         <td class="px-5 py-3 text-slate-400 text-xs truncate max-w-xs" title="${item.user_agent || ''}">${item.user_agent || '—'}</td>
       </tr>`).join('');

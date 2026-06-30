@@ -13,4 +13,7 @@ class AccessLog(Base):
     path = Column(String(300), nullable=True)
     usuario_id = Column(Integer, nullable=True)
     usuario_nome = Column(String(150), nullable=True)
+    cidade = Column(String(150), nullable=True)
+    estado = Column(String(150), nullable=True)
+    pais = Column(String(150), nullable=True)
     data_hora = Column(DateTime, default=datetime.utcnow, index=True)
