@@ -1116,7 +1116,7 @@
           </svg>
           Itens
         </a>
-        <a onclick="showPage('acessos')"
+        <a id="sidebarAcessosItem" onclick="showPage('acessos')"
           class="sidebar-item flex items-center gap-3 px-3 py-2 rounded-lg text-yellow-200/80 hover:text-white text-sm font-medium cursor-pointer transition-all">
           <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
@@ -3982,6 +3982,9 @@ function applyLogin() {
   } else {
     adminGroup.style.setProperty('display', 'none', 'important');
   }
+  // Acessos é informação sensível: nunca exibir no Modo Vitrine, mesmo com role "admin" simulado
+  const acessosItem = document.getElementById('sidebarAcessosItem');
+  if (acessosItem) acessosItem.style.display = VITRINE_MODE ? 'none' : '';
   // Mostrar Aprovações, Compras e Entregas para compras e admin
   const aprovacoesItem = document.getElementById('sidebarAprovacoesItem');
   const comprasItem = document.getElementById('sidebarComprasItem');
@@ -4128,6 +4131,7 @@ function todayStr() {
 
 // ── Navegação ─────────────────────────────────────────────────────────────
 function showPage(page) {
+  if (page === 'acessos' && VITRINE_MODE) page = 'dashboard';
   document.querySelectorAll('.sidebar-item').forEach(el => {
     el.classList.remove('active','text-white');
     el.classList.add('text-yellow-200');
