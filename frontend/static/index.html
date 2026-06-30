@@ -3043,8 +3043,18 @@ function applySidebarState() {
 
 function togglePin() {
   if (window.innerWidth < 1024) {
-    // breadBtn (dentro do sidebar): esconde o sidebar completamente
-    hideMobileSidebar();
+    // breadBtn: abre o sidebar com menus completos se estiver colapsado,
+    // ou colapsa de volta se já estiver expandido
+    const sb = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (sb.classList.contains('mobile-open')) {
+      sb.classList.remove('mobile-open');
+      overlay.classList.remove('mobile-open');
+    } else {
+      sb.classList.remove('mobile-hidden');
+      sb.classList.add('mobile-open');
+      overlay.classList.add('mobile-open');
+    }
   } else {
     sidebarPinned = !sidebarPinned;
     localStorage.setItem('sup_sidebar_pinned', sidebarPinned);
@@ -3066,10 +3076,15 @@ function showMobileSidebar() {
 }
 
 function closeMobileMenu() {
-  const sb = document.getElementById('sidebar');
-  const overlay = document.getElementById('sidebarOverlay');
-  sb.classList.remove('mobile-open');
-  overlay.classList.remove('mobile-open');
+  // Clique fora do sidebar: some completamente
+  if (window.innerWidth < 1024) {
+    hideMobileSidebar();
+  } else {
+    const sb = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    sb.classList.remove('mobile-open');
+    overlay.classList.remove('mobile-open');
+  }
 }
 
 // Fechar menu mobile/tablet ao clicar em um item
