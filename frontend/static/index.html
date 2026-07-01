@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Gestão de Suprimentos</title>
   <script>
     if (window.location.protocol === 'file:') {
@@ -722,7 +722,7 @@
       .drawer { left:72px !important; }
       body:has(#sidebar.mobile-hidden) .drawer { left:0 !important; }
       main header { padding-left:1rem !important; padding-right:1rem !important; }
-      section[id^="page-"] { padding:1rem !important; padding-bottom:calc(1rem + 80px + env(safe-area-inset-bottom, 0px)) !important; }
+      section[id^="page-"] { padding:1rem !important; padding-bottom:calc(1rem + 140px + env(safe-area-inset-bottom, 0px)) !important; }
       table { font-size:.75rem; }
       .kpi-card { padding:0.75rem !important; }
       #kpiCards { grid-template-columns:repeat(1,1fr) !important; }
@@ -3050,18 +3050,8 @@ function applySidebarState() {
 
 function togglePin() {
   if (window.innerWidth < 1024) {
-    // breadBtn: abre o sidebar com menus completos se estiver colapsado,
-    // ou colapsa de volta se já estiver expandido
-    const sb = document.getElementById('sidebar');
-    const overlay = document.getElementById('sidebarOverlay');
-    if (sb.classList.contains('mobile-open')) {
-      sb.classList.remove('mobile-open');
-      overlay.classList.remove('mobile-open');
-    } else {
-      sb.classList.remove('mobile-hidden');
-      sb.classList.add('mobile-open');
-      overlay.classList.add('mobile-open');
-    }
+    // Pãozinho: abre o sidebar com menus completos
+    openMobileSidebar();
   } else {
     sidebarPinned = !sidebarPinned;
     localStorage.setItem('sup_sidebar_pinned', sidebarPinned);
@@ -3069,18 +3059,25 @@ function togglePin() {
   }
 }
 
+function openMobileSidebar() {
+  const sb = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  sb.classList.remove('mobile-hidden');
+  sb.classList.add('mobile-open');
+  overlay.classList.add('mobile-open');
+}
+
 function hideMobileSidebar() {
   closeSubmenus();
   const sb = document.getElementById('sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
   sb.classList.add('mobile-hidden');
   sb.classList.remove('mobile-open');
-  document.getElementById('sidebarOverlay').classList.remove('mobile-open');
+  overlay.classList.remove('mobile-open');
 }
 
 function showMobileSidebar() {
-  const sb = document.getElementById('sidebar');
-  sb.classList.remove('mobile-hidden');
-  sb.classList.remove('mobile-open');
+  openMobileSidebar();
 }
 
 function closeSubmenus() {
