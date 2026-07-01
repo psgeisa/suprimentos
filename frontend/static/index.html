@@ -923,6 +923,52 @@
     .agenda-leg-item { display:flex; align-items:center; gap:5px; font-size:.67rem; color:#64748b; }
     .dark .agenda-leg-item { color:#94a3b8; }
     .agenda-leg-dot { width:10px; height:10px; border-radius:3px; flex-shrink:0; }
+
+    /* ── KPIs de Negócio ─────────────────────────────────────────────────── */
+    .kpi-neg-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }
+    @media(max-width:1024px){ .kpi-neg-grid { grid-template-columns:repeat(2,1fr); } }
+    @media(max-width:640px) { .kpi-neg-grid { grid-template-columns:1fr; } }
+    .kpi-neg-card { background:#fff; border-radius:16px; border:1px solid #f1f5f9; border-top:3px solid #C8780A; padding:16px 18px 12px; position:relative; overflow:hidden; }
+    .dark .kpi-neg-card { background:#1e2330; border-color:#2d3748; }
+    .kpi-neg-label { font-size:.64rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:#94a3b8; margin-bottom:4px; }
+    .kpi-neg-value { font-size:1.55rem; font-weight:800; color:#1e293b; line-height:1.1; }
+    .dark .kpi-neg-value { color:#f1f5f9; }
+    .kpi-neg-delta { font-size:.7rem; font-weight:700; display:inline-flex; align-items:center; gap:2px; padding:2px 7px; border-radius:20px; margin-top:5px; }
+    .kpi-neg-delta.up   { background:#dcfce7; color:#16a34a; }
+    .kpi-neg-delta.down { background:#fee2e2; color:#dc2626; }
+    .kpi-neg-delta.warn { background:#fef9c3; color:#a16207; }
+    .dark .kpi-neg-delta.up   { background:rgba(22,163,74,.18); color:#4ade80; }
+    .dark .kpi-neg-delta.down { background:rgba(220,38,38,.18); color:#f87171; }
+    .dark .kpi-neg-delta.warn { background:rgba(161,98,7,.18);  color:#fbbf24; }
+    .kpi-neg-period { font-size:.61rem; color:#94a3b8; margin-top:3px; }
+    .kpi-neg-sparkline { margin-top:8px; }
+    .kpi-neg-icon { position:absolute; top:13px; right:13px; width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; }
+    /* ── Funnel ────────────────────────────────────────── */
+    .kpi-funnel { display:flex; flex-direction:column; gap:0; }
+    .kpi-funnel-step { display:flex; align-items:center; gap:10px; }
+    .kpi-funnel-label { font-size:.72rem; color:#64748b; width:110px; text-align:right; flex-shrink:0; }
+    .dark .kpi-funnel-label { color:#94a3b8; }
+    .kpi-funnel-bar-wrap { flex:1; }
+    .kpi-funnel-bar { height:34px; border-radius:8px; display:flex; align-items:center; padding:0 10px; font-size:.79rem; font-weight:700; color:#fff; min-width:60px; }
+    .kpi-funnel-arrow { text-align:center; font-size:.75rem; color:#94a3b8; padding:4px 0 4px 120px; line-height:1; }
+    /* ── Rank ──────────────────────────────────────────── */
+    .kpi-rank-item { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid #f1f5f9; }
+    .dark .kpi-rank-item { border-color:#2d3748; }
+    .kpi-rank-item:last-child { border-bottom:none; }
+    .kpi-rank-num { width:22px; height:22px; border-radius:50%; background:#f1f5f9; font-size:.64rem; font-weight:800; display:flex; align-items:center; justify-content:center; color:#475569; flex-shrink:0; }
+    .dark .kpi-rank-num { background:#2d3748; color:#94a3b8; }
+    .kpi-rank-name { flex:1; font-size:.77rem; font-weight:600; color:#334155; }
+    .dark .kpi-rank-name { color:#e2e8f0; }
+    .kpi-rank-val { font-size:.71rem; color:#64748b; text-align:right; white-space:nowrap; }
+    .dark .kpi-rank-val { color:#94a3b8; }
+    .kpi-rank-bar-wrap { width:72px; }
+    .kpi-rank-bar { height:5px; border-radius:3px; background:#C8780A; }
+    /* ── Economia KPI grande ───────────────────────────── */
+    .kpi-economia-big { text-align:center; padding:28px 0 18px; }
+    .kpi-economia-label { font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#94a3b8; margin-bottom:8px; }
+    .kpi-economia-valor { font-size:2.8rem; font-weight:900; color:#22C55E; line-height:1; }
+    .dark .kpi-economia-valor { color:#4ade80; }
+    .kpi-economia-sub { font-size:.75rem; color:#94a3b8; margin-top:6px; }
   </style>
 </head>
 <body class="h-screen flex overflow-hidden" style="background-color:#F8FAFC;">
@@ -1027,6 +1073,29 @@
       </svg>
       <span class="sidebar-label">Custos BI</span>
     </a>
+
+    <!-- ── Grupo KPIs de Negócio ── -->
+    <div id="sidebarKpisGroup">
+      <button type="button" onclick="toggleKpisMenu()" data-tip="KPIs de Negócio" data-toggle
+        class="sidebar-item w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-yellow-200 hover:text-white text-sm font-medium cursor-pointer transition-all">
+        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+        </svg>
+        <span class="sidebar-label">KPIs de Negócio</span>
+        <svg id="kpisChevron" class="sidebar-label w-4 h-4 ml-auto transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </button>
+      <div id="kpisSubmenu" class="hidden overflow-hidden pl-2">
+        <a onclick="showPage('kpis')"
+          class="sidebar-item flex items-center gap-3 px-3 py-2 rounded-lg text-yellow-200/80 hover:text-white text-sm font-medium cursor-pointer transition-all">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+          </svg>
+          <span class="sidebar-label">Desempenho</span>
+        </a>
+      </div>
+    </div>
 
     <!-- ── Grupo Informações ── -->
     <div id="sidebarInfoGroup">
@@ -2037,6 +2106,136 @@
         </div>
       </div>
     </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       PAGE: KPIs de Negócio
+  ═══════════════════════════════════════════════════════════════════════ -->
+  <section id="page-kpis" class="p-8 hidden" style="min-height:calc(100vh - 73px)">
+
+    <!-- ── 1. KPIs de Negócio ─────────────────────────────────────────── -->
+    <div class="bi-chapter">
+      <div class="bi-chapter-hdr">
+        <svg class="w-5 h-5 flex-shrink-0" style="color:#C8780A" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+        </svg>
+        <div>
+          <p class="bi-chapter-title">KPIs de Negócio</p>
+          <p class="bi-chapter-desc">Indicadores-chave com comparação ao período anterior, tendência e mini sparkline.</p>
+        </div>
+      </div>
+      <div id="kpiNegCards" class="kpi-neg-grid"></div>
+    </div>
+
+    <!-- ── 2. Saúde Operacional ───────────────────────────────────────── -->
+    <div class="bi-chapter">
+      <div class="bi-chapter-hdr">
+        <svg class="w-5 h-5 flex-shrink-0" style="color:#3B82F6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+        </svg>
+        <div>
+          <p class="bi-chapter-title">Saúde Operacional</p>
+          <p class="bi-chapter-desc">Visualize o funil do processo, distribuição de status e onde o fluxo está travando.</p>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="bi-card">
+          <p class="bi-title">Funil do Processo</p>
+          <div id="kpiFunnel" class="kpi-funnel mt-2"></div>
+        </div>
+        <div class="bi-card">
+          <p class="bi-title">Solicitações por Status</p>
+          <div id="kpiDonut" style="height:220px"></div>
+        </div>
+        <div class="bi-card">
+          <p class="bi-title">Tempo em Cada Etapa (dias)</p>
+          <div id="kpiEtapa" style="height:220px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 3. Eficiência ──────────────────────────────────────────────── -->
+    <div class="bi-chapter">
+      <div class="bi-chapter-hdr">
+        <svg class="w-5 h-5 flex-shrink-0" style="color:#8B5CF6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+        <div>
+          <p class="bi-chapter-title">Eficiência</p>
+          <p class="bi-chapter-desc">Rankings de aprovadores e compradores, categorias mais demandadas e distribuição por estabelecimento.</p>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <div class="bi-card">
+          <p class="bi-title">Tempo Médio por Aprovador</p>
+          <div id="kpiRankAprov"></div>
+        </div>
+        <div class="bi-card">
+          <p class="bi-title">Compradores — Ranking</p>
+          <div class="grid grid-cols-4 gap-1 mb-2" style="font-size:.6rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em">
+            <span class="col-span-2">Nome</span><span class="text-right">Pedidos</span><span class="text-right">Economia</span>
+          </div>
+          <div id="kpiRankComp"></div>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bi-card">
+          <p class="bi-title">Categorias Mais Solicitadas</p>
+          <div id="kpiCategoria" style="height:200px"></div>
+        </div>
+        <div class="bi-card">
+          <p class="bi-title">Estabelecimentos — Ranking de Gastos</p>
+          <div id="kpiRankEstab"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 4. Financeiro ──────────────────────────────────────────────── -->
+    <div class="bi-chapter">
+      <div class="bi-chapter-hdr">
+        <svg class="w-5 h-5 flex-shrink-0" style="color:#22C55E" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <div>
+          <p class="bi-chapter-title">Financeiro</p>
+          <p class="bi-chapter-desc">Comparativo entre valor solicitado e comprado, economia gerada e análise de execução orçamentária.</p>
+        </div>
+      </div>
+
+      <!-- Economia Acumulada — big KPI -->
+      <div class="bi-card mb-6">
+        <div class="kpi-economia-big">
+          <p class="kpi-economia-label">Economia Acumulada</p>
+          <p class="kpi-economia-valor" id="kpiEconomiaValor">R$ 82.400</p>
+          <p class="kpi-economia-sub">Diferença entre valor solicitado e valor efetivamente comprado</p>
+          <span class="kpi-neg-delta up mt-3" style="display:inline-flex">▲ +14% vs. período anterior</span>
+        </div>
+      </div>
+
+      <!-- Solicitado × Comprado -->
+      <div class="bi-card mb-6">
+        <div class="bi-card-hdr">
+          <p class="bi-title">Solicitado × Comprado</p>
+        </div>
+        <div id="kpiSolComp" style="height:260px"></div>
+      </div>
+
+      <!-- Análise completa -->
+      <div class="bi-card" style="border:1px dashed #e2e8f0;background:transparent;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 20px">
+        <div>
+          <p style="font-size:.82rem;font-weight:700;color:#334155" class="dark:text-slate-200">Análise Financeira Detalhada</p>
+          <p style="font-size:.72rem;color:#94a3b8;margin-top:2px">Evolução de gastos, distribuição por segmento, projeções e agenda financeira completas em Custos BI.</p>
+        </div>
+        <button onclick="showPage('custos-bi')"
+          class="btn-primary px-4 py-2 rounded-lg text-sm font-semibold shadow flex-shrink-0 flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+          </svg>
+          Abrir Custos BI
+        </button>
+      </div>
+    </div>
+
   </section>
 
 </main>
@@ -4045,6 +4244,14 @@ function toggleInfoMenu() {
   chevron.style.transform = open ? '' : 'rotate(180deg)';
 }
 
+function toggleKpisMenu() {
+  const submenu = document.getElementById('kpisSubmenu');
+  const chevron = document.getElementById('kpisChevron');
+  const open = !submenu.classList.contains('hidden');
+  submenu.classList.toggle('hidden', open);
+  chevron.style.transform = open ? '' : 'rotate(180deg)';
+}
+
 function handleSidebarAuth() {
   if (VITRINE_MODE) {
     showLoginModal();
@@ -4167,9 +4374,10 @@ function showPage(page) {
   document.getElementById('page-'+page).classList.remove('hidden');
 
   const headerNovaBtn = document.getElementById('headerNovaBtn');
-  const mgmtPages = ['segmentos','areas','unidades','fornecedores','usuarios','estabelecimentos','itens','custos-bi','estrategia','acessos'];
+  const mgmtPages = ['segmentos','areas','unidades','fornecedores','usuarios','estabelecimentos','itens','custos-bi','estrategia','acessos','kpis'];
   const titles = {
     'custos-bi':  ['Custos BI',          'Análise interativa de custos'],
+    kpis:         ['KPIs de Negócio',   'Desempenho, saúde operacional, eficiência e financeiro'],
     estrategia:   ['Sobre o Projeto',    'Estratégia, arquitetura e tecnologias da aplicação'],
     dashboard:    ['Dashboard',         'Visão geral do sistema'],
     suprimentos:  ['Solicitações',      'Gerenciar todas as solicitações'],
@@ -4220,6 +4428,7 @@ function showPage(page) {
   if (page === 'estabelecimentos') { estPage=1; renderEstabelecimentos(); }
   if (page === 'itens')        { itemPage=1; loadItensCache().then(renderItens); }
   if (page === 'custos-bi')   { initCustosBi(); }
+  if (page === 'kpis')        { loadKpisNegocio(); }
   if (page === 'acessos')     { acessosPage=1; loadAcessosStats(); loadAcessos(); }
 }
 
@@ -8089,6 +8298,271 @@ async function loadAgendaFinanceira(params) {
   agendaData = rows.filter(item => Number(item.valorPrevisto) > 0);
   renderAgendaKpis(agendaData);
   renderAgendaGanttFiltered();
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// KPIs de Negócio
+// ══════════════════════════════════════════════════════════════════════════
+
+const kpiCharts = {};
+
+function destroyKpiChart(id) {
+  if (kpiCharts[id]) { try { kpiCharts[id].dispose(); } catch(_) {} delete kpiCharts[id]; }
+}
+
+function kpiSparkSvg(data, color) {
+  const w = 120, h = 34;
+  const min = Math.min(...data), max = Math.max(...data), range = max - min || 1;
+  const pts = data.map((v, i) =>
+    `${(i / (data.length - 1) * w).toFixed(1)},${(h - 2 - (v - min) / range * (h - 8)).toFixed(1)}`
+  ).join(' ');
+  const lx = w, ly = (h - 2 - (data[data.length - 1] - min) / range * (h - 8)).toFixed(1);
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">
+    <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="${lx}" cy="${ly}" r="3" fill="${color}"/>
+  </svg>`;
+}
+
+function kpiDeltaHtml(pct, invert) {
+  const isGood = invert ? pct < 0 : pct > 0;
+  const cls = isGood ? 'up' : (pct === 0 ? 'warn' : 'down');
+  const arrow = pct > 0 ? '▲' : (pct < 0 ? '▼' : '─');
+  return `<span class="kpi-neg-delta ${cls}">${arrow} ${Math.abs(pct)}%</span>`;
+}
+
+function loadKpisNegocio() {
+  _kpiNegCards();
+  _kpiSaude();
+  _kpiEficiencia();
+  _kpiFinanceiro();
+}
+
+function _kpiNegCards() {
+  const cards = [
+    { label:'Solicitações Abertas',   value:'87',       spark:[55,60,72,68,75,80,87],          color:'#6366F1', delta:+12, invert:false, period:'Últimos 30 dias' },
+    { label:'Em Andamento',           value:'42',       spark:[30,38,40,35,44,39,42],           color:'#3B82F6', delta:-5,  invert:false, period:'Últimos 30 dias' },
+    { label:'Concluídas no Período',  value:'213',      spark:[150,170,180,160,190,205,213],    color:'#22C55E', delta:+8,  invert:false, period:'Últimos 90 dias' },
+    { label:'Taxa de Conclusão',      value:'82%',      spark:[70,72,75,78,76,80,82],           color:'#C8780A', delta:+3,  invert:false, period:'Últimos 90 dias' },
+    { label:'Tempo Médio do Ciclo',   value:'4,2 dias', spark:[6.5,5.8,5.2,4.9,4.6,4.4,4.2],  color:'#F59E0B', delta:-18, invert:true,  period:'Últimos 90 dias' },
+    { label:'Valor Comprado',         value:'R$ 284k',  spark:[180,210,240,220,260,270,284],    color:'#8B5CF6', delta:+7,  invert:false, period:'Últimos 90 dias' },
+    { label:'Economia Obtida',        value:'R$ 32k',   spark:[18,22,25,28,27,30,32],           color:'#10B981', delta:+14, invert:false, period:'Últimos 90 dias' },
+    { label:'Pendências Críticas',    value:'9',        spark:[22,18,15,14,12,11,9],            color:'#EF4444', delta:-59, invert:true,  period:'Últimos 30 dias' },
+  ];
+  const el = document.getElementById('kpiNegCards');
+  if (!el) return;
+  el.innerHTML = cards.map(c => `
+    <div class="kpi-neg-card" style="border-top-color:${c.color}">
+      <div class="kpi-neg-icon" style="background:${c.color}1a">
+        <svg width="16" height="16" fill="none" stroke="${c.color}" viewBox="0 0 24 24" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
+        </svg>
+      </div>
+      <p class="kpi-neg-label">${c.label}</p>
+      <p class="kpi-neg-value">${c.value}</p>
+      ${kpiDeltaHtml(c.delta, c.invert)}
+      <p class="kpi-neg-period">${c.period}</p>
+      <div class="kpi-neg-sparkline">${kpiSparkSvg(c.spark, c.color)}</div>
+    </div>
+  `).join('');
+}
+
+function _kpiSaude() {
+  // Funil
+  const funnelEl = document.getElementById('kpiFunnel');
+  if (funnelEl) {
+    const steps = [
+      { label:'Solicitações', n:520, color:'#6366F1' },
+      { label:'Aprovadas',    n:480, color:'#3B82F6' },
+      { label:'Compradas',    n:455, color:'#C8780A' },
+      { label:'Recebidas',    n:430, color:'#22C55E' },
+    ];
+    const max = steps[0].n;
+    funnelEl.innerHTML = steps.map((s, i) => `
+      ${i > 0 ? '<div class="kpi-funnel-arrow">↓</div>' : ''}
+      <div class="kpi-funnel-step">
+        <div class="kpi-funnel-label">${s.label}</div>
+        <div class="kpi-funnel-bar-wrap">
+          <div class="kpi-funnel-bar" style="width:${(s.n / max * 100).toFixed(0)}%;background:${s.color}">
+            <span>${s.n}</span>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // Donut — status
+  destroyKpiChart('kpiDonut');
+  const donutEl = document.getElementById('kpiDonut');
+  if (donutEl && typeof echarts !== 'undefined') {
+    const dark = document.documentElement.classList.contains('dark');
+    kpiCharts['kpiDonut'] = echarts.init(donutEl, dark ? 'dark' : null);
+    kpiCharts['kpiDonut'].setOption({
+      backgroundColor: 'transparent',
+      tooltip: { trigger:'item', formatter:'{b}: {c} ({d}%)' },
+      legend: { bottom:0, textStyle:{ fontSize:10, color: dark?'#94a3b8':'#64748b' } },
+      series: [{
+        type:'pie', radius:['42%','68%'], center:['50%','42%'],
+        data: [
+          { name:'Aguardando Aprovação', value:87,  itemStyle:{ color:'#F59E0B' } },
+          { name:'Comprando',            value:42,  itemStyle:{ color:'#3B82F6' } },
+          { name:'Recebimento',          value:28,  itemStyle:{ color:'#8B5CF6' } },
+          { name:'Concluídas',           value:213, itemStyle:{ color:'#22C55E' } },
+          { name:'Canceladas',           value:14,  itemStyle:{ color:'#EF4444' } },
+        ],
+        label: { show:false },
+        emphasis: { itemStyle:{ shadowBlur:8, shadowColor:'rgba(0,0,0,.2)' } },
+      }],
+    });
+  }
+
+  // Bar horizontal — tempo por etapa
+  destroyKpiChart('kpiEtapa');
+  const etapaEl = document.getElementById('kpiEtapa');
+  if (etapaEl && typeof echarts !== 'undefined') {
+    const dark = document.documentElement.classList.contains('dark');
+    const tc = dark ? '#94a3b8' : '#64748b';
+    kpiCharts['kpiEtapa'] = echarts.init(etapaEl, dark ? 'dark' : null);
+    kpiCharts['kpiEtapa'].setOption({
+      backgroundColor: 'transparent',
+      tooltip: { trigger:'axis', formatter: p => `${p[0].name}: <b>${p[0].value} dias</b>` },
+      grid: { left:'30%', right:'12%', top:'5%', bottom:'5%' },
+      xAxis: { type:'value', axisLabel:{ color:tc, fontSize:10 }, splitLine:{ lineStyle:{ color: dark?'rgba(255,255,255,.08)':'rgba(0,0,0,.05)' } } },
+      yAxis: { type:'category', data:['Entrega','Compra','Aprovação','Solicitação'], axisLabel:{ color:tc, fontSize:11 } },
+      series: [{
+        type:'bar', barMaxWidth:22,
+        data: [
+          { value:3.1, itemStyle:{ color:'#22C55E', borderRadius:[0,6,6,0] } },
+          { value:2.8, itemStyle:{ color:'#3B82F6', borderRadius:[0,6,6,0] } },
+          { value:1.5, itemStyle:{ color:'#F59E0B', borderRadius:[0,6,6,0] } },
+          { value:0.8, itemStyle:{ color:'#C8780A', borderRadius:[0,6,6,0] } },
+        ],
+        label: { show:true, position:'right', formatter:'{c}d', color:tc, fontSize:10 },
+      }],
+    });
+  }
+}
+
+function _kpiEficiencia() {
+  // Ranking aprovadores
+  const aprEl = document.getElementById('kpiRankAprov');
+  if (aprEl) {
+    const rows = [
+      { name:'Maria Costa',  val:'0,8 dias', pct:100, badge:'🏆', bad:false },
+      { name:'João Silva',   val:'1,2 dias', pct:83,  badge:'',   bad:false },
+      { name:'Ana Lima',     val:'1,9 dias', pct:57,  badge:'',   bad:false },
+      { name:'Carlos Dias',  val:'4,7 dias', pct:17,  badge:'⚠️',  bad:true  },
+    ];
+    aprEl.innerHTML = rows.map((r, i) => `
+      <div class="kpi-rank-item">
+        <div class="kpi-rank-num">${i+1}</div>
+        <div class="kpi-rank-name">${r.badge ? r.badge+' ' : ''}${r.name}</div>
+        <div class="kpi-rank-bar-wrap" style="width:80px"><div class="kpi-rank-bar" style="width:${r.pct}%;background:${r.bad?'#EF4444':'#C8780A'}"></div></div>
+        <div class="kpi-rank-val">${r.val}</div>
+      </div>
+    `).join('');
+  }
+
+  // Ranking compradores
+  const compEl = document.getElementById('kpiRankComp');
+  if (compEl) {
+    const rows = [
+      { name:'Pedro Rocha',   pedidos:48, econ:'R$ 12k' },
+      { name:'Lucia Freitas', pedidos:41, econ:'R$ 9k'  },
+      { name:'Rafael Melo',   pedidos:35, econ:'R$ 6k'  },
+    ];
+    compEl.innerHTML = rows.map((r, i) => `
+      <div class="kpi-rank-item" style="display:grid;grid-template-columns:22px 1fr auto auto;gap:8px;align-items:center">
+        <div class="kpi-rank-num">${i+1}</div>
+        <div class="kpi-rank-name">${r.name}</div>
+        <div class="kpi-rank-val">${r.pedidos} ped.</div>
+        <div class="kpi-rank-val" style="color:#22C55E;font-weight:700">${r.econ}</div>
+      </div>
+    `).join('');
+  }
+
+  // Categorias
+  destroyKpiChart('kpiCategoria');
+  const catEl = document.getElementById('kpiCategoria');
+  if (catEl && typeof echarts !== 'undefined') {
+    const dark = document.documentElement.classList.contains('dark');
+    const tc = dark ? '#94a3b8' : '#64748b';
+    kpiCharts['kpiCategoria'] = echarts.init(catEl, dark ? 'dark' : null);
+    kpiCharts['kpiCategoria'].setOption({
+      backgroundColor: 'transparent',
+      tooltip: { trigger:'axis' },
+      grid: { left:'28%', right:'12%', top:'5%', bottom:'5%' },
+      xAxis: { type:'value', axisLabel:{ color:tc, fontSize:10 }, splitLine:{ lineStyle:{ color: dark?'rgba(255,255,255,.08)':'rgba(0,0,0,.05)' } } },
+      yAxis: { type:'category', data:['Segurança','Escritório','Limpeza','Informática'], axisLabel:{ color:tc, fontSize:11 } },
+      series: [{
+        type:'bar', barMaxWidth:22,
+        itemStyle: { color:'#C8780A', borderRadius:[0,6,6,0] },
+        data: [38, 67, 84, 115],
+        label: { show:true, position:'right', formatter:'{c}', color:tc, fontSize:10 },
+      }],
+    });
+  }
+
+  // Ranking estabelecimentos
+  const estEl = document.getElementById('kpiRankEstab');
+  if (estEl) {
+    const rows = [
+      { name:'Filial SP Centro', val:'R$ 98k', pct:100 },
+      { name:'Filial RJ',        val:'R$ 74k', pct:76  },
+      { name:'Filial BH',        val:'R$ 58k', pct:59  },
+      { name:'Filial RS',        val:'R$ 41k', pct:42  },
+      { name:'Filial BA',        val:'R$ 13k', pct:13  },
+    ];
+    estEl.innerHTML = rows.map((r, i) => `
+      <div class="kpi-rank-item">
+        <div class="kpi-rank-num">${i+1}</div>
+        <div class="kpi-rank-name">${r.name}</div>
+        <div class="kpi-rank-bar-wrap" style="width:90px"><div class="kpi-rank-bar" style="width:${r.pct}%;background:#8B5CF6"></div></div>
+        <div class="kpi-rank-val">${r.val}</div>
+      </div>
+    `).join('');
+  }
+}
+
+function _kpiFinanceiro() {
+  // Solicitado × Comprado — grouped bar
+  destroyKpiChart('kpiSolComp');
+  const scEl = document.getElementById('kpiSolComp');
+  if (scEl && typeof echarts !== 'undefined') {
+    const dark = document.documentElement.classList.contains('dark');
+    const tc = dark ? '#94a3b8' : '#64748b';
+    kpiCharts['kpiSolComp'] = echarts.init(scEl, dark ? 'dark' : null);
+    kpiCharts['kpiSolComp'].setOption({
+      backgroundColor: 'transparent',
+      tooltip: {
+        trigger:'axis',
+        formatter: params => params.map(p => `${p.seriesName}: <b>R$ ${(p.value/1000).toFixed(0)}k</b>`).join('<br>'),
+      },
+      legend: { bottom:0, textStyle:{ fontSize:11, color:tc } },
+      grid: { left:'5%', right:'5%', top:'10%', bottom:'18%', containLabel:true },
+      xAxis: {
+        type:'category',
+        data:['Jan','Fev','Mar','Abr','Mai','Jun'],
+        axisLabel:{ color:tc, fontSize:11 }, axisTick:{ show:false }, axisLine:{ show:false },
+      },
+      yAxis: {
+        type:'value',
+        axisLabel:{ color:tc, fontSize:10, formatter: v => `R$${(v/1000).toFixed(0)}k` },
+        splitLine:{ lineStyle:{ color: dark?'rgba(255,255,255,.08)':'rgba(0,0,0,.05)' } },
+      },
+      series: [
+        {
+          name:'Solicitado', type:'bar', barMaxWidth:28,
+          itemStyle:{ color:'#6366F1', borderRadius:[4,4,0,0] },
+          data:[58000,72000,65000,80000,74000,90000],
+        },
+        {
+          name:'Comprado', type:'bar', barMaxWidth:28,
+          itemStyle:{ color:'#C8780A', borderRadius:[4,4,0,0] },
+          data:[52000,66000,60000,75000,68000,82000],
+        },
+      ],
+    });
+  }
 }
 </script>
 </body>
