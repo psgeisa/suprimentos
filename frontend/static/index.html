@@ -1101,6 +1101,14 @@
           </svg>
           <span class="sidebar-label">Custos BI</span>
         </a>
+        <a onclick="showPage('kpis-plataforma')"
+          class="sidebar-item flex items-center gap-3 px-3 py-2 rounded-lg text-yellow-200/80 hover:text-white text-sm font-medium cursor-pointer transition-all">
+          <!-- Ícone de performance / velocímetro -->
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+          </svg>
+          <span class="sidebar-label">Plataforma</span>
+        </a>
       </div>
     </div>
 
@@ -2259,6 +2267,188 @@
           </svg>
           Abrir Custos BI
         </button>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════════════════════
+       PAGE: KPIs da Plataforma
+  ═══════════════════════════════════════════════════════════════════════ -->
+  <section id="page-kpis-plataforma" class="p-8 hidden" style="min-height:calc(100vh - 73px)">
+
+    <!-- ── 1. Qualidade dos Dados ─────────────────────────────────────── -->
+    <div class="bi-chapter">
+      <div class="bi-chapter-hdr">
+        <svg class="w-5 h-5 flex-shrink-0" style="color:#6366F1" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+        </svg>
+        <div>
+          <p class="bi-chapter-title">Qualidade dos Dados</p>
+          <p class="bi-chapter-desc">Monitoramento da IA de sugestões: aceitação, duplicidades evitadas, campos problemáticos e termos corrigidos.</p>
+        </div>
+      </div>
+
+      <!-- Linha 1: Gauge + Big KPIs -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <!-- Gauge Taxa de Aceitação -->
+        <div class="bi-card">
+          <div class="bi-card-hdr">
+            <p class="bi-title">Taxa de Aceitação da IA</p>
+            <span title="Percentual de sugestões da IA aceitas pelos usuários. Acima de 75% indica boa precisão do modelo." style="cursor:help;font-size:.75rem;color:#94a3b8">ⓘ</span>
+          </div>
+          <div id="pltGaugeTaxa" style="height:200px"></div>
+          <p id="pltTaxaInfo" style="text-align:center;font-size:.72rem;color:#94a3b8;margin-top:4px"></p>
+        </div>
+        <!-- Duplicidades evitadas -->
+        <div class="bi-card flex flex-col justify-center items-center" style="min-height:240px">
+          <p style="font-size:.75rem;font-weight:600;color:#94a3b8;letter-spacing:.04em;text-transform:uppercase;margin-bottom:8px">Duplicidades Evitadas</p>
+          <p id="pltDupVal" style="font-size:3rem;font-weight:800;color:#6366F1;line-height:1">0</p>
+          <p style="font-size:.78rem;color:#64748b;margin-top:4px">cadastros evitados</p>
+          <p id="pltDupSub" style="font-size:.72rem;color:#94a3b8;margin-top:8px;text-align:center"></p>
+        </div>
+        <!-- Evolução mensal da IA -->
+        <div class="bi-card">
+          <div class="bi-card-hdr">
+            <p class="bi-title">Evolução da Aceitação (6 meses)</p>
+            <span title="Taxa de aceitação da IA mês a mês. Tendência crescente indica melhora contínua do modelo." style="cursor:help;font-size:.75rem;color:#94a3b8">ⓘ</span>
+          </div>
+          <div id="pltEvolucaoIA" style="height:200px"></div>
+        </div>
+      </div>
+
+      <!-- Linha 2: Campos problemáticos + Termos corrigidos + Usuários recusam -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div class="bi-card">
+          <div class="bi-card-hdr">
+            <p class="bi-title">Campos Mais Problemáticos</p>
+            <span title="Tipos de campo com mais rejeições de sugestão. Indica onde as validações precisam melhorar." style="cursor:help;font-size:.75rem;color:#94a3b8">ⓘ</span>
+          </div>
+          <div id="pltCamposProb" style="height:200px"></div>
+        </div>
+        <div class="bi-card">
+          <div class="bi-card-hdr">
+            <p class="bi-title">Termos Mais Corrigidos</p>
+            <span title="Pares de termos: o que o usuário escreveu vs. o que a IA sugeriu e foi aceito. Candidatos a sugestão automática." style="cursor:help;font-size:.75rem;color:#94a3b8">ⓘ</span>
+          </div>
+          <div id="pltTermosCorr" style="padding:8px 4px"></div>
+        </div>
+        <div class="bi-card">
+          <div class="bi-card-hdr">
+            <p class="bi-title">Usuários que Mais Recusam</p>
+            <span title="Stakeholders com mais rejeições de sugestão. Pode indicar que a IA erra para um contexto específico." style="cursor:help;font-size:.75rem;color:#94a3b8">ⓘ</span>
+          </div>
+          <div id="pltUsersRecusam" style="height:200px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 2. Utilização da Plataforma ────────────────────────────────── -->
+    <div class="bi-chapter">
+      <div class="bi-chapter-hdr">
+        <svg class="w-5 h-5 flex-shrink-0" style="color:#0EA5E9" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+        </svg>
+        <div>
+          <p class="bi-chapter-title">Utilização da Plataforma</p>
+          <p class="bi-chapter-desc">Usuários ativos, novos cadastros, horários de pico e funcionalidades mais acessadas.</p>
+        </div>
+      </div>
+
+      <!-- Big KPI Cards -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="bi-card text-center" style="padding:20px 12px">
+          <p style="font-size:.7rem;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em">Usuários Hoje</p>
+          <p id="pltAtivosHoje" style="font-size:2.2rem;font-weight:800;color:#0EA5E9;line-height:1.1;margin-top:6px">—</p>
+        </div>
+        <div class="bi-card text-center" style="padding:20px 12px">
+          <p style="font-size:.7rem;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em">Ativos no Mês</p>
+          <p id="pltAtivosMes" style="font-size:2.2rem;font-weight:800;color:#0EA5E9;line-height:1.1;margin-top:6px">—</p>
+        </div>
+        <div class="bi-card text-center" style="padding:20px 12px">
+          <p style="font-size:.7rem;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em">Novos Usuários</p>
+          <p id="pltNovosUsers" style="font-size:2.2rem;font-weight:800;color:#22C55E;line-height:1.1;margin-top:6px">—</p>
+          <p style="font-size:.68rem;color:#94a3b8">último mês</p>
+        </div>
+        <div class="bi-card text-center" style="padding:20px 12px">
+          <p style="font-size:.7rem;font-weight:600;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em">Total de Usuários</p>
+          <p id="pltTotalUsers" style="font-size:2.2rem;font-weight:800;color:#64748b;line-height:1.1;margin-top:6px">—</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Heatmap por hora -->
+        <div class="bi-card">
+          <div class="bi-card-hdr">
+            <p class="bi-title">Horários de Maior Uso</p>
+            <span title="Quantidade de acessos por hora do dia nos últimos 90 dias. Picos indicam os melhores horários para manutenções fora do horário." style="cursor:help;font-size:.75rem;color:#94a3b8">ⓘ</span>
+          </div>
+          <div id="pltHeatHora" style="height:200px"></div>
+        </div>
+        <!-- Acessos por dia da semana -->
+        <div class="bi-card">
+          <div class="bi-card-hdr">
+            <p class="bi-title">Dias da Semana</p>
+            <span title="Volume de acessos por dia da semana. Ajuda a identificar os dias mais críticos para o sistema." style="cursor:help;font-size:.75rem;color:#94a3b8">ⓘ</span>
+          </div>
+          <div id="pltDiaSemana" style="height:200px"></div>
+        </div>
+      </div>
+
+      <!-- Funcionalidades mais usadas -->
+      <div class="bi-card mt-6">
+        <div class="bi-card-hdr">
+          <p class="bi-title">Funcionalidades Mais Utilizadas</p>
+          <span title="Módulos com mais chamadas de API nos últimos 30 dias. Módulos sem uso podem ser candidatos a remoção." style="cursor:help;font-size:.75rem;color:#94a3b8">ⓘ</span>
+        </div>
+        <div id="pltFuncionalidades" style="height:220px"></div>
+      </div>
+    </div>
+
+    <!-- ── 3. Fluxo ───────────────────────────────────────────────────── -->
+    <div class="bi-chapter">
+      <div class="bi-chapter-hdr">
+        <svg class="w-5 h-5 flex-shrink-0" style="color:#F59E0B" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>
+        </svg>
+        <div>
+          <p class="bi-chapter-title">Fluxo do Processo</p>
+          <p class="bi-chapter-desc">Onde o sistema perde usuários — do início da solicitação até a conclusão.</p>
+        </div>
+      </div>
+      <div class="bi-card">
+        <div class="bi-card-hdr">
+          <p class="bi-title">Funil de Conversão</p>
+          <span title="Quantas solicitações chegaram a cada etapa. A queda entre etapas mostra onde o processo trava." style="cursor:help;font-size:.75rem;color:#94a3b8">ⓘ</span>
+        </div>
+        <div id="pltFluxoFunil" style="height:320px"></div>
+      </div>
+    </div>
+
+    <!-- ── 4. Segurança ───────────────────────────────────────────────── -->
+    <div class="bi-chapter">
+      <div class="bi-chapter-hdr">
+        <svg class="w-5 h-5 flex-shrink-0" style="color:#EF4444" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+        </svg>
+        <div>
+          <p class="bi-chapter-title">Segurança &amp; Acessos</p>
+          <p class="bi-chapter-desc">Rotas mais acessadas e volume total de requisições registradas.</p>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bi-card">
+          <div class="bi-card-hdr">
+            <p class="bi-title">Rotas Mais Acessadas (30 dias)</p>
+            <span title="Endpoints da API com maior volume de chamadas. Útil para priorizar otimização de performance." style="cursor:help;font-size:.75rem;color:#94a3b8">ⓘ</span>
+          </div>
+          <div id="pltRotasTop" style="height:240px"></div>
+        </div>
+        <div class="bi-card flex flex-col justify-center items-center" style="min-height:240px">
+          <p style="font-size:.75rem;font-weight:600;color:#94a3b8;letter-spacing:.04em;text-transform:uppercase;margin-bottom:8px">Total de Acessos Registrados</p>
+          <p id="pltTotalAcessos" style="font-size:3rem;font-weight:800;color:#EF4444;line-height:1">—</p>
+          <p style="font-size:.78rem;color:#64748b;margin-top:6px">requisições no sistema</p>
+        </div>
       </div>
     </div>
 
@@ -4454,7 +4644,8 @@ function showPage(page) {
   if (page === 'estabelecimentos') { estPage=1; renderEstabelecimentos(); }
   if (page === 'itens')        { itemPage=1; loadItensCache().then(renderItens); }
   if (page === 'custos-bi')   { initCustosBi(); }
-  if (page === 'kpis')        { loadKpisNegocio(); }
+  if (page === 'kpis')              { loadKpisNegocio(); }
+  if (page === 'kpis-plataforma')  { loadKpisPlataforma(); }
   if (page === 'acessos')     { acessosPage=1; loadAcessosStats(); loadAcessos(); }
 }
 
@@ -8691,6 +8882,280 @@ function _kpiFinanceiro(d) {
       ],
     });
   }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// KPIs da Plataforma
+// ══════════════════════════════════════════════════════════════════════════════
+let _pltCharts = {};
+
+function _pltDispose() {
+  Object.values(_pltCharts).forEach(c => { try { c.dispose(); } catch(e){} });
+  _pltCharts = {};
+}
+
+function _pltInit(id) {
+  if (_pltCharts[id]) { try { _pltCharts[id].dispose(); } catch(e){} }
+  const el = document.getElementById(id);
+  if (!el) return null;
+  const chart = echarts.init(el, null, { renderer: 'canvas' });
+  _pltCharts[id] = chart;
+  return chart;
+}
+
+async function loadKpisPlataforma() {
+  const res = await apiFetch('/api/kpis-plataforma');
+  if (!res || !res.ok) return;
+  const d = await res.json();
+  _pltDispose();
+
+  const isDark = document.documentElement.classList.contains('dark');
+  const tc  = isDark ? '#CBD5E1' : '#475569';
+  const gc  = isDark ? 'rgba(148,163,184,.13)' : 'rgba(226,232,240,.7)';
+  const bg  = isDark ? '#1E293B' : '#FFFFFF';
+  const ttBg     = isDark ? '#1E293B' : '#FFFFFF';
+  const ttBorder = isDark ? '#334155' : '#E2E8F0';
+  const ttTitle  = isDark ? '#F1F5F9' : '#1E293B';
+
+  const q  = d.qualidade_dados;
+  const u  = d.utilizacao;
+  const fl = d.fluxo;
+  const seg = d.seguranca;
+
+  // ── Gauge: Taxa de Aceitação ────────────────────────────────────────────
+  const gaugeTaxa = _pltInit('pltGaugeTaxa');
+  if (gaugeTaxa) {
+    const pct = q.taxa_aceitacao_ia;
+    const cor = pct >= 75 ? '#22C55E' : pct >= 50 ? '#F59E0B' : '#EF4444';
+    gaugeTaxa.setOption({
+      backgroundColor: 'transparent',
+      series: [{
+        type: 'gauge',
+        startAngle: 200, endAngle: -20,
+        min: 0, max: 100,
+        radius: '85%',
+        center: ['50%', '58%'],
+        pointer: { show: true, length: '55%', width: 4, itemStyle: { color: cor } },
+        progress: { show: true, width: 10, roundCap: true, itemStyle: { color: cor } },
+        axisLine: { lineStyle: { width: 10, color: [[1, isDark ? '#334155' : '#E2E8F0']] } },
+        axisTick: { show: false },
+        splitLine: { show: false },
+        axisLabel: { show: false },
+        anchor: { show: true, size: 10, itemStyle: { color: cor } },
+        detail: {
+          fontSize: 28, fontWeight: 800, color: cor,
+          formatter: '{value}%', offsetCenter: [0, '30%'],
+        },
+        data: [{ value: pct }],
+      }],
+    });
+    const info = document.getElementById('pltTaxaInfo');
+    if (info) info.textContent = `${q.aprovados} aceitas · ${q.reprovados} recusadas de ${q.total_interacoes} interações`;
+  }
+
+  // ── Evolução da IA (linha + barra) ────────────────────────────────────
+  const evolChart = _pltInit('pltEvolucaoIA');
+  if (evolChart && q.evolucao_ia?.length) {
+    const ev = q.evolucao_ia;
+    evolChart.setOption({
+      backgroundColor: 'transparent',
+      tooltip: { trigger: 'axis', backgroundColor: ttBg, borderColor: ttBorder, textStyle: { color: ttTitle } },
+      grid: { left: 10, right: 10, top: 16, bottom: 4, containLabel: true },
+      xAxis: { type: 'category', data: ev.map(e => e.mes), axisLabel: { color: tc, fontSize: 10 }, axisLine: { show: false }, axisTick: { show: false } },
+      yAxis: { type: 'value', min: 0, max: 100, axisLabel: { color: tc, fontSize: 9, formatter: '{value}%' }, splitLine: { lineStyle: { color: gc } } },
+      series: [{
+        type: 'bar', data: ev.map(e => e.taxa), barWidth: '45%',
+        itemStyle: { color: '#6366F1', borderRadius: [4,4,0,0] },
+        label: { show: true, position: 'top', color: tc, fontSize: 9, formatter: p => p.value + '%' },
+      }, {
+        type: 'line', data: ev.map(e => e.taxa), smooth: true,
+        symbol: 'circle', symbolSize: 5,
+        lineStyle: { color: '#A5B4FC', width: 2 },
+        itemStyle: { color: '#A5B4FC' },
+      }],
+    });
+  }
+
+  // ── Duplicidades ─────────────────────────────────────────────────────
+  const dupEl = document.getElementById('pltDupVal');
+  const dupSub = document.getElementById('pltDupSub');
+  if (dupEl) dupEl.textContent = q.duplicidades_evitadas.toLocaleString('pt-BR');
+  if (dupSub) dupSub.textContent = `de ${q.total_interacoes} interações com a IA nos últimos 90 dias`;
+
+  // ── Campos Problemáticos ──────────────────────────────────────────────
+  const camposChart = _pltInit('pltCamposProb');
+  if (camposChart && q.campos_problematicos?.length) {
+    const cp = q.campos_problematicos;
+    const cores = ['#EF4444','#F97316','#F59E0B','#84CC16','#06B6D4','#8B5CF6'];
+    camposChart.setOption({
+      backgroundColor: 'transparent',
+      tooltip: { trigger: 'axis', backgroundColor: ttBg, borderColor: ttBorder, textStyle: { color: ttTitle }, formatter: p => `${p[0].name}<br/>${p[0].value}% das rejeições` },
+      grid: { left: 8, right: 24, top: 8, bottom: 4, containLabel: true },
+      xAxis: { type: 'value', max: 100, axisLabel: { color: tc, fontSize: 9, formatter: '{value}%' }, splitLine: { lineStyle: { color: gc } } },
+      yAxis: { type: 'category', data: cp.map(c => c.campo.charAt(0).toUpperCase() + c.campo.slice(1)), axisLabel: { color: tc, fontSize: 10 }, axisLine: { show: false }, axisTick: { show: false } },
+      series: [{
+        type: 'bar', barWidth: '50%',
+        data: cp.map((c, i) => ({ value: c.pct, itemStyle: { color: cores[i % cores.length], borderRadius: [0,4,4,0] } })),
+        label: { show: true, position: 'right', color: tc, fontSize: 9, formatter: p => p.value + '%' },
+      }],
+    });
+  } else if (camposChart) {
+    camposChart.setOption({ backgroundColor:'transparent', graphic:[{ type:'text', left:'center', top:'middle', style:{ text:'Sem dados de rejeição', fill: tc, fontSize:12 } }] });
+  }
+
+  // ── Termos Corrigidos ─────────────────────────────────────────────────
+  const termosEl = document.getElementById('pltTermosCorr');
+  if (termosEl) {
+    if (q.termos_corrigidos?.length) {
+      termosEl.innerHTML = q.termos_corrigidos.map(t => `
+        <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid ${gc}">
+          <span style="flex:1;font-size:.78rem;color:#EF4444;font-weight:600;text-decoration:line-through;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.de}</span>
+          <svg width="16" height="16" fill="none" stroke="#22C55E" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          <span style="flex:1;font-size:.78rem;color:#22C55E;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.para}</span>
+          <span style="font-size:.68rem;color:#94a3b8;flex-shrink:0">${t.qtd}x</span>
+        </div>`).join('');
+    } else {
+      termosEl.innerHTML = `<p style="text-align:center;color:${tc};font-size:.8rem;padding:24px 0">Nenhuma correção registrada ainda</p>`;
+    }
+  }
+
+  // ── Usuários que mais recusam ─────────────────────────────────────────
+  const recusaChart = _pltInit('pltUsersRecusam');
+  if (recusaChart && q.usuarios_recusam?.length) {
+    const ur = q.usuarios_recusam;
+    recusaChart.setOption({
+      backgroundColor: 'transparent',
+      tooltip: { trigger: 'axis', backgroundColor: ttBg, borderColor: ttBorder, textStyle: { color: ttTitle } },
+      grid: { left: 8, right: 20, top: 8, bottom: 4, containLabel: true },
+      xAxis: { type: 'value', axisLabel: { color: tc, fontSize: 9 }, splitLine: { lineStyle: { color: gc } } },
+      yAxis: { type: 'category', data: ur.map(u => u.nome.split(' ')[0]), axisLabel: { color: tc, fontSize: 10 }, axisLine: { show: false }, axisTick: { show: false } },
+      series: [{
+        type: 'bar', barWidth: '50%',
+        data: ur.map((u, i) => ({ value: u.qtd, itemStyle: { color: `hsl(${20+i*35},80%,55%)`, borderRadius: [0,4,4,0] } })),
+        label: { show: true, position: 'right', color: tc, fontSize: 9 },
+      }],
+    });
+  } else if (recusaChart) {
+    recusaChart.setOption({ backgroundColor:'transparent', graphic:[{ type:'text', left:'center', top:'middle', style:{ text:'Sem dados', fill: tc, fontSize:12 } }] });
+  }
+
+  // ── Big KPIs de utilização ───────────────────────────────────────────
+  const setText = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+  setText('pltAtivosHoje', u.usuarios_ativos_hoje);
+  setText('pltAtivosMes',  u.usuarios_ativos_mes);
+  setText('pltNovosUsers', u.novos_usuarios_mes);
+  setText('pltTotalUsers', u.total_usuarios);
+
+  // ── Heatmap por hora ─────────────────────────────────────────────────
+  const horaChart = _pltInit('pltHeatHora');
+  if (horaChart && u.acessos_por_hora?.length) {
+    const horas = u.acessos_por_hora;
+    const max = Math.max(...horas.map(h => h.qtd)) || 1;
+    horaChart.setOption({
+      backgroundColor: 'transparent',
+      tooltip: { trigger: 'axis', backgroundColor: ttBg, borderColor: ttBorder, textStyle: { color: ttTitle }, formatter: p => `${p[0].name} — ${p[0].value} acessos` },
+      grid: { left: 8, right: 8, top: 8, bottom: 4, containLabel: true },
+      xAxis: { type: 'category', data: horas.map(h => h.hora), axisLabel: { color: tc, fontSize: 8.5, interval: 1 }, axisLine: { show: false }, axisTick: { show: false } },
+      yAxis: { type: 'value', axisLabel: { color: tc, fontSize: 9 }, splitLine: { lineStyle: { color: gc } } },
+      series: [{
+        type: 'bar', barWidth: '70%',
+        data: horas.map(h => ({
+          value: h.qtd,
+          itemStyle: {
+            color: `rgba(99,102,241,${0.15 + 0.85 * h.qtd / max})`,
+            borderRadius: [3,3,0,0]
+          }
+        })),
+      }],
+    });
+  }
+
+  // ── Dias da semana ────────────────────────────────────────────────────
+  const diaChart = _pltInit('pltDiaSemana');
+  if (diaChart && u.acessos_por_dia?.length) {
+    const dias = u.acessos_por_dia;
+    const cores = ['#8B5CF6','#6366F1','#3B82F6','#0EA5E9','#06B6D4','#10B981','#F59E0B'];
+    diaChart.setOption({
+      backgroundColor: 'transparent',
+      tooltip: { trigger: 'item', backgroundColor: ttBg, borderColor: ttBorder, textStyle: { color: ttTitle }, formatter: p => `${p.name}<br/>${p.value} acessos` },
+      radar: {
+        indicator: dias.map(d => ({ name: d.dia, max: Math.max(...dias.map(x => x.qtd)) * 1.2 || 1 })),
+        axisName: { color: tc, fontSize: 10 },
+        splitLine: { lineStyle: { color: gc } },
+        splitArea: { show: false },
+        axisLine: { lineStyle: { color: gc } },
+      },
+      series: [{
+        type: 'radar',
+        data: [{ value: dias.map(d => d.qtd), name: 'Acessos', areaStyle: { color: 'rgba(99,102,241,.2)' }, lineStyle: { color: '#6366F1', width: 2 }, symbol: 'circle', symbolSize: 5, itemStyle: { color: '#6366F1' } }],
+      }],
+    });
+  }
+
+  // ── Funcionalidades mais usadas ───────────────────────────────────────
+  const funcChart = _pltInit('pltFuncionalidades');
+  if (funcChart) {
+    const func = u.funcionalidades?.length ? u.funcionalidades : [
+      {nome:'Solicitações',qtd:0},{nome:'Compras',qtd:0},{nome:'Dashboard',qtd:0},{nome:'Catálogo',qtd:0}
+    ];
+    const paleta = ['#6366F1','#0EA5E9','#10B981','#F59E0B','#EF4444','#8B5CF6','#EC4899'];
+    funcChart.setOption({
+      backgroundColor: 'transparent',
+      tooltip: { trigger: 'item', backgroundColor: ttBg, borderColor: ttBorder, textStyle: { color: ttTitle }, formatter: p => `${p.name}<br/>${p.value} chamadas` },
+      series: [{
+        type: 'pie', radius: ['35%','65%'],
+        center: ['50%','50%'],
+        data: func.map((f, i) => ({ name: f.nome, value: f.qtd, itemStyle: { color: paleta[i % paleta.length] } })),
+        label: { color: tc, fontSize: 11, formatter: p => `${p.name}\n${p.percent}%` },
+        emphasis: { itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0,0,0,.2)' } },
+      }],
+    });
+  }
+
+  // ── Fluxo / Funil ────────────────────────────────────────────────────
+  const fluxoChart = _pltInit('pltFluxoFunil');
+  if (fluxoChart && fl?.length) {
+    fluxoChart.setOption({
+      backgroundColor: 'transparent',
+      tooltip: { trigger: 'item', backgroundColor: ttBg, borderColor: ttBorder, textStyle: { color: ttTitle }, formatter: p => `${p.name}<br/>${p.value.toLocaleString('pt-BR')} solicitações` },
+      color: ['#6366F1','#0EA5E9','#10B981','#F59E0B','#EF4444'],
+      series: [{
+        type: 'funnel',
+        left: '10%', width: '80%',
+        top: 20, bottom: 20,
+        minSize: '10%', maxSize: '100%',
+        sort: 'none',
+        gap: 6,
+        label: { show: true, position: 'inside', color: '#fff', fontWeight: 700, fontSize: 12, formatter: p => `${p.name}\n${p.value.toLocaleString('pt-BR')}` },
+        data: fl.map(f => ({ name: f.etapa, value: f.qtd })),
+      }],
+    });
+  }
+
+  // ── Rotas mais acessadas ──────────────────────────────────────────────
+  const rotasChart = _pltInit('pltRotasTop');
+  if (rotasChart && seg.rotas_top?.length) {
+    const rotas = seg.rotas_top;
+    rotasChart.setOption({
+      backgroundColor: 'transparent',
+      tooltip: { trigger: 'axis', backgroundColor: ttBg, borderColor: ttBorder, textStyle: { color: ttTitle } },
+      grid: { left: 8, right: 20, top: 8, bottom: 4, containLabel: true },
+      xAxis: { type: 'value', axisLabel: { color: tc, fontSize: 9 }, splitLine: { lineStyle: { color: gc } } },
+      yAxis: {
+        type: 'category',
+        data: rotas.map(r => r.rota.length > 28 ? '…' + r.rota.slice(-26) : r.rota),
+        axisLabel: { color: tc, fontSize: 9.5 }, axisLine: { show: false }, axisTick: { show: false }
+      },
+      series: [{
+        type: 'bar', barWidth: '50%',
+        data: rotas.map((r, i) => ({ value: r.qtd, itemStyle: { color: `hsl(${210+i*22},75%,55%)`, borderRadius: [0,4,4,0] } })),
+        label: { show: true, position: 'right', color: tc, fontSize: 9 },
+      }],
+    });
+  }
+
+  // ── Total de acessos ──────────────────────────────────────────────────
+  setText('pltTotalAcessos', seg.total_acessos.toLocaleString('pt-BR'));
 }
 </script>
 </body>
