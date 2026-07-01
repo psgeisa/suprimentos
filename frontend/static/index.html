@@ -961,8 +961,8 @@
     .dark .kpi-rank-name { color:#e2e8f0; }
     .kpi-rank-val { font-size:.71rem; color:#64748b; text-align:right; white-space:nowrap; }
     .dark .kpi-rank-val { color:#94a3b8; }
-    .kpi-rank-bar-wrap { width:72px; }
-    .kpi-rank-bar { height:5px; border-radius:3px; background:#C8780A; }
+    .kpi-rank-bar-wrap { width:72px; overflow:hidden; flex-shrink:0; }
+    .kpi-rank-bar { height:5px; border-radius:3px; background:#C8780A; max-width:100%; }
     /* ── Economia KPI grande ───────────────────────────── */
     .kpi-economia-big { text-align:center; padding:28px 0 18px; }
     .kpi-economia-label { font-size:.72rem; font-weight:700; text-transform:uppercase; letter-spacing:.08em; color:#94a3b8; margin-bottom:8px; }
@@ -1066,14 +1066,6 @@
       </svg>
       <span class="sidebar-label">Entregas</span>
     </a>
-    <a onclick="showPage('custos-bi')" data-tip="Custos BI"
-      class="sidebar-item flex items-center gap-3 px-3 py-2.5 rounded-lg text-yellow-200 hover:text-white text-sm font-medium cursor-pointer transition-all">
-      <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-      </svg>
-      <span class="sidebar-label">Custos BI</span>
-    </a>
-
     <!-- ── Grupo KPIs de Negócio ── -->
     <div id="sidebarKpisGroup">
       <button type="button" onclick="toggleKpisMenu()" data-tip="KPIs de Negócio" data-toggle
@@ -1093,6 +1085,13 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
           </svg>
           <span class="sidebar-label">Desempenho</span>
+        </a>
+        <a onclick="showPage('custos-bi')"
+          class="sidebar-item flex items-center gap-3 px-3 py-2 rounded-lg text-yellow-200/80 hover:text-white text-sm font-medium cursor-pointer transition-all">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+          </svg>
+          <span class="sidebar-label">Custos BI</span>
         </a>
       </div>
     </div>
@@ -8618,7 +8617,7 @@ function _kpiEficiencia(d) {
     if (!rows.length) {
       estEl.innerHTML = `<p style="font-size:.75rem;color:#94a3b8;padding:12px 0">Nenhum estabelecimento com solicitações no período.</p>`;
     } else {
-      const maxV = rows[0].valor || 1;
+      const maxV = Math.max(...rows.map(r => r.valor), 1);
       estEl.innerHTML = rows.map((r, i) => `
         <div class="kpi-rank-item" title="${r.nome}: ${r.total} solicitações · ${_fmtK(r.valor)} em compras">
           <div class="kpi-rank-num">${i+1}</div>
