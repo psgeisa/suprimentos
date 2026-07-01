@@ -8539,12 +8539,6 @@ async function loadAgendaFinanceira(params) {
   agendaData = rows.filter(item => Number(item.valorPrevisto) > 0);
   renderAgendaKpis(agendaData);
   agendaResetDates();
-}`);
-  if (!res || !res.ok) return;
-  const rows = await res.json();
-  agendaData = rows.filter(item => Number(item.valorPrevisto) > 0);
-  renderAgendaKpis(agendaData);
-  renderAgendaGanttFiltered();
 }
 
 // ══════════════════════════════════════════════════════════════════════════
