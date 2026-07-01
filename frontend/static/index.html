@@ -725,6 +725,7 @@
       section[id^="page-"] { padding:1rem !important; padding-bottom:calc(1rem + 80px + env(safe-area-inset-bottom, 0px)) !important; }
       table { font-size:.75rem; }
       .kpi-card { padding:0.75rem !important; }
+      #kpiCards { grid-template-columns:repeat(1,1fr) !important; }
     }
 
     /* ── Login ─── */
@@ -3069,6 +3070,7 @@ function togglePin() {
 }
 
 function hideMobileSidebar() {
+  closeSubmenus();
   const sb = document.getElementById('sidebar');
   sb.classList.add('mobile-hidden');
   sb.classList.remove('mobile-open');
@@ -3081,8 +3083,20 @@ function showMobileSidebar() {
   sb.classList.remove('mobile-open');
 }
 
+function closeSubmenus() {
+  const adminSub = document.getElementById('adminSubmenu');
+  const infoSub  = document.getElementById('infoSubmenu');
+  if (adminSub) adminSub.classList.add('hidden');
+  if (infoSub)  infoSub.classList.add('hidden');
+  const adminChevron = document.getElementById('adminChevron');
+  const infoChevron  = document.getElementById('infoChevron');
+  if (adminChevron) adminChevron.style.transform = '';
+  if (infoChevron)  infoChevron.style.transform  = '';
+}
+
 function closeMobileMenu() {
-  // Clique em item de navegação: recolhe para 72px
+  // Clique em item de navegação: recolhe para 72px e fecha submenus
+  closeSubmenus();
   const sb = document.getElementById('sidebar');
   const overlay = document.getElementById('sidebarOverlay');
   sb.classList.remove('mobile-open');
