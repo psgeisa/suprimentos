@@ -21,7 +21,7 @@ from app.database import Base, engine, SessionLocal
 import app.models  # noqa — garante registro de todos os modelos antes do create_all
 from app.routers import suprimentos, dashboard
 from app.routers import auth as routers_auth
-from app.routers import usuarios, anexos, lugares, estabelecimentos, itens, compras, entregas, aprovacoes, custos_bi, acessos
+from app.routers import usuarios, anexos, lugares, estabelecimentos, itens, compras, entregas, aprovacoes, custos_bi, acessos, kpis_negocio
 from sqlalchemy import inspect, text
 
 VISITOR_COOKIE = "visitor_id"
@@ -316,6 +316,7 @@ def create_app() -> FastAPI:
     app.include_router(aprovacoes.router)
     app.include_router(custos_bi.router)
     app.include_router(acessos.router)
+    app.include_router(kpis_negocio.router)
 
     app.mount(
         "/static",

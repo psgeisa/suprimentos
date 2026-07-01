@@ -2135,21 +2135,30 @@
         </svg>
         <div>
           <p class="bi-chapter-title">Saúde Operacional</p>
-          <p class="bi-chapter-desc">Visualize o funil do processo, distribuição de status e onde o fluxo está travando.</p>
+          <p class="bi-chapter-desc">Visualize o funil do processo, distribuição de status e tendência do ciclo médio semana a semana.</p>
         </div>
       </div>
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div class="bi-card">
-          <p class="bi-title">Funil do Processo</p>
+          <div class="bi-card-hdr">
+            <p class="bi-title">Funil do Processo</p>
+            <span title="Mostra quantas solicitações chegaram a cada etapa do fluxo. A diferença entre barras indica onde há desistências ou bloqueios." style="cursor:help;font-size:.75rem;color:#94a3b8">ⓘ</span>
+          </div>
           <div id="kpiFunnel" class="kpi-funnel mt-2"></div>
         </div>
         <div class="bi-card">
-          <p class="bi-title">Solicitações por Status</p>
+          <div class="bi-card-hdr">
+            <p class="bi-title">Solicitações por Status</p>
+            <span title="Distribuição atual de todas as solicitações por status. Ideal: maior fatia em Concluído. Muitas em Pendente podem indicar gargalo na aprovação." style="cursor:help;font-size:.75rem;color:#94a3b8">ⓘ</span>
+          </div>
           <div id="kpiDonut" style="height:220px"></div>
         </div>
         <div class="bi-card">
-          <p class="bi-title">Tempo em Cada Etapa (dias)</p>
-          <div id="kpiEtapa" style="height:220px"></div>
+          <div class="bi-card-hdr">
+            <p class="bi-title">Ciclo Médio por Semana (dias)</p>
+            <span title="Média de dias entre a abertura da solicitação e a data de entrega, semana a semana. Barras menores = fluxo mais rápido. Semanas sem barra = sem entregas registradas." style="cursor:help;font-size:.75rem;color:#94a3b8">ⓘ</span>
+          </div>
+          <div id="kpiEtapa" style="height:200px"></div>
         </div>
       </div>
     </div>
@@ -2162,29 +2171,38 @@
         </svg>
         <div>
           <p class="bi-chapter-title">Eficiência</p>
-          <p class="bi-chapter-desc">Rankings de aprovadores e compradores, categorias mais demandadas e distribuição por estabelecimento.</p>
+          <p class="bi-chapter-desc">Rankings de responsáveis e compradores, segmentos mais demandados e distribuição por estabelecimento.</p>
         </div>
       </div>
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <div class="bi-card">
-          <p class="bi-title">Tempo Médio por Aprovador</p>
+          <div class="bi-card-hdr">
+            <p class="bi-title">Responsáveis Mais Ativos</p>
+            <span title="Ranking dos solicitantes responsáveis com mais solicitações abertas no período. Útil para identificar quem mais demanda suprimentos." style="cursor:help;font-size:.75rem;color:#94a3b8">ⓘ</span>
+          </div>
           <div id="kpiRankAprov"></div>
         </div>
         <div class="bi-card">
-          <p class="bi-title">Compradores — Ranking</p>
-          <div class="grid grid-cols-4 gap-1 mb-2" style="font-size:.6rem;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:.05em">
-            <span class="col-span-2">Nome</span><span class="text-right">Pedidos</span><span class="text-right">Economia</span>
+          <div class="bi-card-hdr">
+            <p class="bi-title">Compradores — Ranking</p>
+            <span title="Usuários que mais finalizaram compras no período, segundo o log de compras. Cada compra pode conter múltiplos itens." style="cursor:help;font-size:.75rem;color:#94a3b8">ⓘ</span>
           </div>
           <div id="kpiRankComp"></div>
         </div>
       </div>
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div class="bi-card">
-          <p class="bi-title">Categorias Mais Solicitadas</p>
+          <div class="bi-card-hdr">
+            <p class="bi-title">Segmentos Mais Solicitados</p>
+            <span title="Categorias/segmentos com mais solicitações criadas no período. Ajuda a priorizar estoque e contratos de fornecedores." style="cursor:help;font-size:.75rem;color:#94a3b8">ⓘ</span>
+          </div>
           <div id="kpiCategoria" style="height:200px"></div>
         </div>
         <div class="bi-card">
-          <p class="bi-title">Estabelecimentos — Ranking de Gastos</p>
+          <div class="bi-card-hdr">
+            <p class="bi-title">Estabelecimentos — Gastos</p>
+            <span title="Ranking de estabelecimentos por valor gasto (valor_compra quando disponível, senão valor_estimado). Barra proporcional ao maior gasto." style="cursor:help;font-size:.75rem;color:#94a3b8">ⓘ</span>
+          </div>
           <div id="kpiRankEstab"></div>
         </div>
       </div>
@@ -2198,7 +2216,7 @@
         </svg>
         <div>
           <p class="bi-chapter-title">Financeiro</p>
-          <p class="bi-chapter-desc">Comparativo entre valor solicitado e comprado, economia gerada e análise de execução orçamentária.</p>
+          <p class="bi-chapter-desc">Comparativo mensal entre valor orçado e valor real pago, economia gerada e acesso à análise completa em Custos BI.</p>
         </div>
       </div>
 
@@ -2216,6 +2234,7 @@
       <div class="bi-card mb-6">
         <div class="bi-card-hdr">
           <p class="bi-title">Solicitado × Comprado</p>
+          <span title="Compara mensalmente o valor total orçado/solicitado com o valor efetivamente pago. A diferença (barra azul − barra laranja) é a economia gerada no mês." style="cursor:help;font-size:.75rem;color:#94a3b8">ⓘ</span>
         </div>
         <div id="kpiSolComp" style="height:260px"></div>
       </div>
@@ -8301,16 +8320,26 @@ async function loadAgendaFinanceira(params) {
 }
 
 // ══════════════════════════════════════════════════════════════════════════
-// KPIs de Negócio
+// KPIs de Negócio — dados reais via /api/kpis-negocio
 // ══════════════════════════════════════════════════════════════════════════
 
 const kpiCharts = {};
+let _kpiData = null;
 
 function destroyKpiChart(id) {
   if (kpiCharts[id]) { try { kpiCharts[id].dispose(); } catch(_) {} delete kpiCharts[id]; }
 }
 
-function kpiSparkSvg(data, color) {
+function _fmtK(v) {
+  if (v === null || v === undefined) return '—';
+  if (v >= 1_000_000) return `R$ ${(v / 1_000_000).toFixed(1)}M`;
+  if (v >= 1_000)     return `R$ ${(v / 1_000).toFixed(0)}k`;
+  return `R$ ${v.toFixed(0)}`;
+}
+
+function kpiSparkSvg(rawData, color) {
+  const data = (rawData || []).map(v => v ?? 0);
+  if (!data.length || data.every(v => v === 0)) return '';
   const w = 120, h = 34;
   const min = Math.min(...data), max = Math.max(...data), range = max - min || 1;
   const pts = data.map((v, i) =>
@@ -8324,34 +8353,86 @@ function kpiSparkSvg(data, color) {
 }
 
 function kpiDeltaHtml(pct, invert) {
+  if (pct === null || pct === undefined) return '';
   const isGood = invert ? pct < 0 : pct > 0;
   const cls = isGood ? 'up' : (pct === 0 ? 'warn' : 'down');
   const arrow = pct > 0 ? '▲' : (pct < 0 ? '▼' : '─');
   return `<span class="kpi-neg-delta ${cls}">${arrow} ${Math.abs(pct)}%</span>`;
 }
 
-function loadKpisNegocio() {
-  _kpiNegCards();
-  _kpiSaude();
-  _kpiEficiencia();
-  _kpiFinanceiro();
+async function loadKpisNegocio() {
+  const res = await apiFetch('/api/kpis-negocio?dias=90');
+  if (!res || !res.ok) return;
+  _kpiData = await res.json();
+  _kpiNegCards(_kpiData);
+  _kpiSaude(_kpiData);
+  _kpiEficiencia(_kpiData);
+  _kpiFinanceiro(_kpiData);
 }
 
-function _kpiNegCards() {
+function _kpiNegCards(d) {
+  const sparks = d.sparklines;
+  const k = d.kpis;
+  const periodo = `Últimos ${d.periodo_dias} dias`;
+
+  const tempoVal = k.tempo_medio.valor !== null ? `${k.tempo_medio.valor.toFixed(1).replace('.', ',')} dias` : '—';
+
   const cards = [
-    { label:'Solicitações Abertas',   value:'87',       spark:[55,60,72,68,75,80,87],          color:'#6366F1', delta:+12, invert:false, period:'Últimos 30 dias' },
-    { label:'Em Andamento',           value:'42',       spark:[30,38,40,35,44,39,42],           color:'#3B82F6', delta:-5,  invert:false, period:'Últimos 30 dias' },
-    { label:'Concluídas no Período',  value:'213',      spark:[150,170,180,160,190,205,213],    color:'#22C55E', delta:+8,  invert:false, period:'Últimos 90 dias' },
-    { label:'Taxa de Conclusão',      value:'82%',      spark:[70,72,75,78,76,80,82],           color:'#C8780A', delta:+3,  invert:false, period:'Últimos 90 dias' },
-    { label:'Tempo Médio do Ciclo',   value:'4,2 dias', spark:[6.5,5.8,5.2,4.9,4.6,4.4,4.2],  color:'#F59E0B', delta:-18, invert:true,  period:'Últimos 90 dias' },
-    { label:'Valor Comprado',         value:'R$ 284k',  spark:[180,210,240,220,260,270,284],    color:'#8B5CF6', delta:+7,  invert:false, period:'Últimos 90 dias' },
-    { label:'Economia Obtida',        value:'R$ 32k',   spark:[18,22,25,28,27,30,32],           color:'#10B981', delta:+14, invert:false, period:'Últimos 90 dias' },
-    { label:'Pendências Críticas',    value:'9',        spark:[22,18,15,14,12,11,9],            color:'#EF4444', delta:-59, invert:true,  period:'Últimos 30 dias' },
+    {
+      label:'Solicitações Abertas', value: k.abertas.valor,
+      spark: sparks.abertas, color:'#6366F1',
+      delta: k.abertas.delta, invert: false, period: 'Estado atual',
+      tooltip: 'Total de solicitações que ainda não foram concluídas ou canceladas (pendentes + aprovadas + em andamento).',
+    },
+    {
+      label:'Em Andamento', value: k.em_andamento.valor,
+      spark: sparks.abertas, color:'#3B82F6',
+      delta: k.em_andamento.delta, invert: false, period: 'Estado atual',
+      tooltip: 'Solicitações com compra já iniciada mas entrega ainda não registrada.',
+    },
+    {
+      label:'Concluídas no Período', value: k.concluidas.valor,
+      spark: sparks.concluidas, color:'#22C55E',
+      delta: k.concluidas.delta, invert: false, period: periodo,
+      tooltip: `Solicitações finalizadas (entregues ou concluídas) nos últimos ${d.periodo_dias} dias. Variação em relação ao mesmo período anterior.`,
+    },
+    {
+      label:'Taxa de Conclusão', value: `${k.taxa_conclusao.valor.toFixed(1).replace('.', ',')}%`,
+      spark: sparks.concluidas.map((c, i) => sparks.abertas[i] + c > 0 ? c / (sparks.abertas[i] + c) * 100 : 0),
+      color:'#C8780A',
+      delta: k.taxa_conclusao.delta, invert: false, period: periodo,
+      tooltip: `% de solicitações concluídas sobre o total criado no período. Quanto maior, melhor a eficiência de fechamento.`,
+    },
+    {
+      label:'Tempo Médio do Ciclo', value: tempoVal,
+      spark: sparks.tempo, color:'#F59E0B',
+      delta: k.tempo_medio.delta, invert: true, period: periodo,
+      tooltip: 'Média de dias entre a abertura da solicitação e a data de entrega. Redução é positiva (▼ verde).',
+    },
+    {
+      label:'Valor Comprado', value: _fmtK(k.valor_comprado.valor),
+      spark: sparks.valor, color:'#8B5CF6',
+      delta: k.valor_comprado.delta, invert: false, period: periodo,
+      tooltip: `Soma dos valores efetivamente pagos em compras concluídas nos últimos ${d.periodo_dias} dias.`,
+    },
+    {
+      label:'Economia Obtida', value: _fmtK(k.economia.valor),
+      spark: sparks.valor.map(v => v * 0.12), color:'#10B981',
+      delta: k.economia.delta, invert: false, period: periodo,
+      tooltip: 'Diferença entre o valor orçado (teto de gasto ou estimativa) e o valor real pago nas compras concluídas.',
+    },
+    {
+      label:'Pendências Críticas', value: k.criticas.valor,
+      spark: sparks.abertas.map(v => Math.round(v * 0.08)), color:'#EF4444',
+      delta: k.criticas.delta, invert: true, period: 'Estado atual',
+      tooltip: 'Solicitações urgentes ou de emergência ainda abertas (pendente ou aprovada). Redução é positiva.',
+    },
   ];
+
   const el = document.getElementById('kpiNegCards');
   if (!el) return;
   el.innerHTML = cards.map(c => `
-    <div class="kpi-neg-card" style="border-top-color:${c.color}">
+    <div class="kpi-neg-card" style="border-top-color:${c.color}" title="${c.tooltip}">
       <div class="kpi-neg-icon" style="background:${c.color}1a">
         <svg width="16" height="16" fill="none" stroke="${c.color}" viewBox="0 0 24 24" stroke-width="2.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>
@@ -8366,23 +8447,24 @@ function _kpiNegCards() {
   `).join('');
 }
 
-function _kpiSaude() {
+function _kpiSaude(d) {
   // Funil
   const funnelEl = document.getElementById('kpiFunnel');
   if (funnelEl) {
+    const f = d.funil;
     const steps = [
-      { label:'Solicitações', n:520, color:'#6366F1' },
-      { label:'Aprovadas',    n:480, color:'#3B82F6' },
-      { label:'Compradas',    n:455, color:'#C8780A' },
-      { label:'Recebidas',    n:430, color:'#22C55E' },
+      { label:'Solicitações', n: f.solicitacoes, color:'#6366F1' },
+      { label:'Aprovadas',    n: f.aprovadas,    color:'#3B82F6' },
+      { label:'Compradas',    n: f.compradas,    color:'#C8780A' },
+      { label:'Recebidas',    n: f.recebidas,    color:'#22C55E' },
     ];
-    const max = steps[0].n;
+    const max = steps[0].n || 1;
     funnelEl.innerHTML = steps.map((s, i) => `
       ${i > 0 ? '<div class="kpi-funnel-arrow">↓</div>' : ''}
       <div class="kpi-funnel-step">
         <div class="kpi-funnel-label">${s.label}</div>
         <div class="kpi-funnel-bar-wrap">
-          <div class="kpi-funnel-bar" style="width:${(s.n / max * 100).toFixed(0)}%;background:${s.color}">
+          <div class="kpi-funnel-bar" style="width:${Math.max(8, s.n / max * 100).toFixed(0)}%;background:${s.color}">
             <span>${s.n}</span>
           </div>
         </div>
@@ -8390,94 +8472,117 @@ function _kpiSaude() {
     `).join('');
   }
 
-  // Donut — status
+  // Donut — status real
   destroyKpiChart('kpiDonut');
   const donutEl = document.getElementById('kpiDonut');
   if (donutEl && typeof echarts !== 'undefined') {
+    const sc = d.status_counts || {};
     const dark = document.documentElement.classList.contains('dark');
+    const statusMap = [
+      { key:'pendente',     label:'Aguardando Aprovação', color:'#F59E0B' },
+      { key:'aprovado',     label:'Aprovado',             color:'#3B82F6' },
+      { key:'em_andamento', label:'Comprando',            color:'#8B5CF6' },
+      { key:'entregue',     label:'Entregue',             color:'#06B6D4' },
+      { key:'concluido',    label:'Concluído',            color:'#22C55E' },
+      { key:'cancelado',    label:'Cancelado',            color:'#EF4444' },
+    ];
+    const pieData = statusMap
+      .map(s => ({ name: s.label, value: sc[s.key] || 0, itemStyle:{ color: s.color } }))
+      .filter(s => s.value > 0);
+
     kpiCharts['kpiDonut'] = echarts.init(donutEl, dark ? 'dark' : null);
     kpiCharts['kpiDonut'].setOption({
       backgroundColor: 'transparent',
-      tooltip: { trigger:'item', formatter:'{b}: {c} ({d}%)' },
-      legend: { bottom:0, textStyle:{ fontSize:10, color: dark?'#94a3b8':'#64748b' } },
+      tooltip: {
+        trigger:'item',
+        formatter: p => `<b>${p.name}</b><br>${p.value} solicitações (${p.percent}%)<br><small style="color:#94a3b8">Clique em Custos BI para filtrar</small>`,
+      },
+      legend: { bottom:0, textStyle:{ fontSize:10, color: dark?'#94a3b8':'#64748b' }, itemWidth:10, itemHeight:10 },
       series: [{
         type:'pie', radius:['42%','68%'], center:['50%','42%'],
-        data: [
-          { name:'Aguardando Aprovação', value:87,  itemStyle:{ color:'#F59E0B' } },
-          { name:'Comprando',            value:42,  itemStyle:{ color:'#3B82F6' } },
-          { name:'Recebimento',          value:28,  itemStyle:{ color:'#8B5CF6' } },
-          { name:'Concluídas',           value:213, itemStyle:{ color:'#22C55E' } },
-          { name:'Canceladas',           value:14,  itemStyle:{ color:'#EF4444' } },
-        ],
+        data: pieData,
         label: { show:false },
         emphasis: { itemStyle:{ shadowBlur:8, shadowColor:'rgba(0,0,0,.2)' } },
       }],
     });
   }
 
-  // Bar horizontal — tempo por etapa
+  // Ciclo médio semanal (sparkline como bar chart)
   destroyKpiChart('kpiEtapa');
   const etapaEl = document.getElementById('kpiEtapa');
   if (etapaEl && typeof echarts !== 'undefined') {
     const dark = document.documentElement.classList.contains('dark');
     const tc = dark ? '#94a3b8' : '#64748b';
+    const tempoData = (d.sparklines.tempo || []).map(v => v ?? 0);
+    const labels = Array.from({length: tempoData.length}, (_, i) => {
+      const w = new Date(); w.setDate(w.getDate() - (tempoData.length - 1 - i) * 7);
+      return `Sem ${w.getDate()}/${w.getMonth()+1}`;
+    });
+    const hasData = tempoData.some(v => v > 0);
     kpiCharts['kpiEtapa'] = echarts.init(etapaEl, dark ? 'dark' : null);
     kpiCharts['kpiEtapa'].setOption({
       backgroundColor: 'transparent',
-      tooltip: { trigger:'axis', formatter: p => `${p[0].name}: <b>${p[0].value} dias</b>` },
-      grid: { left:'30%', right:'12%', top:'5%', bottom:'5%' },
-      xAxis: { type:'value', axisLabel:{ color:tc, fontSize:10 }, splitLine:{ lineStyle:{ color: dark?'rgba(255,255,255,.08)':'rgba(0,0,0,.05)' } } },
-      yAxis: { type:'category', data:['Entrega','Compra','Aprovação','Solicitação'], axisLabel:{ color:tc, fontSize:11 } },
+      tooltip: {
+        trigger:'axis',
+        formatter: p => `<b>${p[0].axisValueLabel}</b><br>Ciclo médio: <b>${p[0].value ? p[0].value + ' dias' : 'sem dados'}</b><br><small style="color:#94a3b8">Medido de created_at → entregue_em</small>`,
+      },
+      grid: { left:'5%', right:'5%', top:'10%', bottom:'18%', containLabel:true },
+      xAxis: { type:'category', data: labels, axisLabel:{ color:tc, fontSize:9, rotate:30 }, axisTick:{show:false}, axisLine:{show:false} },
+      yAxis: {
+        type:'value',
+        axisLabel:{ color:tc, fontSize:10, formatter: v => v ? `${v}d` : '' },
+        splitLine:{ lineStyle:{ color: dark?'rgba(255,255,255,.08)':'rgba(0,0,0,.05)' } },
+      },
       series: [{
-        type:'bar', barMaxWidth:22,
-        data: [
-          { value:3.1, itemStyle:{ color:'#22C55E', borderRadius:[0,6,6,0] } },
-          { value:2.8, itemStyle:{ color:'#3B82F6', borderRadius:[0,6,6,0] } },
-          { value:1.5, itemStyle:{ color:'#F59E0B', borderRadius:[0,6,6,0] } },
-          { value:0.8, itemStyle:{ color:'#C8780A', borderRadius:[0,6,6,0] } },
-        ],
-        label: { show:true, position:'right', formatter:'{c}d', color:tc, fontSize:10 },
+        type:'bar', barMaxWidth:28,
+        itemStyle:{ color:'#F59E0B', borderRadius:[4,4,0,0] },
+        data: hasData ? tempoData : [],
+        label:{ show:true, position:'top', formatter: v => v.value ? `${v.value}d` : '', color:tc, fontSize:9 },
       }],
+      graphic: !hasData ? [{
+        type:'text', left:'center', top:'middle',
+        style:{ text:'Sem entregas registradas no período', fill: tc, fontSize:12 },
+      }] : [],
     });
   }
 }
 
-function _kpiEficiencia() {
-  // Ranking aprovadores
+function _kpiEficiencia(d) {
+  // Responsáveis mais ativos (proxy de aprovadores)
   const aprEl = document.getElementById('kpiRankAprov');
   if (aprEl) {
-    const rows = [
-      { name:'Maria Costa',  val:'0,8 dias', pct:100, badge:'🏆', bad:false },
-      { name:'João Silva',   val:'1,2 dias', pct:83,  badge:'',   bad:false },
-      { name:'Ana Lima',     val:'1,9 dias', pct:57,  badge:'',   bad:false },
-      { name:'Carlos Dias',  val:'4,7 dias', pct:17,  badge:'⚠️',  bad:true  },
-    ];
-    aprEl.innerHTML = rows.map((r, i) => `
-      <div class="kpi-rank-item">
-        <div class="kpi-rank-num">${i+1}</div>
-        <div class="kpi-rank-name">${r.badge ? r.badge+' ' : ''}${r.name}</div>
-        <div class="kpi-rank-bar-wrap" style="width:80px"><div class="kpi-rank-bar" style="width:${r.pct}%;background:${r.bad?'#EF4444':'#C8780A'}"></div></div>
-        <div class="kpi-rank-val">${r.val}</div>
-      </div>
-    `).join('');
+    const rows = d.responsaveis || [];
+    if (!rows.length) {
+      aprEl.innerHTML = `<p style="font-size:.75rem;color:#94a3b8;padding:12px 0">Nenhum responsável registrado no período.</p>`;
+    } else {
+      const maxVal = rows[0].total;
+      aprEl.innerHTML = rows.map((r, i) => `
+        <div class="kpi-rank-item" title="Responsável por ${r.total} solicitações no período">
+          <div class="kpi-rank-num">${i+1}</div>
+          <div class="kpi-rank-name">${r.nome}</div>
+          <div class="kpi-rank-bar-wrap" style="width:80px"><div class="kpi-rank-bar" style="width:${(r.total/maxVal*100).toFixed(0)}%;background:#C8780A"></div></div>
+          <div class="kpi-rank-val">${r.total} sol.</div>
+        </div>
+      `).join('');
+    }
   }
 
-  // Ranking compradores
+  // Compradores ranking
   const compEl = document.getElementById('kpiRankComp');
   if (compEl) {
-    const rows = [
-      { name:'Pedro Rocha',   pedidos:48, econ:'R$ 12k' },
-      { name:'Lucia Freitas', pedidos:41, econ:'R$ 9k'  },
-      { name:'Rafael Melo',   pedidos:35, econ:'R$ 6k'  },
-    ];
-    compEl.innerHTML = rows.map((r, i) => `
-      <div class="kpi-rank-item" style="display:grid;grid-template-columns:22px 1fr auto auto;gap:8px;align-items:center">
-        <div class="kpi-rank-num">${i+1}</div>
-        <div class="kpi-rank-name">${r.name}</div>
-        <div class="kpi-rank-val">${r.pedidos} ped.</div>
-        <div class="kpi-rank-val" style="color:#22C55E;font-weight:700">${r.econ}</div>
-      </div>
-    `).join('');
+    const rows = d.compradores || [];
+    if (!rows.length) {
+      compEl.innerHTML = `<p style="font-size:.75rem;color:#94a3b8;padding:12px 0">Nenhuma compra registrada no período.</p>`;
+    } else {
+      compEl.innerHTML = rows.map((r, i) => `
+        <div class="kpi-rank-item" style="display:grid;grid-template-columns:22px 1fr auto;gap:8px;align-items:center"
+          title="${r.nome} finalizou ${r.compras} compra(s) no período">
+          <div class="kpi-rank-num">${i+1}</div>
+          <div class="kpi-rank-name">${r.nome}</div>
+          <div class="kpi-rank-val">${r.compras} compra${r.compras !== 1 ? 's' : ''}</div>
+        </div>
+      `).join('');
+    }
   }
 
   // Categorias
@@ -8486,18 +8591,22 @@ function _kpiEficiencia() {
   if (catEl && typeof echarts !== 'undefined') {
     const dark = document.documentElement.classList.contains('dark');
     const tc = dark ? '#94a3b8' : '#64748b';
+    const cats = (d.categorias || []).slice().reverse();
     kpiCharts['kpiCategoria'] = echarts.init(catEl, dark ? 'dark' : null);
     kpiCharts['kpiCategoria'].setOption({
       backgroundColor: 'transparent',
-      tooltip: { trigger:'axis' },
-      grid: { left:'28%', right:'12%', top:'5%', bottom:'5%' },
+      tooltip: {
+        trigger:'axis',
+        formatter: p => `<b>${p[0].name}</b><br>${p[0].value} solicitações<br><small style="color:#94a3b8">Nos últimos ${_kpiData?.periodo_dias||90} dias</small>`,
+      },
+      grid: { left:'5%', right:'12%', top:'5%', bottom:'5%', containLabel:true },
       xAxis: { type:'value', axisLabel:{ color:tc, fontSize:10 }, splitLine:{ lineStyle:{ color: dark?'rgba(255,255,255,.08)':'rgba(0,0,0,.05)' } } },
-      yAxis: { type:'category', data:['Segurança','Escritório','Limpeza','Informática'], axisLabel:{ color:tc, fontSize:11 } },
+      yAxis: { type:'category', data: cats.map(c => c.nome), axisLabel:{ color:tc, fontSize:10 } },
       series: [{
         type:'bar', barMaxWidth:22,
-        itemStyle: { color:'#C8780A', borderRadius:[0,6,6,0] },
-        data: [38, 67, 84, 115],
-        label: { show:true, position:'right', formatter:'{c}', color:tc, fontSize:10 },
+        itemStyle:{ color:'#C8780A', borderRadius:[0,6,6,0] },
+        data: cats.map(c => c.total),
+        label:{ show:true, position:'right', formatter:'{c}', color:tc, fontSize:10 },
       }],
     });
   }
@@ -8505,60 +8614,72 @@ function _kpiEficiencia() {
   // Ranking estabelecimentos
   const estEl = document.getElementById('kpiRankEstab');
   if (estEl) {
-    const rows = [
-      { name:'Filial SP Centro', val:'R$ 98k', pct:100 },
-      { name:'Filial RJ',        val:'R$ 74k', pct:76  },
-      { name:'Filial BH',        val:'R$ 58k', pct:59  },
-      { name:'Filial RS',        val:'R$ 41k', pct:42  },
-      { name:'Filial BA',        val:'R$ 13k', pct:13  },
-    ];
-    estEl.innerHTML = rows.map((r, i) => `
-      <div class="kpi-rank-item">
-        <div class="kpi-rank-num">${i+1}</div>
-        <div class="kpi-rank-name">${r.name}</div>
-        <div class="kpi-rank-bar-wrap" style="width:90px"><div class="kpi-rank-bar" style="width:${r.pct}%;background:#8B5CF6"></div></div>
-        <div class="kpi-rank-val">${r.val}</div>
-      </div>
-    `).join('');
+    const rows = d.estabelecimentos || [];
+    if (!rows.length) {
+      estEl.innerHTML = `<p style="font-size:.75rem;color:#94a3b8;padding:12px 0">Nenhum estabelecimento com solicitações no período.</p>`;
+    } else {
+      const maxV = rows[0].valor || 1;
+      estEl.innerHTML = rows.map((r, i) => `
+        <div class="kpi-rank-item" title="${r.nome}: ${r.total} solicitações · ${_fmtK(r.valor)} em compras">
+          <div class="kpi-rank-num">${i+1}</div>
+          <div class="kpi-rank-name">${r.nome}</div>
+          <div class="kpi-rank-bar-wrap" style="width:90px"><div class="kpi-rank-bar" style="width:${(r.valor/maxV*100).toFixed(0)}%;background:#8B5CF6"></div></div>
+          <div class="kpi-rank-val">${r.valor > 0 ? _fmtK(r.valor) : r.total + ' sol.'}</div>
+        </div>
+      `).join('');
+    }
   }
 }
 
-function _kpiFinanceiro() {
-  // Solicitado × Comprado — grouped bar
+function _kpiFinanceiro(d) {
+  // Economia acumulada
+  const econEl = document.getElementById('kpiEconomiaValor');
+  if (econEl) {
+    econEl.textContent = _fmtK(d.kpis.economia.valor);
+  }
+
+  // Solicitado × Comprado — grouped bar com dados reais
   destroyKpiChart('kpiSolComp');
   const scEl = document.getElementById('kpiSolComp');
   if (scEl && typeof echarts !== 'undefined') {
     const dark = document.documentElement.classList.contains('dark');
     const tc = dark ? '#94a3b8' : '#64748b';
+    const meses = d.solicitado_comprado || [];
     kpiCharts['kpiSolComp'] = echarts.init(scEl, dark ? 'dark' : null);
     kpiCharts['kpiSolComp'].setOption({
       backgroundColor: 'transparent',
       tooltip: {
         trigger:'axis',
-        formatter: params => params.map(p => `${p.seriesName}: <b>R$ ${(p.value/1000).toFixed(0)}k</b>`).join('<br>'),
+        formatter: params => {
+          const lines = params.map(p => `${p.marker}${p.seriesName}: <b>${_fmtK(p.value)}</b>`).join('<br>');
+          const sol = params.find(p => p.seriesName === 'Solicitado')?.value || 0;
+          const comp = params.find(p => p.seriesName === 'Comprado')?.value || 0;
+          const econ = sol - comp;
+          return `<b>${params[0]?.axisValueLabel}</b><br>${lines}${econ > 0 ? `<br>💰 Economia: <b style="color:#22C55E">${_fmtK(econ)}</b>` : ''}`;
+        },
       },
-      legend: { bottom:0, textStyle:{ fontSize:11, color:tc } },
+      legend: { bottom:0, textStyle:{ fontSize:11, color:tc }, itemWidth:10, itemHeight:10 },
       grid: { left:'5%', right:'5%', top:'10%', bottom:'18%', containLabel:true },
       xAxis: {
         type:'category',
-        data:['Jan','Fev','Mar','Abr','Mai','Jun'],
+        data: meses.map(m => m.label),
         axisLabel:{ color:tc, fontSize:11 }, axisTick:{ show:false }, axisLine:{ show:false },
       },
       yAxis: {
         type:'value',
-        axisLabel:{ color:tc, fontSize:10, formatter: v => `R$${(v/1000).toFixed(0)}k` },
+        axisLabel:{ color:tc, fontSize:10, formatter: v => _fmtK(v).replace('R$ ', '') },
         splitLine:{ lineStyle:{ color: dark?'rgba(255,255,255,.08)':'rgba(0,0,0,.05)' } },
       },
       series: [
         {
           name:'Solicitado', type:'bar', barMaxWidth:28,
           itemStyle:{ color:'#6366F1', borderRadius:[4,4,0,0] },
-          data:[58000,72000,65000,80000,74000,90000],
+          data: meses.map(m => m.solicitado),
         },
         {
           name:'Comprado', type:'bar', barMaxWidth:28,
           itemStyle:{ color:'#C8780A', borderRadius:[4,4,0,0] },
-          data:[52000,66000,60000,75000,68000,82000],
+          data: meses.map(m => m.comprado),
         },
       ],
     });
