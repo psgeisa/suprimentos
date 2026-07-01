@@ -22,7 +22,9 @@ def _pct(num, den):
 @router.get("")
 def get_kpis_plataforma(db: Session = Depends(get_db), _=Depends(get_viewer)):
     now = datetime.now(timezone.utc)
+    now_naive = datetime.utcnow()
     inicio = now - timedelta(days=90)
+    inicio_naive = now_naive - timedelta(days=90)
 
     # ── IA Sugestão Logs ────────────────────────────────────────────────────
     logs = db.query(IaSugestaoLog).filter(IaSugestaoLog.data_hora >= inicio).all()
@@ -88,18 +90,18 @@ def get_kpis_plataforma(db: Session = Depends(get_db), _=Depends(get_viewer)):
     # Users ativos (distintos, últimos 30 dias)
     usuarios_ativos_mes = (
         db.query(func.count(func.distinct(AccessLog.usuario_id)))
-        .filter(AccessLog.data_hora >= now - timedelta(days=30))
+        .filter(AccessLog.data_hora >= now_naive - timedelta(days=30))
         .scalar() or 0
     )
     usuarios_ativos_hoje = (
         db.query(func.count(func.distinct(AccessLog.usuario_id)))
-        .filter(AccessLog.data_hora >= now.replace(hour=0, minute=0, second=0))
+        .filter(AccessLog.data_hora >= now_naive.replace(hour=0, minute=0, second=0))
         .scalar() or 0
     )
 
     # Acessos por dia da semana (heatmap simplificado)
     acessos_rows = db.query(AccessLog.data_hora).filter(
-        AccessLog.data_hora >= now - timedelta(days=90)
+        AccessLog.data_hora >= inicio_naive
     ).all()
     dow_names = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"]
     dow_count = Counter()
@@ -114,7 +116,7 @@ def get_kpis_plataforma(db: Session = Depends(get_db), _=Depends(get_viewer)):
     # Rotas mais acessadas
     rotas_count = (
         db.query(AccessLog.path, func.count(AccessLog.id).label("qtd"))
-        .filter(AccessLog.data_hora >= now - timedelta(days=30))
+        .filter(AccessLog.data_hora >= now_naive - timedelta(days=30))
         .group_by(AccessLog.path)
         .order_by(func.count(AccessLog.id).desc())
         .limit(6)
@@ -125,7 +127,7 @@ def get_kpis_plataforma(db: Session = Depends(get_db), _=Depends(get_viewer)):
     # Novos usuários (mês atual vs anterior)
     usuarios_novos_mes = (
         db.query(func.count(User.id))
-        .filter(User.criado_em >= now - timedelta(days=30))
+        .filter(User.criado_em >= now_naive - timedelta(days=30))
         .scalar() or 0
     )
 
