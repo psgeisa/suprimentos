@@ -8502,10 +8502,25 @@ function agendaSetStatus(status) {
   renderAgendaGanttFiltered();
 }
 
+function agendaResetDates() {
+  const today = new Date();
+  const from  = new Date(today); from.setDate(today.getDate() - 30);
+  const fmt   = d => d.toISOString().slice(0, 10);
+  const df = document.getElementById('agendaDateFrom');
+  const dt = document.getElementById('agendaDateTo');
+  if (df) df.value = fmt(from);
+  if (dt) dt.value = fmt(today);
+  renderAgendaGanttFiltered();
+}
+
 function renderAgendaGanttFiltered() {
-  const q = (document.getElementById('agendaSearch')?.value || '').toLowerCase().trim();
+  const q     = (document.getElementById('agendaSearch')?.value || '').toLowerCase().trim();
+  const dfVal = document.getElementById('agendaDateFrom')?.value || '';
+  const dtVal = document.getElementById('agendaDateTo')?.value   || '';
   let data = agendaData;
   if (agendaCurrentStatus !== 'todos') data = data.filter(c => c.status === agendaCurrentStatus);
+  if (dfVal) data = data.filter(c => (c.dataInicio || c.dataPagamento || '') >= dfVal);
+  if (dtVal) data = data.filter(c => (c.dataInicio || c.dataPagamento || '') <= dtVal);
   if (q) data = data.filter(c =>
     c.nome.toLowerCase().includes(q) ||
     c.fornecedor.toLowerCase().includes(q) ||
@@ -8515,7 +8530,16 @@ function renderAgendaGanttFiltered() {
 }
 
 async function loadAgendaFinanceira(params) {
-  const res = await apiFetch(`/api/custos-bi/agenda?${params}`);
+  const p = new URLSearchParams(params);
+  p.delete('data_inicio'); p.delete('data_fim');
+  const url = '/api/custos-bi/agenda?' + p.toString();
+  const res = await apiFetch(url);
+  if (!res || !res.ok) return;
+  const rows = await res.json();
+  agendaData = rows.filter(item => Number(item.valorPrevisto) > 0);
+  renderAgendaKpis(agendaData);
+  agendaResetDates();
+}`);
   if (!res || !res.ok) return;
   const rows = await res.json();
   agendaData = rows.filter(item => Number(item.valorPrevisto) > 0);
