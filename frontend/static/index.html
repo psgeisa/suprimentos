@@ -680,6 +680,7 @@
     .dark .action-item:hover { background:rgba(212,165,32,0.08); }
     .dark .action-item.danger { color:#EF4444; }
     .dark .action-item.danger:hover { background:rgba(239,68,68,0.15); }
+    body.vitrine-mode #sidebarAcessosItem { display:none !important; }
 
     /* ── Mobile + Tablet (< 1024px): sidebar colapsado visível na lateral ── */
     @media (max-width: 1023px) {
@@ -836,10 +837,10 @@
 
     /* Dashboard: 1 coluna em mobile e tablet, grid só em desktop */
 
-    /* KPI cards: garantir 2 colunas em mobile pequeno */
-    @media (max-width:480px) {
-      #kpiCards { grid-template-columns:repeat(2,1fr) !important; gap:0.625rem !important; }
-      #kpiCards .kpi-card { padding:0.625rem !important; }
+    /* KPI cards: 1 coluna em mobile/tablet */
+    @media (max-width:1023px) {
+      #kpiCards { grid-template-columns:repeat(1,1fr) !important; gap:0.75rem !important; }
+      #kpiCards .kpi-card { padding:0.75rem !important; }
       #kpiCards .text-2xl { font-size:1.25rem !important; }
     }
 
@@ -866,7 +867,8 @@
       #page-fornecedores .flex.items-center.gap-4,
       #page-estabelecimentos .flex.items-center.gap-4,
       #page-usuarios .flex.items-center.gap-4,
-      #page-suprimentos .flex.items-center.gap-4 {
+      #page-suprimentos .flex.items-center.gap-4,
+      #page-itens .flex.items-center.gap-4 {
         flex-wrap:wrap !important;
         gap:0.625rem !important;
       }
@@ -875,7 +877,8 @@
       #page-unidades .btn-primary,
       #page-fornecedores .btn-primary,
       #page-estabelecimentos .btn-primary,
-      #page-usuarios .btn-primary {
+      #page-usuarios .btn-primary,
+      #page-itens .btn-primary {
         width:100% !important;
         justify-content:center !important;
       }
@@ -2980,6 +2983,7 @@ function showVitrineModal() {
 
 function enterVitrineMode() {
   VITRINE_MODE = true;
+  document.body.classList.add('vitrine-mode');
   currentUser = { id: 0, nome: 'Visitante', email: '', role: 'admin' };
   applyLogin();
   updateSidebarAuthBtn();
