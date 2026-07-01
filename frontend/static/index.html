@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
@@ -2099,6 +2099,12 @@
           <button class="agenda-chip"        data-agenda-status="programado"   onclick="agendaSetStatus('programado')">Programado</button>
           <button class="agenda-chip"        data-agenda-status="atrasado"     onclick="agendaSetStatus('atrasado')">Atrasado</button>
           <button class="agenda-chip"        data-agenda-status="concluido"    onclick="agendaSetStatus('concluido')">Concluído</button>
+          <span style="width:1px;height:16px;background:#e2e8f0;flex-shrink:0;margin:0 4px"></span>
+          <span class="agenda-filter-label" style="margin-left:2px">Per&#237;odo</span>
+          <input id="agendaDateFrom" type="date" style="font-size:.7rem;padding:3px 8px;border-radius:8px;border:1px solid #e2e8f0;background:transparent;color:inherit;outline:none;cursor:pointer" oninput="renderAgendaGanttFiltered()">
+          <span style="font-size:.65rem;color:#94a3b8">at&#233;</span>
+          <input id="agendaDateTo" type="date" style="font-size:.7rem;padding:3px 8px;border-radius:8px;border:1px solid #e2e8f0;background:transparent;color:inherit;outline:none;cursor:pointer" oninput="renderAgendaGanttFiltered()">
+          <button onclick="agendaResetDates()" style="font-size:.65rem;padding:3px 8px;border-radius:8px;border:1px solid #e2e8f0;background:transparent;color:#94a3b8;cursor:pointer">&#8635; 30d</button>
           <span style="width:1px;height:16px;background:#e2e8f0;flex-shrink:0;margin:0 4px"></span>
           <input id="agendaSearch" type="text" class="agenda-search-input"
             placeholder="Compra, fornecedor ou categoria…"
