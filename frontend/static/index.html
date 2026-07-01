@@ -918,9 +918,10 @@
     .agenda-chip[data-agenda-status="programado"].active   { background:#0000FF; }
     .agenda-chip[data-agenda-status="atrasado"].active     { background:#EF4444; }
     .agenda-chip[data-agenda-status="concluido"].active    { background:#22C55E; }
-    .agenda-search-input { font-size:.72rem; padding:4px 11px; border-radius:8px; border:1px solid #e2e8f0; background:transparent; color:#fff; caret-color:#fff; outline:none; min-width:175px; }
-    .dark .agenda-search-input { border-color:#374151; color:#fff; }
-    .agenda-search-input::placeholder { color:#E2E8F0; opacity:1; }
+    .agenda-search-input { font-size:.72rem; padding:4px 11px; border-radius:8px; border:1px solid #e2e8f0; background:transparent; color:#374151; caret-color:#374151; outline:none; min-width:175px; }
+    .dark .agenda-search-input { border-color:#374151; color:#fff; caret-color:#fff; }
+    .agenda-search-input::placeholder { color:#94a3b8; opacity:1; }
+    .dark .agenda-search-input::placeholder { color:#E2E8F0; opacity:1; }
     .agenda-chart-wrap { height:490px; position:relative; }
     .agenda-legend { display:flex; flex-wrap:wrap; gap:10px; margin-top:10px; align-items:center; }
     .agenda-leg-item { display:flex; align-items:center; gap:5px; font-size:.67rem; color:#64748b; }
@@ -2094,8 +2095,8 @@
         <!-- Filtros -->
         <div class="agenda-filters">
           <span class="agenda-filter-label">Status</span>
-          <button class="agenda-chip active" data-agenda-status="todos"        onclick="agendaSetStatus('todos')">Todos</button>
-          <button class="agenda-chip"        data-agenda-status="em_andamento" onclick="agendaSetStatus('em_andamento')">Em andamento</button>
+          <button class="agenda-chip"        data-agenda-status="todos"        onclick="agendaSetStatus('todos')">Todos</button>
+          <button class="agenda-chip active" data-agenda-status="em_andamento" onclick="agendaSetStatus('em_andamento')">Em andamento</button>
           <button class="agenda-chip"        data-agenda-status="programado"   onclick="agendaSetStatus('programado')">Programado</button>
           <button class="agenda-chip"        data-agenda-status="atrasado"     onclick="agendaSetStatus('atrasado')">Atrasado</button>
           <button class="agenda-chip"        data-agenda-status="concluido"    onclick="agendaSetStatus('concluido')">Concluído</button>
@@ -8494,7 +8495,7 @@ function renderAgendaGantt(data) {
   };
 }
 
-let agendaCurrentStatus = 'todos';
+let agendaCurrentStatus = 'em_andamento';
 
 function agendaSetStatus(status) {
   agendaCurrentStatus = status;
